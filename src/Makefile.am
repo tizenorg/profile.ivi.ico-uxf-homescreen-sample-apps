@@ -1,0 +1,31 @@
+##ico-app-soundsample
+app_soundsample_bindir = /opt/apps/org.tizen.ico.app-soundsample/bin
+app_soundsample_bin_PROGRAMS = ico-app-soundsample
+ 
+ico_app_soundsample_SOURCES = soundsample.c soundsample.h soundsample_pulse_async_test.cpp soundsample_yswavfile.cpp soundsample_yswavfile.h
+ico_app_soundsample_LDADD = -L/usr/lib -lico-app-fw-efl -lico-uxf-weston-plugin -lico-app-fw -lwebsockets -laul -lecore_evas -lecore -leina -levas -leina -lrt -lecore_wayland -lelementary -lm -leet -levas -lrt -lecore -leina -lecore_evas -lecore_file -ledje  -lethumb_client -lecore_imf -lecore_con -lpulse -lglib-2.0
+ico_app_soundsample_CFLAGS = -Wall -I. -I/usr/include/ico-appfw -I/usr/include/eina-1 -I/usr/include/eina-1/eina/ -I/usr/include/ecore-1 -I/usr/include/evas-1 -I/usr/include/elementary-1 -I/usr/include/ -D_REENTRANT -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+ico_app_soundsample_CPPFLAGS = -Wall -I. -I/usr/include/ico-appfw -I/usr/include/eina-1 -I/usr/include/eina-1/eina/ -I/usr/include/ecore-1 -I/usr/include/evas-1 -I/usr/include/elementary-1 -I/usr/include/ -D_REENTRANT -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+
+
+##ico-app-vicsample
+app_vicsample_bindir = /opt/apps/org.tizen.ico.app-vicsample/bin
+app_vicsample_bin_PROGRAMS = ico-app-vicsample
+ 
+ico_app_vicsample_SOURCES = vicsample.c 
+ico_app_vicsample_LDADD = -L/usr/lib -lico-app-fw-efl -lico-uxf-weston-plugin -lico-app-fw -laul -lwebsockets -lecore_evas -lecore -leina -levas -leina -lrt -lecore_wayland -lelementary -lm -leet -levas -lrt -lecore -leina -lecore_evas -lecore_file -ledje  -lethumb_client -lecore_imf -lecore_con -ldbus-1 -lpthread -lrt
+ico_app_vicsample_CFLAGS = -Wall -I. -I/usr/include/ico-appfw -I/usr/include/eina-1 -I/usr/include/eina-1/eina/ -I/usr/include/ecore-1 -I/usr/include/evas-1 -I/usr/include/elementary-1 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I~/HomeScreen/include
+
+
+##ico-app-samplenavi
+app_samplenavi_bindir = /opt/apps/org.tizen.ico.app-samplenavi/bin
+app_samplenavi_bin_PROGRAMS = ico-app-samplenavi
+ 
+ico_app_samplenavi_SOURCES = samplenavi.c samplenavi.h e3d.c e3d.h define.h
+ico_app_samplenavi_LDADD = -L/usr/lib -lico-app-fw-efl -lico-uxf-weston-plugin -lico-app-fw -ldbus-1 -lpthread -lrt -lwebsockets -laul -lecore_evas -lecore -leina -levas -lecore_wayland -lelementary -lm -leet -lecore_file -ledje -lethumb_client -lecore_imf -lecore_con -lglib-2.0 -lwayland-client -lwayland-cursor -lwayland-egl -lwayland-server -lewebkit2 -lcairo -lGLESv2 -lEGL -lpangocairo-1.0 -lpangoft2-1.0 -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgdk_pixbuf-2.0 -lgthread-2.0
+
+ico_app_samplenavi_CFLAGS = -Wall -I. -I/usr/include/ico-appfw -I/usr/include/ecore-1 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/eina-1 -I/usr/include/eina-1/eina -I/usr/include/evas-1 -I/usr/include/eet-1 -I/usr/include/pixman-1 -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/freetype2 -I/usr/include/libdrm -I/usr/include/elementary-1 -I/usr/include/ethumb-1 -I/usr/include/efreet-1 -I/usr/include/e_dbus-1 -I/usr/include/emotion-1 -I/usr/include/edje-1 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/embryo-1 -I/usr/include/ewebkit2-0 -I/usr/include/ewebkit2-0/WebKit2 -I/usr/include/ewebkit2-0/NPAPI -I/usr/include/cairo -I/usr/include/libpng12 -I/usr/include/pango-1.0 -I/usr/include/gdk-pixbuf-2.0
+
+#ico_app_samplenavi_LDADD = -L/usr/lib -lico-app-fw-efl -lico-uxf-weston-plugin -lico-app-fw -ldbus-1 -lpthread -lrt /usr/lib/libopencv_calib3d.so /usr/lib/libopencv_contrib.so /usr/lib/libopencv_core.so /usr/lib/libopencv_features2d.so /usr/lib/libopencv_flann.so /usr/lib/libopencv_gpu.so /usr/lib/libopencv_highgui.so /usr/lib/libopencv_imgproc.so /usr/lib/libopencv_legacy.so /usr/lib/libopencv_ml.so /usr/lib/libopencv_nonfree.so /usr/lib/libopencv_objdetect.so /usr/lib/libopencv_photo.so /usr/lib/libopencv_stitching.so /usr/lib/libopencv_ts.so /usr/lib/libopencv_video.so /usr/lib/libopencv_videostab.so -lwebsockets -laul -lecore_evas -lecore -leina -levas -lecore_wayland -lelementary -lm -leet -lecore_file -ledje -lethumb_client -lecore_imf -lecore_con -lglib-2.0 -lwayland-client -lwayland-cursor -lwayland-egl -lwayland-server -lewebkit2 -lcairo -lGLESv2 -lEGL -lpangocairo-1.0 -lpangoft2-1.0 -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lgdk_pixbuf-2.0 -lgthread-2.0
+
+#ico_app_samplenavi_CFLAGS = -Wall -I. -I/usr/include/opencv -I/usr/include/ico-appfw -I/usr/include/ecore-1 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/eina-1 -I/usr/include/eina-1/eina -I/usr/include/evas-1 -I/usr/include/eet-1 -I/usr/include/pixman-1 -I/usr/include/harfbuzz -I/usr/include/fribidi -I/usr/include/freetype2 -I/usr/include/libdrm -I/usr/include/elementary-1 -I/usr/include/ethumb-1 -I/usr/include/efreet-1 -I/usr/include/e_dbus-1 -I/usr/include/emotion-1 -I/usr/include/edje-1 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/embryo-1 -I/usr/include/ewebkit2-0 -I/usr/include/ewebkit2-0/WebKit2 -I/usr/include/ewebkit2-0/NPAPI -I/usr/include/cairo -I/usr/include/libpng12 -I/usr/include/pango-1.0 -I/usr/include/gdk-pixbuf-2.0

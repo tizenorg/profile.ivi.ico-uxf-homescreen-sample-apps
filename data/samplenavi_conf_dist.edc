@@ -1,0 +1,331 @@
+images{
+	image:"nai_05_off.png" COMP;
+	image:"nai_06_off.png" COMP;
+	image:"nai_07_off.png" COMP;
+	image:"nai_08_off.png" COMP;
+	image:"nai_09_off.png" COMP;
+	image:"nai_10_off.png" COMP;
+	image:"nai_11_off.png" COMP;
+	image:"nai_12_off.png" COMP;
+	image:"nai_12_on.png" COMP;
+	image:"na_pa_01.png" COMP;
+	image:"na_pa_03.png" COMP;
+	image:"na_pa_04.png" COMP;
+}
+
+collections {
+	group {
+		name: "samplenavi_dist";
+		parts {
+			part {
+				name: "background";
+				type: RECT;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255;
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 0 0;
+					}
+					rel2 {
+						relative: 1.0 0.5;
+						offset: -1 -1;
+					}
+				}
+			}
+
+			part {
+				name: "transparency";
+				type: RECT;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 0;
+					rel1 {
+						relative: 0.0 0.5;
+						offset: 0 0;
+					}
+					rel2 {
+						relative: 1.0 1.0;
+						offset: -1 -1;
+					}
+				}
+			}
+
+			part {
+				name: "ui_bg";
+				type: RECT;
+				description {
+					state: "default" 0.0;
+					color: 0 34 119 255;
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 0 415;
+					}
+					rel2 {
+						relative: 1.0 0.5;
+						offset: -1 -1;
+					}
+				}
+			}
+
+			part {
+				name: "nai_05";
+				type: IMAGE;
+				mouse_events: 1;
+				access: 1;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255; 
+
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 34 38;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset:  193 197;
+					}
+					image{
+						normal: "nai_05_off.png";
+					}
+				}
+			}
+
+			part {
+				name: "nai_06";
+				type: IMAGE;
+				mouse_events: 1;
+				access: 1;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255; 
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 214 38;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset:  373 197;
+					}
+					image{
+						normal: "nai_06_off.png";
+					}
+				}
+			}
+
+			part {
+				name: "nai_07";
+				type: IMAGE;
+				mouse_events: 1;
+				access: 1;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255; 
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 394 38;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset:  553 197;
+					}
+					image{
+						normal: "nai_07_off.png";
+					}
+				}
+			}
+
+			part {
+				name: "nai_08";
+				type: IMAGE;
+				mouse_events: 1;
+				access: 1;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255; 
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 574 38;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset:  733 197;
+					}
+					image{
+						normal: "nai_08_off.png";
+					}
+				}
+			}
+
+			part {
+				name: "nai_09";
+				type: IMAGE;
+				mouse_events: 1;
+				access: 1;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255; 
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 34 218;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset:  193 377;
+					}
+					image{
+						normal: "nai_09_off.png";
+					}
+				}
+			}
+
+			part {
+				name: "nai_10";
+				type: IMAGE;
+				mouse_events: 1;
+				access: 1;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255; 
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 214 218;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset:  373 377;
+					}
+					image{
+						normal: "nai_10_off.png";
+					}
+				}
+			}
+
+			part {
+				name: "nai_11";
+				type: IMAGE;
+				mouse_events: 1;
+				access: 1;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255; 
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 394 218;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset:  553 377;
+					}
+					image{
+						normal: "nai_11_off.png";
+					}
+				}
+			}
+
+			part {
+				name: "nai_12";
+				type: IMAGE;
+				mouse_events: 1;
+				access: 1;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255; 
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 574 218;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset:  733 377;
+					}
+					image{
+						normal: "nai_12_off.png";
+					}
+				}
+				description {
+					state: "nai_12_on" 0.0;
+					color: 255 255 255 255; 
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 574 218;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset:  733 377;
+					}
+					image{
+						normal: "nai_12_on.png";
+					}
+				}
+			}
+
+			part {
+				name: "na_pa_03";
+				type: IMAGE;
+				mouse_events: 1;
+				access: 1;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255; 
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 38 437;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset: 87 459;
+					}
+					image{
+						normal: "na_pa_03.png";
+					}
+				}
+			}
+
+			part {
+				name: "na_pa_01";
+				type: IMAGE;
+				mouse_events: 1;
+				//access: 1;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255; 
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 100 439;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset: 109 459;
+					}
+					image{
+						normal: "na_pa_01.png";
+					}
+				}
+			}
+
+			part {
+				name: "na_pa_04";
+				type: IMAGE;
+				mouse_events: 1;
+				access: 1;
+				description {
+					state: "default" 0.0;
+					color: 255 255 255 255; 
+					rel1 {
+						relative: 0.0 0.0;
+						offset: 121 437;
+					}
+					rel2 {
+						relative: 0.0 0.0;
+						offset: 190 459;
+					}
+					image{
+						normal: "na_pa_04.png";
+					}
+				}
+			}
+
+		}
+	}
+}

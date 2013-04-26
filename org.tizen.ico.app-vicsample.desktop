@@ -1,0 +1,9 @@
+Name=ico-app-vicsample
+Type=Application
+Exec=/opt/apps/org.tizen.ico.app-vicsample/bin/ico-app-vicsample
+Icon=org.tizen.ico.app-vicsample.png
+Nodisplay=True
+Version=0.1.0
+Comment=vic info display test app
+#Categories=Entertainment;maker;run=Center;dispzone=Full
+Categories=Entertainment;maker;run=Center

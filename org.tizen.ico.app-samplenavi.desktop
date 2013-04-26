@@ -1,0 +1,9 @@
+Name=ico-app-samplenavi
+Type=Application
+Exec=/opt/apps/org.tizen.ico.app-samplenavi/bin/ico-app-samplenavi -basescreen
+Icon=org.tizen.ico.app-samplenavi.png
+Nodisplay=True
+Version=0.1.0
+Categories=Map;dispzone=Full;
+#Categories=Map;dispzone=UpperLeft;
+Comment=sample navigation app

@@ -1,0 +1,44 @@
+<!--
+  * Copyright (c) 2013, TOYOTA MOTOR CORPORATION.
+  *
+  * This program is licensed under the terms and conditions of the
+  * Apache License, version 2.0.  The full text of the Apache License is at
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" href="./css/jquery.mobile-1.0.min.css">
+		<link rel="stylesheet" href="./css/navi.css">
+		<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+		<script type="text/javascript" src="./lib/jquery-1.6.4.min.js"></script>
+		<script type="text/javascript" src="./lib/jquery.mobile-1.0.min.js"></script>
+		<script type="text/javascript" src="./lib/CarInfoKeydef.js"></script>
+		<script type="text/javascript" src="./js/navi_defines.js"></script>
+		<script type="text/javascript" src="./js/navi_route.js"></script>
+		<script type="text/javascript" src="./js/nativeapp_accessor.js"></script>
+		<script type="text/javascript" src="./js/navi.js"></script>
+		<script>
+			var map;
+			
+			function initialize() {
+				map = new Navigation();
+				map.initialize();
+			}
+			
+			function finalize() {
+				map.finalize();
+			}
+		</script>
+	</head>
+	<body onload="initialize()" unload="finalize()">
+		<div data-role="content" class="base"  data-theme="a" style="margin:0px; padding:0px">
+			<!-- Map Area -->
+			<div class="map_area" id="map_canvas"></div>
+		</div>
+	</body>
+</html>

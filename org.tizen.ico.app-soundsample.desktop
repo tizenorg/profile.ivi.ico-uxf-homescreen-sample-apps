@@ -1,0 +1,8 @@
+Name=ico-app-soundsample
+Type=Application
+Exec=/opt/apps/org.tizen.ico.app-soundsample/bin/ico-app-soundsample
+Icon=org.tizen.ico.app-soundsample.png
+Nodisplay=True
+Version=0.1.0
+Comment=audio test app
+Categories=Entertainment;Maker;run=Center;dispzone=Full;soundzone=Full;noauto

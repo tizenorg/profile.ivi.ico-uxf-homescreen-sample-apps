@@ -1,0 +1,15 @@
+# The number of the vehicles information maximum displays 32 
+#Name           Path Name                                   Interface Name               Property Name
+#----------------------------------------------------------------------------------------------------------
+ VehicleSpeed   /org/automotive/runningstatus/vehicleSpeed  org.automotive.vehicleSpeed  VehicleSpeed
+ AccelerationX  /org/automotive/runningstatus/acceleration  org.automotive.acceleration  X
+ ShiftPosition  /org/automotive/runningstatus/transmission  org.automotive.transmission  ShiftPosition
+ EngineSpeed    /org/automotive/runningstatus/engineSpeed   org.automotive.engineSpeed   EngineSpeed
+ Latitude       /org/automotive/custom/Latitude             org.automotive.Latitude      Latitude 
+ Longitude      /org/automotive/custom/Longitude            org.automotive.Longitude     Longitude 
+ Direction      /org/automotive/custom/Direction            org.automotive.Direction     Direction
+ BrakePressure  /org/automotive/custom/BrakePressure        org.automotive.BrakePressure BrakePressure
+ LeftTurn       /org/automotive/runningstatus/lightStatus   org.automotive.lightStatus   LeftTurn
+ RightTurn      /org/automotive/runningstatus/lightStatus   org.automotive.lightStatus   RightTurn
+ GearPosition   /org/automotive/runningstatus/transmission  org.automotive.transmission  GearPosition 
+ BrakeSignal    /org/automotive/runningstatus/wheelBrake    org.automotive.wheelBrake    Engaged
