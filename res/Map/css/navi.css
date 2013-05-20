@@ -8,22 +8,22 @@
  */
 
 html,body{
-	height: 100% ;
+    height: 100% ;
 }
 
 .base {
-	width: 100%;
-	height: 50%;
+    width: 100%;
+    height: 50%;
 }
 
 .map_area {
-	float: center;
-	width: 100%;
-	height: 480px;
+    float: center;
+    width: 100%;
+    height: 480px;
 }
 
 #map_canvas {
-	float: center;
-	width: 100%;
-	height: 700px;
+    float: center;
+    width: 100%;
+    height: 700px;
 }

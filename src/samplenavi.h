@@ -16,7 +16,8 @@
 #define SAMPLENAVI_H_
 
 /* enum */
-enum ConfDataID {
+enum ConfDataID
+{
     USB_CAMERA_ID,
     LANDMARK_POSITION,
     LANDMARK_ROTATION,
@@ -26,4 +27,3 @@ enum ConfDataID {
 extern int conf_data[CONF_DATA_MAX];
 
 #endif /* SAMPLENAVI_H_ */
-

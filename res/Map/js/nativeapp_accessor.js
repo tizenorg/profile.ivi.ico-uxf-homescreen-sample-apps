@@ -8,7 +8,7 @@
  */
 
 /**
- *	Navigation Application(sample navi) Accessor Class
+ *  Navigation Application(sample navi) Accessor Class
  *
  */
 var CarInfo = function(lat_val, lon_val) {
@@ -17,69 +17,69 @@ var CarInfo = function(lat_val, lon_val) {
 }
 
 var NativeAppAccessor = function() {
-	var _socket;												// WebSocket
-	
-	/**
-	 *	Connection WebSocket
-	 *
-	 */
-	this.connectWebSocket = function() {
-		if ( navigator.userAgent.indexOf('Firefox') != -1 ) {
-			_socket = new MozWebSocket('ws://' + IP_ADDR + ':' + WEBSOCKET_PORT + '/');
-		}
-		else {
-			_socket = new WebSocket('ws://' + IP_ADDR + ':' + WEBSOCKET_PORT + '/', 'http-only');
-		}
-		
-		// socket event
+    var _socket;                                                // WebSocket
+    
+    /**
+     *  Connection WebSocket
+     *
+     */
+    this.connectWebSocket = function() {
+        if ( navigator.userAgent.indexOf('Firefox') != -1 ) {
+            _socket = new MozWebSocket('ws://' + IP_ADDR + ':' + WEBSOCKET_PORT + '/');
+        }
+        else {
+            _socket = new WebSocket('ws://' + IP_ADDR + ':' + WEBSOCKET_PORT + '/', 'http-only');
+        }
+        
+        // socket event
         _socket.onopen = function() {
             _socket.send('OPEN ' + EDJE_PATH + EDJE_CONF_NAME);
         };
 
         _socket.onmessage = function(e) { recvMessage(e); };
-		_socket.onerror = function(e) { };
-		_socket.onclose = function() { };
-	}
+        _socket.onerror = function(e) { };
+        _socket.onclose = function() { };
+    }
 
-	/**
-	 *	Disconnection WebSocket
-	 *
-	 */
-	this.disconnectWebSocket = function() {
-		if ( _socket ) {
-			_socket.send('Close_Socket');
-			_socket.close();
-		}
-	}
+    /**
+     *  Disconnection WebSocket
+     *
+     */
+    this.disconnectWebSocket = function() {
+        if ( _socket ) {
+            _socket.send('Close_Socket');
+            _socket.close();
+        }
+    }
 
-	/**
-	 * Request Navigation Start
-	 */
-	this.sendReqNaviStart = function() {
-		if (_socket) {
-			$('#address').text('Send Req Navi Start.');
-			_socket.send('CHG SEQ REQ_NAV');
-		}
-	}
+    /**
+     * Request Navigation Start
+     */
+    this.sendReqNaviStart = function() {
+        if (_socket) {
+            $('#address').text('Send Req Navi Start.');
+            _socket.send('CHG SEQ REQ_NAV');
+        }
+    }
 
-	/**
-	 * Request Navigation End
-	 */
-	this.sendReqNaviEnd = function() {
-		if (_socket) {
-			$('#address').text('Send Req Navi End.');
-			_socket.send('CHG SEQ END_NAV');
-		}
-	}
+    /**
+     * Request Navigation End
+     */
+    this.sendReqNaviEnd = function() {
+        if (_socket) {
+            $('#address').text('Send Req Navi End.');
+            _socket.send('CHG SEQ END_NAV');
+        }
+    }
 
-	/**
-	 * Send Route
-	 */
-	this.sendRoute = function( routeStr ) {
-		if( _socket ) {
-			_socket.send( routeStr );
-		}
-	}
+    /**
+     * Send Route
+     */
+    this.sendRoute = function( routeStr ) {
+        if( _socket ) {
+            _socket.send( routeStr );
+        }
+    }
 
     /**
      *  Receive Message

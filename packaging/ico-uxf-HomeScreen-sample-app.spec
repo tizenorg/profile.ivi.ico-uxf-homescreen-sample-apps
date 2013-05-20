@@ -1,6 +1,6 @@
 Name:       ico-uxf-HomeScreen-sample-app
 Summary:    HomeScreen sample application 
-Version:    0.0.4
+Version:    0.0.6
 Release:    1
 Group:      System/GUI
 License:    Apache License, Version 2.0

@@ -35,7 +35,6 @@
 #include <highgui.h>
 #endif
 
-
 /* DEBUG.s */
 //#define TEST_TIME 0.001
 //#define TEST_TIME 0.066
@@ -61,7 +60,7 @@ static int test_cnt = 0;
 #define DBUS_SERVICE   "org.automotive.message.broker"
 #define DBUS_INTERFACE "org.freedesktop.DBus.Properties"
 #define DBUS_METHOD    "Get"
-#define MAX_PARA_NUM   4 /* Lat,Lon,Dir,VicSpeed */
+#define MAX_PARA_NUM   4        /* Lat,Lon,Dir,VicSpeed */
 #define LATITUDE       0
 #define LONGITUDE      1
 #define DIRECTION      2
@@ -74,7 +73,8 @@ static int test_cnt = 0;
 /* Define data types                                                          */
 /*============================================================================*/
 /* AMB */
-union VicVal_t{
+union VicVal_t
+{
     dbus_int32_t i32_val;
     dbus_int32_t i16_val;
     dbus_uint32_t u32_val;
@@ -85,16 +85,18 @@ union VicVal_t{
     char *s_val;
 };
 
-struct vic_data_t{
-    int  property;
+struct vic_data_t
+{
+    int property;
     char name[32];
     char path_name[64];
     char interface_name[64];
     char property_name[32];
 };
 
-struct vic_key_data_t{
-    int  id;
+struct vic_key_data_t
+{
+    int id;
     char name[32];
 };
 
@@ -110,41 +112,46 @@ static void e_map_init();
 static void e_map_draw();
 #ifdef _USE_OPENCV_
 static void convert_data_evas_cv(Evas_Object *eo, IplImage *iplimage);
-static void evas_object_image_from_cv(Evas_Object *eo, const char* filepath);
+static void evas_object_image_from_cv(Evas_Object *eo, const char *filepath);
 #endif
 static Eina_Bool _time_interval_navi_cb(void *cam);
 static Eina_Bool _time_interval_map_renew_cb(void *data);
 static Eina_Bool callback_listener(void *data);
-static int callback_http(
-  struct libwebsocket_context *context, struct libwebsocket *wsi,
-  enum libwebsocket_callback_reasons reason, void *user, void *in, size_t len);
-static bool parse_elementary_value(
-  union VicVal_t *vic_val_p, DBusMessageIter *iter);
+static int callback_http(struct libwebsocket_context *context,
+                         struct libwebsocket *wsi,
+                         enum libwebsocket_callback_reasons reason,
+                         void *user, void *in, size_t len);
+static bool parse_elementary_value(union VicVal_t *vic_val_p,
+                                   DBusMessageIter *iter);
 static bool parse_value(union VicVal_t *vic_val_p, DBusMessageIter *iter);
 static int getAmbDbus(int key, union VicVal_t *vic_val_p);
 static void getLocationFromAmb();
 static int get_config();
-static char* edje_parse_str(void *in, int arg_num);
+static char *edje_parse_str(void *in, int arg_num);
 static void event_message(struct libwebsocket *wsi, char *format, ...);
-static void _touch_up_edje(
-  void *data, Evas *evas , Evas_Object *obj, void *event_info);
+static void _touch_up_edje(void *data, Evas *evas, Evas_Object *obj,
+                           void *event_info);
 static int loading_edje_file(const char *edje_file);
-static void res_callback(
-  ico_apf_resource_notify_info_t* info, void *user_data);
+static void res_callback(ico_apf_resource_notify_info_t *info,
+                         void *user_data);
 
 /*============================================================================*/
 /* Tables and Valiables                                                       */
 /*============================================================================*/
 int conf_data[CONF_DATA_MAX];
+static const char *config_path = RESOURCE_DIR "/samplenavi.conf";
+static const char *setting_button_path = IMAGES_DIR "/na_bt3_off.png";
+static const char *goal_text_img_path = IMAGES_DIR "/na_goal_text.png";
+static const char *default_url =
+    "file:///opt/apps/org.tizen.ico.app-samplenavi/res/Map/map.html";
 
 /* Screen right */
-static char     sscrntype[32];
+static char sscrntype[32];
 
 /* Setting screen */
 static Evas *g_evas;
-static Eina_List *g_img_list = NULL;
-static Evas_Object *g_edje; /* loaded edje objects */
-static unsigned char edje_str[ICO_APP_BUF_SIZE];
+static Evas_Object *g_edje;     /* loaded edje objects */
+static char edje_str[ICO_APP_BUF_SIZE];
 
 /* Meter Display */
 static int ui_vicspeed = 0;
@@ -157,44 +164,48 @@ static int fig_c = 0;
 static int fig_r = 0;
 
 const static char *meter_l_path = {
-IMAGES_DIR "/Meter/Meters_SpeedNum_1l.png"};
+    IMAGES_DIR "/Meter/Meters_SpeedNum_1l.png"
+};
 
 const static char *meter_c_path[10] = {
-IMAGES_DIR "/Meter/Meters_SpeedNum_0c.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_1c.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_2c.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_3c.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_4c.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_5c.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_6c.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_7c.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_8c.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_9c.png"};
+    IMAGES_DIR "/Meter/Meters_SpeedNum_0c.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_1c.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_2c.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_3c.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_4c.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_5c.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_6c.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_7c.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_8c.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_9c.png"
+};
 
 const static char *meter_r_path[10] = {
-IMAGES_DIR "/Meter/Meters_SpeedNum_0r.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_1r.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_2r.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_3r.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_4r.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_5r.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_6r.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_7r.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_8r.png",
-IMAGES_DIR "/Meter/Meters_SpeedNum_9r.png"};
+    IMAGES_DIR "/Meter/Meters_SpeedNum_0r.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_1r.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_2r.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_3r.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_4r.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_5r.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_6r.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_7r.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_8r.png",
+    IMAGES_DIR "/Meter/Meters_SpeedNum_9r.png"
+};
 
 /* AMB */
-static DBusConnection *g_connection = NULL; /* D-Bus Connection */
+static DBusConnection *g_connection = NULL;     /* D-Bus Connection */
 static int property_num = 0;
 const static char Bus_name[] = DBUS_SERVICE;
 static struct vic_data_t vic_data[MAX_PARA_NUM];
 
-const struct vic_key_data_t vic_key_data[]={
-{ LATITUDE,     "Latitude"    },
-{ LONGITUDE,    "Longitude"   },
-{ DIRECTION,    "Direction"   },
-{ VEHICLESPEED, "VehicleSpeed"},
-{ -1,           "END"         }};
+const struct vic_key_data_t vic_key_data[] = {
+    {LATITUDE    , "Latitude"    },
+    {LONGITUDE   , "Longitude"   },
+    {DIRECTION   , "Direction"   },
+    {VEHICLESPEED, "VehicleSpeed"},
+    {-1          , "END"         }
+};
 
 /* BASE */
 static Ecore_Evas *window;
@@ -226,23 +237,20 @@ double fps;
 Evas_Object *browser;
 
 /* CAMERA */
-static const char *test_map_path = IMAGES_DIR "/test_map2.png";
 static const char *test_camera_path = IMAGES_DIR "/test_cameraview.png";
 
 /* WEBSOCKET */
-static int event_type = 0;
 static int connected = 0;
 static struct libwebsocket *socket_val = NULL;
 static struct libwebsocket_context *context;
 static struct libwebsocket_protocols protocols[] = {
     {
-        "http-only",                // name
-        callback_http,              // callback
-        0                           // per_session_data_size
-    },
+     "http-only",          /* name */
+     callback_http,        /* callback */
+     0                     /* per_session_data_size */
+     },
     {
-            NULL, NULL, 0
-    }
+     NULL, NULL, 0}
 };
 
 static int port = 50414;
@@ -261,13 +269,11 @@ static char proxy_uri[512] = "";
  * @return      time(second)
  */
 /*--------------------------------------------------------------------------*/
-static double
-get_time()
+static double get_time()
 {
     struct timeval sec_timeofday;
     gettimeofday(&sec_timeofday, NULL);
-    return ((sec_timeofday.tv_sec) + 
-      (sec_timeofday.tv_usec / 1000000.0));
+    return ((sec_timeofday.tv_sec) + (sec_timeofday.tv_usec / 1000000.0));
 }
 
 /*--------------------------------------------------------------------------*/
@@ -279,23 +285,22 @@ get_time()
  * @return      none
  */
 /*--------------------------------------------------------------------------*/
-static void
-set_default_data()
+static void set_default_data()
 {
     int i;
 
     for (i = 0; i < CONF_DATA_MAX; i++) {
         if (conf_data[i] == 0) {
             switch (i) {
-                case USB_CAMERA_ID:
-                    conf_data[USB_CAMERA_ID] = DEF_USB_CAMERA_ID;
-                    break;
-                case LANDMARK_POSITION:
-                    conf_data[LANDMARK_POSITION] = DEF_LANDMARK_POSITION;
-                    break;
-                case LANDMARK_ROTATION:
-                    conf_data[LANDMARK_ROTATION] = DEF_LANDMARK_ROTATION;
-                    break;
+            case USB_CAMERA_ID:
+                conf_data[USB_CAMERA_ID] = DEF_USB_CAMERA_ID;
+                break;
+            case LANDMARK_POSITION:
+                conf_data[LANDMARK_POSITION] = DEF_LANDMARK_POSITION;
+                break;
+            case LANDMARK_ROTATION:
+                conf_data[LANDMARK_ROTATION] = DEF_LANDMARK_ROTATION;
+                break;
             }
         }
     }
@@ -310,8 +315,7 @@ set_default_data()
  * @return      none
  */
 /*--------------------------------------------------------------------------*/
-static void
-load_config_file()
+static void load_config_file()
 {
     FILE *fp;
     char str[512];
@@ -323,9 +327,10 @@ load_config_file()
     }
 
     if ((fp = fopen(config_path, "r")) == NULL) {
-        fprintf(stderr, "%s\n", "Error : can't open file.(samplenavi.conf)\n");
+        fprintf(stderr, "%s\n",
+                "Error : can't open file.(samplenavi.conf)\n");
         set_default_data();
-        // TODO for test
+
         uim_debug("USB_CAMERA_ID = %d", conf_data[USB_CAMERA_ID]);
         uim_debug("LANDMARK_POSITION = %d", conf_data[LANDMARK_POSITION]);
         uim_debug("LANDMARK_ROTATION = %d", conf_data[LANDMARK_ROTATION]);
@@ -334,40 +339,39 @@ load_config_file()
 
     while (fscanf(fp, "%s", str) != EOF) {
         if (strncmp(str, "USBCAMERAID", 11) == 0) {
-            valuestr = strtok((char *)(str) + 12, "=");
-            if(valuestr != NULL)
-            {
+            valuestr = strtok((char *) (str) + 12, "=");
+            if (valuestr != NULL) {
                 conf_data[USB_CAMERA_ID] = atoi(valuestr);
             }
-        } else if (strncmp(str, "LANDMARKPOSITION", 16) == 0) {
-            valuestr = strtok((char *)(str) + 17, "=");
-            if(valuestr != NULL)
-            {
+        }
+        else if (strncmp(str, "LANDMARKPOSITION", 16) == 0) {
+            valuestr = strtok((char *) (str) + 17, "=");
+            if (valuestr != NULL) {
                 conf_data[LANDMARK_POSITION] = atoi(valuestr);
             }
-        } else if (strncmp(str, "LANDMARKROTATION", 16) == 0) {
-            valuestr = strtok((char *)(str) + 17, "=");
-            if(valuestr != NULL)
-            {
+        }
+        else if (strncmp(str, "LANDMARKROTATION", 16) == 0) {
+            valuestr = strtok((char *) (str) + 17, "=");
+            if (valuestr != NULL) {
                 conf_data[LANDMARK_ROTATION] = atoi(valuestr);
             }
-        } else if (strncmp(str, "WEBSOCKETPORT", 13) == 0) {
-            valuestr = strtok((char *)(str) + 14, "=");
-            if(valuestr != NULL)
-            {
+        }
+        else if (strncmp(str, "WEBSOCKETPORT", 13) == 0) {
+            valuestr = strtok((char *) (str) + 14, "=");
+            if (valuestr != NULL) {
                 port = atoi(valuestr);
             }
-        } else if (strncmp(str, "IPADDR", 6) == 0) {
-            valuestr = strtok((char *)(str) + 7, "=");
-            if(valuestr != NULL)
-            {
-                strcpy( addr, valuestr);
+        }
+        else if (strncmp(str, "IPADDR", 6) == 0) {
+            valuestr = strtok((char *) (str) + 7, "=");
+            if (valuestr != NULL) {
+                strcpy(addr, valuestr);
             }
-        } else if (strncmp(str, "PROXYURI", 8) == 0) {
-            valuestr = strtok((char *)(str) + 9, "=");
-            if(valuestr != NULL)
-            {
-                strcpy( proxy_uri, valuestr);
+        }
+        else if (strncmp(str, "PROXYURI", 8) == 0) {
+            valuestr = strtok((char *) (str) + 9, "=");
+            if (valuestr != NULL) {
+                strcpy(proxy_uri, valuestr);
             }
         }
     }
@@ -376,7 +380,6 @@ load_config_file()
 
     set_default_data();
 
-    // TODO for test
     uim_debug("USB_CAMERA_ID = %d", conf_data[USB_CAMERA_ID]);
     uim_debug("LANDMARK_POSITION = %d", conf_data[LANDMARK_POSITION]);
     uim_debug("LANDMARK_ROTATION = %d", conf_data[LANDMARK_ROTATION]);
@@ -396,14 +399,12 @@ load_config_file()
  * @return      none
  */
 /*--------------------------------------------------------------------------*/
-static void
-e_ui_draw()
+static void e_ui_draw()
 {
 #ifdef _SHOW_FPS_
     char str[15];
 #endif
 
-/* Meter */
     int value = 0;
     int w_fig_r = 0;
     int w_fig_c = 0;
@@ -412,7 +413,7 @@ e_ui_draw()
     evas_object_show(ui_bg);
     evas_object_show(ui_btn);
 
-/* Meter */
+    /* Meter */
 #ifdef DEBUG_METER_TEXT_DSP
     sprintf(str, "[kph]  %d", ui_vicspeed);
     evas_object_text_text_set(ui_vicspeed_text, str);
@@ -420,51 +421,50 @@ e_ui_draw()
 #else
     evas_object_show(ui_vicspeed_text);
     value = ui_vicspeed;
-    if(value > 199)
-    {
-        uim_debug("MAX SPEED OVER [%d]",value);
+    if (value > 199) {
+        uim_debug("MAX SPEED OVER [%d]", value);
         value = 199;
     }
 
-    w_fig_r = (value % 10); value /= 10;
-    w_fig_c = (value % 10); value /= 10;
-    w_fig_l = (value % 10); value /= 10;
+    w_fig_r = (value % 10);
+    value /= 10;
+    w_fig_c = (value % 10);
+    value /= 10;
+    w_fig_l = (value % 10);
+    value /= 10;
 
-    if(w_fig_r != fig_r)
-    {
+    if (w_fig_r != fig_r) {
         evas_object_hide(ui_meter_r[fig_r]);
         evas_object_show(ui_meter_r[w_fig_r]);
         fig_r = w_fig_r;
     }
 
-    if(w_fig_c != fig_c)
-    {
+    if (w_fig_c != fig_c) {
         evas_object_hide(ui_meter_c[fig_c]);
 
-        if(w_fig_c != 0 ||  w_fig_l == 1)
-        {
+        if (w_fig_c != 0 || w_fig_l == 1) {
             evas_object_show(ui_meter_c[w_fig_c]);
         }
 
         fig_c = w_fig_c;
     }
 
-    if(w_fig_l != fig_l)
-    {
+    if (w_fig_l != fig_l) {
         evas_object_hide(ui_meter_l);
 
-        if(w_fig_l != 0)
-        {
+        if (w_fig_l != 0) {
             evas_object_show(ui_meter_l);
         }
-                
+
         fig_l = w_fig_l;
     }
 #endif
+
     if (enable_navi == TRUE && set_route == TRUE) {
         if (goal_square_length <= (GOAL_MESSAGE_LENGTH * GOAL_MESSAGE_LENGTH)) {
             evas_object_show(ui_goal_text);
-        } else {
+        }
+        else {
             evas_object_hide(ui_goal_text);
         }
     }
@@ -486,8 +486,7 @@ e_ui_draw()
  * @return      none
  */
 /*--------------------------------------------------------------------------*/
-static void
-e_ui_init()
+static void e_ui_init()
 {
 #ifdef _SHOW_FPS_
     char str[15];
@@ -503,7 +502,8 @@ e_ui_init()
 
     ui_btn = evas_object_image_add(e_ui);
     evas_object_image_file_set(ui_btn, setting_button_path, NULL);
-    evas_object_image_fill_set(ui_btn, 0, 0, W_NAVIBUTTON_WIDTH, W_NAVIBUTTON_HEIGHT);
+    evas_object_image_fill_set(ui_btn, 0, 0, W_NAVIBUTTON_WIDTH,
+                               W_NAVIBUTTON_HEIGHT);
     evas_object_move(ui_btn, W_NAVIBUTTON_X, W_NAVIBUTTON_Y);
     evas_object_resize(ui_btn, W_NAVIBUTTON_WIDTH, W_NAVIBUTTON_HEIGHT);
     evas_object_show(ui_btn);
@@ -511,13 +511,15 @@ e_ui_init()
 
     ui_goal_text = evas_object_image_add(e_ui);
     evas_object_image_file_set(ui_goal_text, goal_text_img_path, NULL);
-    evas_object_image_fill_set(ui_goal_text, 0, 0, W_GOALMESSAGE_WIDTH, W_GOALMESSAGE_HEIGHT);
+    evas_object_image_fill_set(ui_goal_text, 0, 0, W_GOALMESSAGE_WIDTH,
+                               W_GOALMESSAGE_HEIGHT);
     evas_object_move(ui_goal_text, W_GOALMESSAGE_X, W_GOALMESSAGE_Y);
-    evas_object_resize(ui_goal_text, W_GOALMESSAGE_WIDTH, W_GOALMESSAGE_HEIGHT);
+    evas_object_resize(ui_goal_text, W_GOALMESSAGE_WIDTH,
+                       W_GOALMESSAGE_HEIGHT);
     evas_object_hide(ui_goal_text);
     evas_object_layer_set(ui_goal_text, LAYER_UI);
 
-/* Meter */
+    /* Meter */
 #ifdef DEBUG_METER_TEXT_DSP
     ui_vicspeed_text = evas_object_text_add(e_ui);
     evas_object_text_style_set(ui_vicspeed_text, EVAS_TEXT_STYLE_PLAIN);
@@ -526,8 +528,8 @@ e_ui_init()
     sprintf(str, "[kph]  %d", ui_vicspeed);
     evas_object_text_text_set(ui_vicspeed_text, str);
     evas_object_move(ui_vicspeed_text, 0, 430);
-    evas_object_resize(ui_vicspeed_text, W_GOALMESSAGE_WIDTH, W_GOALMESSAGE_HEIGHT);
-//    evas_object_hide(ui_vicspeed_text);
+    evas_object_resize(ui_vicspeed_text, W_GOALMESSAGE_WIDTH,
+                       W_GOALMESSAGE_HEIGHT);
     evas_object_show(ui_vicspeed_text);
     evas_object_layer_set(ui_vicspeed_text, LAYER_UI);
 #else
@@ -539,8 +541,7 @@ e_ui_init()
     evas_object_hide(ui_meter_l);
     evas_object_layer_set(ui_meter_l, LAYER_UI);
 
-    for(i = 0; i < 10; i++)
-    {
+    for (i = 0; i < 10; i++) {
         ui_meter_c[i] = evas_object_image_add(e_ui);
         evas_object_image_file_set(ui_meter_c[i], meter_c_path[i], NULL);
         evas_object_image_fill_set(ui_meter_c[i], 0, 0, 300, 320);
@@ -557,7 +558,7 @@ e_ui_init()
         evas_object_hide(ui_meter_r[i]);
         evas_object_layer_set(ui_meter_r[i], LAYER_UI);
     }
-	evas_object_show(ui_meter_r[0]);
+    evas_object_show(ui_meter_r[0]);
 
     ui_vicspeed_text = evas_object_text_add(e_ui);
     evas_object_text_style_set(ui_vicspeed_text, EVAS_TEXT_STYLE_PLAIN);
@@ -565,8 +566,8 @@ e_ui_init()
     evas_object_text_font_set(ui_vicspeed_text, "Utopia", 24);
     evas_object_text_text_set(ui_vicspeed_text, "kph");
     evas_object_move(ui_vicspeed_text, 180, 440);
-    evas_object_resize(ui_vicspeed_text, W_GOALMESSAGE_WIDTH, W_GOALMESSAGE_HEIGHT);
-//    evas_object_hide(ui_vicspeed_text);
+    evas_object_resize(ui_vicspeed_text, W_GOALMESSAGE_WIDTH,
+                       W_GOALMESSAGE_HEIGHT);
     evas_object_show(ui_vicspeed_text);
     evas_object_layer_set(ui_vicspeed_text, LAYER_UI);
 #endif
@@ -621,8 +622,7 @@ e_ui_init()
  * @return      none
  */
 /*--------------------------------------------------------------------------*/
-static void
-e_map_init()
+static void e_map_init()
 {
     e_map = ecore_evas_get(window);
     browser = ewk_view_add(e_map);
@@ -643,8 +643,7 @@ e_map_init()
  * @return      none
  */
 /*--------------------------------------------------------------------------*/
-static void
-e_map_draw()
+static void e_map_draw()
 {
     evas_object_show(browser);
 }
@@ -660,8 +659,7 @@ e_map_draw()
  * @return      none
  */
 /*--------------------------------------------------------------------------*/
-static void
-convert_data_evas_cv(Evas_Object *eo, IplImage *iplimage)
+static void convert_data_evas_cv(Evas_Object *eo, IplImage *iplimage)
 {
     int image_data_size = (iplimage->width) * iplimage->height * 4;
     unsigned char image[image_data_size];
@@ -673,15 +671,15 @@ convert_data_evas_cv(Evas_Object *eo, IplImage *iplimage)
     }
 
     for (i = 0; i < (iplimage->width * iplimage->height); i++) {
-        image[i*4] = iplimage->imageData[(3*i)];
-        image[(i*4)+1] = iplimage->imageData[(3*i)+1];
-        image[(i*4)+2] = iplimage->imageData[(3*i)+2];
-        image[(i*4)+3] = 255;
+        image[i * 4] = iplimage->imageData[(3 * i)];
+        image[(i * 4) + 1] = iplimage->imageData[(3 * i) + 1];
+        image[(i * 4) + 2] = iplimage->imageData[(3 * i) + 2];
+        image[(i * 4) + 3] = 255;
     }
 
     /* convert to Evas_Object */
     evas_object_image_colorspace_set(eo, EVAS_COLORSPACE_ARGB8888);
-    evas_object_image_size_set(eo, iplimage->width , iplimage->height);
+    evas_object_image_size_set(eo, iplimage->width, iplimage->height);
     evas_object_image_data_set(eo, image);
 }
 
@@ -695,8 +693,7 @@ convert_data_evas_cv(Evas_Object *eo, IplImage *iplimage)
  * @return      none
  */
 /*--------------------------------------------------------------------------*/
-static void
-evas_object_image_from_cv(Evas_Object *eo, const char* filepath)
+static void evas_object_image_from_cv(Evas_Object *eo, const char *filepath)
 {
     IplImage *iplimage;
 
@@ -721,12 +718,9 @@ evas_object_image_from_cv(Evas_Object *eo, const char* filepath)
  * @retval      ECORE_CALLBACK_CANCEL   Return value to remove a callback
  */
 /*--------------------------------------------------------------------------*/
-static Eina_Bool
-_time_interval_navi_cb(void *cam)
+static Eina_Bool _time_interval_navi_cb(void *cam)
 {
     static double webcam_timer = 0;
-    double carinfo_lat, carinfo_lon;
-    int carinfo_dir;
 
     /* for calc fps */
 #ifdef _SHOW_FPS_
@@ -739,7 +733,7 @@ _time_interval_navi_cb(void *cam)
 #ifdef _USE_CAMERA_
     webcam_timer += TIME_INTERVAL_AR;
 
-    if(webcam_timer >= TIME_INTERVAL_CAMERA) {
+    if (webcam_timer >= TIME_INTERVAL_CAMERA) {
         webcam_timer = 0;
 
         /* Capture from Camera */
@@ -752,7 +746,6 @@ _time_interval_navi_cb(void *cam)
         evas_object_move(cam, W_NAVI_ORIGINE_X, W_NAVI_ORIGINE_Y);
         evas_object_resize(cam, W_WIDTH, W_NAVI_HEIGHT);
         evas_object_show(cam);
-
     }
 #else
     evas_object_image_fill_set(cam, 0, 0, W_WIDTH, W_NAVI_HEIGHT);
@@ -777,15 +770,17 @@ _time_interval_navi_cb(void *cam)
 
 #ifdef _SHOW_FPS_
     // Moving Average
-    if(frame_count == 0) {
+    if (frame_count == 0) {
         t0 = get_time();
         frame_count++;
-    } else if (frame_count < 5) {
+    }
+    else if (frame_count < 5) {
         t1 = get_time();
         total_frame_time += t1 - t0;
         t0 = t1;
         frame_count++;
-    } else {
+    }
+    else {
         t1 = get_time();
         total_frame_time -= total_frame_time / 4;
         total_frame_time += t1 - t0;
@@ -810,32 +805,32 @@ _time_interval_navi_cb(void *cam)
  * @retval      ECORE_CALLBACK_CANCEL   Return value to remove a callback
  */
 /*--------------------------------------------------------------------------*/
-static Eina_Bool
-_time_interval_map_renew_cb(void *data)
+static Eina_Bool _time_interval_map_renew_cb(void *data)
 {
 /* DEBUG.s */
 #ifdef DEBUG_VIC_INFO_SET
-    if(test_cnt < route_data_count)
-    {
+    if (test_cnt < route_data_count) {
         test_lat = csv_route[test_cnt].lat;
         test_lon = csv_route[test_cnt].lon;
         camera_geocode.lat = test_lat;
         camera_geocode.lon = test_lon;
-        test_cnt++ ;
+        test_cnt++;
     }
-#endif    
+#endif
 /* DEBUG.e */
 
-    if((socket_val) && ((map_pos.lat != camera_geocode.lat) || (map_pos.lon != camera_geocode.lon)))
-    {
+    if ((socket_val)
+        && ((map_pos.lat != camera_geocode.lat)
+            || (map_pos.lon != camera_geocode.lon))) {
         map_pos.lat = camera_geocode.lat;
         map_pos.lon = camera_geocode.lon;
 
-        uim_debug ("map_pos.lat = [%f]",map_pos.lat);
-        uim_debug ("map_pos.lon = [%f]",map_pos.lon);
+        uim_debug("map_pos.lat = [%f]", map_pos.lat);
+        uim_debug("map_pos.lon = [%f]", map_pos.lon);
 
-        event_message(socket_val, "CHG VAL VIC_INFO LAT %f LON %f", map_pos.lat, map_pos.lon );
-        uim_debug ("SEND LAT LON TO SINARIO(samplenavi)");
+        event_message(socket_val, "CHG VAL VIC_INFO LAT %f LON %f",
+                      map_pos.lat, map_pos.lon);
+        uim_debug("SEND LAT LON TO SINARIO(samplenavi)");
     }
 
     return ECORE_CALLBACK_RENEW;
@@ -852,23 +847,25 @@ _time_interval_map_renew_cb(void *data)
  * @retval      ECORE_CALLBACK_CANCEL   Return value to remove a callback
  */
 /*--------------------------------------------------------------------------*/
-static Eina_Bool
-callback_listener(void *data)
+static Eina_Bool callback_listener(void *data)
 {
-    if(connected) {
-        libwebsocket_service((struct libwebsocket_context *)data, 0);
-    } else {
+    if (connected) {
+        libwebsocket_service((struct libwebsocket_context *) data, 0);
+    }
+    else {
         uim_debug("WEBSOCKET CONNECTED ERROR");
-        if(context != NULL) {
+        if (context != NULL) {
             libwebsocket_context_destroy(context);
         }
         /* Server */
         context = libwebsocket_create_context(port, NULL,
-                            protocols, libwebsocket_internal_extensions,
-                            NULL, NULL, -1, -1, 0);
-        
-        if(context == NULL) {
-            uim_debug("libwebsocket_create_context failed. (line:%d)", __LINE__);
+                                              protocols,
+                                              libwebsocket_internal_extensions,
+                                              NULL, NULL, -1, -1, 0);
+
+        if (context == NULL) {
+            uim_debug("libwebsocket_create_context failed. (line:%d)",
+                      __LINE__);
             sleep(1);
             return 0;
         }
@@ -897,35 +894,37 @@ callback_listener(void *data)
 /*--------------------------------------------------------------------------*/
 static int
 callback_http(struct libwebsocket_context *context, struct libwebsocket *wsi,
-  enum libwebsocket_callback_reasons reason, void *user, void *in, size_t len)
+              enum libwebsocket_callback_reasons reason, void *user, void *in,
+              size_t len)
 {
     int n = 0;
     unsigned char buf[LWS_SEND_BUFFER_PRE_PADDING + 512 +
-                LWS_SEND_BUFFER_POST_PADDING];
+                      LWS_SEND_BUFFER_POST_PADDING];
     unsigned char *p = &buf[LWS_SEND_BUFFER_PRE_PADDING];
     char data[512];
 
-    // TODO for test
     uim_debug("call callback_http! size = %d", len);
-    uim_debug("50414 callback_http REASON %d", reason);
+    uim_debug("callback_http REASON %d", reason);
 
-    switch(reason) {
+    switch (reason) {
     case LWS_CALLBACK_FILTER_PROTOCOL_CONNECTION:
         uim_debug("CONNECTION %x", wsi);
         break;
     case LWS_CALLBACK_ESTABLISHED:
         uim_debug("ESTABLISHED %x", wsi);
         socket_val = wsi;
-        n = sprintf((char *)p, "%s", "ANS HELLO");
+        n = sprintf((char *) p, "%s", "ANS HELLO");
         break;
     case LWS_CALLBACK_ADD_POLL_FD:
         uim_debug("RECIEVE REASON LWS_CALLBACK_ADD_POLL_FD");
         break;
     case LWS_CALLBACK_CLIENT_CONFIRM_EXTENSION_SUPPORTED:
-        uim_debug("RECIEVE REASON LWS_CALLBACK_CLIENT_CONFIRM_EXTENSION_SUPPORTED");
+        uim_debug
+            ("RECIEVE REASON LWS_CALLBACK_CLIENT_CONFIRM_EXTENSION_SUPPORTED");
         break;
     case LWS_CALLBACK_CLIENT_APPEND_HANDSHAKE_HEADER:
-        uim_debug("RECIEVE REASON LWS_CALLBACK_CLIENT_APPEND_HANDSHAKE_HEADER");
+        uim_debug
+            ("RECIEVE REASON LWS_CALLBACK_CLIENT_APPEND_HANDSHAKE_HEADER");
         break;
     case LWS_CALLBACK_CLIENT_ESTABLISHED:
         uim_debug("RECIEVE REASON LWS_CALLBACK_CLIENT_ESTABLISHED");
@@ -941,52 +940,55 @@ callback_http(struct libwebsocket_context *context, struct libwebsocket *wsi,
         break;
     case LWS_CALLBACK_RECEIVE:
 
-        if( (in != NULL) && (strncmp( (char *)in, "OPEN", strlen("OPEN") ) == 0 )) {
+        if ((in != NULL)
+            && (strncmp((char *) in, "OPEN", strlen("OPEN")) == 0)) {
 
-            uim_debug("OPEN loading_edje_file [%s]",(char *)in);
+            uim_debug("OPEN loading_edje_file [%s]", (char *) in);
             strncpy(edje_str, edje_parse_str(in, 1), sizeof(edje_str));
             loading_edje_file(&edje_str[0]);
-            if(socket_val)
-            {
+            if (socket_val) {
                 event_message(socket_val, "RESULT SUCCESS");
-                uim_debug ("SEND RESULT SUCCESS");
+                uim_debug("SEND RESULT SUCCESS");
             }
         }
-        else if ( (in != NULL) && (strncmp("CLOSE", in, strlen("CLOSE")) == 0)) {
+        else if ((in != NULL) && (strncmp("CLOSE", in, strlen("CLOSE")) == 0)) {
             evas_object_del(g_edje);
-            uim_debug ("ONSCREEN CLOSE");
+            uim_debug("ONSCREEN CLOSE");
         }
 
         /* Get route from navi.js */
-        if( strncmp( (char *)in, "<route>", strlen( "<route>" ) ) == 0 ) {
+        if (strncmp((char *) in, "<route>", strlen("<route>")) == 0) {
             uim_debug("<route> recv");
             init_e3d(e_3d, in, len);
             set_route = TRUE;
             break;
         }
-        
+
         memset(data, 0, sizeof(data));
-        strncpy(data, (char *)in, len);
+        strncpy(data, (char *) in, len);
         uim_debug("RECIEVE[%d] %s", len, data);
 
         if (len == 0) {
             uim_debug("ERROR data=null (line:%d)", __LINE__);
             break;
         }
-        if (strncmp((char *)data, "CHG SEQ REQ_NAV", 15) == 0) {
+
+        if (strncmp((char *) data, "CHG SEQ REQ_NAV", 15) == 0) {
             uim_debug("RECIEVE COMMAND CHG SEQ REQ_NAV");
 
             enable_navi = TRUE;
-        } else if (strncmp((char *)data, "CHG SEQ END_NAV", 15) == 0) {
+        }
+        else if (strncmp((char *) data, "CHG SEQ END_NAV", 15) == 0) {
             uim_debug("RECIEVE COMMAND CHG SEQ END_NAV");
 
             enable_navi = FALSE;
-        } else if(strncmp((char *)data, "ERR", 3) == 0) {
+        }
+        else if (strncmp((char *) data, "ERR", 3) == 0) {
         }
         break;
     case LWS_CALLBACK_CLIENT_RECEIVE:
         memset(data, 0, sizeof(data));
-        strncpy(data, (char *)in, len);
+        strncpy(data, (char *) in, len);
         uim_debug("CLIENT_RECIEVE[%d] %s", len, data);
         break;
     case LWS_CALLBACK_CLOSED:
@@ -1028,8 +1030,8 @@ parse_elementary_value(union VicVal_t *vic_val_p, DBusMessageIter *iter)
 
     char sig;
 
-    if (vic_val_p == NULL || iter == NULL){
-        uim_debug( "Err Parameter NG " );
+    if (vic_val_p == NULL || iter == NULL) {
+        uim_debug("Err Parameter NG ");
         return FALSE;
     }
 
@@ -1074,10 +1076,10 @@ parse_elementary_value(union VicVal_t *vic_val_p, DBusMessageIter *iter)
     case DBUS_TYPE_STRING:
 #if 0
         dbus_message_iter_get_basic(iter, &s_val);
-        w_s_val = (char *)malloc(strlen(s_val) + 1); 
-        if(w_s_val == NULL) {
-            uim_debug( "Err malloc" );
-            return FALSE ;
+        w_s_val = (char *) malloc(strlen(s_val) + 1);
+        if (w_s_val == NULL) {
+            uim_debug("Err malloc");
+            return FALSE;
         }
         strncpy(w_s_val, s_val, strlen(s_val));
         vic_val_p->s_val = w_s_val;
@@ -1104,36 +1106,35 @@ parse_elementary_value(union VicVal_t *vic_val_p, DBusMessageIter *iter)
  * @retval       FALSE    error
  */
 /*--------------------------------------------------------------------------*/
-static bool
-parse_value(union VicVal_t *vic_val_p, DBusMessageIter *iter)
+static bool parse_value(union VicVal_t *vic_val_p, DBusMessageIter *iter)
 {
     char curr;
 
-    if (vic_val_p == NULL || iter == NULL){
-        uim_debug( "Err Parameter NG " );
+    if (vic_val_p == NULL || iter == NULL) {
+        uim_debug("Err Parameter NG ");
         return FALSE;
     }
 
     curr = dbus_message_iter_get_arg_type(iter);
 
     switch (curr) {
-        case DBUS_TYPE_BYTE:
-        case DBUS_TYPE_BOOLEAN:
-        case DBUS_TYPE_INT16:
-        case DBUS_TYPE_INT32:
-        case DBUS_TYPE_UINT16:
-        case DBUS_TYPE_UINT32:
-        case DBUS_TYPE_DOUBLE:
-        case DBUS_TYPE_STRING:
-            return parse_elementary_value(vic_val_p, iter);
-        case DBUS_TYPE_ARRAY:
-        case DBUS_TYPE_STRUCT:
-        case DBUS_TYPE_DICT_ENTRY:
-            return FALSE;
-        case DBUS_TYPE_INVALID:
-            return TRUE;
-        default:
-            break;
+    case DBUS_TYPE_BYTE:
+    case DBUS_TYPE_BOOLEAN:
+    case DBUS_TYPE_INT16:
+    case DBUS_TYPE_INT32:
+    case DBUS_TYPE_UINT16:
+    case DBUS_TYPE_UINT32:
+    case DBUS_TYPE_DOUBLE:
+    case DBUS_TYPE_STRING:
+        return parse_elementary_value(vic_val_p, iter);
+    case DBUS_TYPE_ARRAY:
+    case DBUS_TYPE_STRUCT:
+    case DBUS_TYPE_DICT_ENTRY:
+        return FALSE;
+    case DBUS_TYPE_INVALID:
+        return TRUE;
+    default:
+        break;
     }
     return FALSE;
 }
@@ -1150,21 +1151,21 @@ parse_value(union VicVal_t *vic_val_p, DBusMessageIter *iter)
  * @retval       =-1      error
  */
 /*--------------------------------------------------------------------------*/
-static int
-getAmbDbus(int key, union VicVal_t *vic_val_p)
+static int getAmbDbus(int key, union VicVal_t *vic_val_p)
 {
     /* local variable */
     DBusMessage *message;
-    DBusError error;    
+    DBusError error;
     int result = 0;
-    const char *v_string[] = {vic_data[key].interface_name,
-                              vic_data[key].property_name  };
+    const char *v_string[] = { vic_data[key].interface_name,
+        vic_data[key].property_name
+    };
     const char *dest = Bus_name;
     DBusMessage *reply;
-    int reply_timeout = 1000; /* Millisecond */
+    int reply_timeout = 1000;   /* Millisecond */
     DBusMessageIter iter;
     DBusMessageIter iter_array;
-    union VicVal_t *tmp_vic_val_p  = vic_val_p;
+    union VicVal_t *tmp_vic_val_p = vic_val_p;
 
     /* initialize */
     dbus_error_init(&error);
@@ -1173,8 +1174,8 @@ getAmbDbus(int key, union VicVal_t *vic_val_p)
         /* obtain the right to use dbus */
         g_connection = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
 
-        if (g_connection == NULL){
-            uim_debug( "Err dbus_bus_get" );
+        if (g_connection == NULL) {
+            uim_debug("Err dbus_bus_get");
 
             /* Release err parameter */
             dbus_error_free(&error);
@@ -1185,14 +1186,13 @@ getAmbDbus(int key, union VicVal_t *vic_val_p)
     /* Constructs a new message */
     message = dbus_message_new_method_call(DBUS_SERVICE,
                                            vic_data[key].path_name,
-                                           DBUS_INTERFACE,
-                                           DBUS_METHOD);
-    if(message == NULL){
-        uim_debug( "Err dbus_message_new_method_call" );
+                                           DBUS_INTERFACE, DBUS_METHOD);
+    if (message == NULL) {
+        uim_debug("Err dbus_message_new_method_call");
 
         /* Release the connection */
-        dbus_connection_unref (g_connection);
-        g_connection = NULL;  
+        dbus_connection_unref(g_connection);
+        g_connection = NULL;
         return -1;
     }
 
@@ -1201,15 +1201,15 @@ getAmbDbus(int key, union VicVal_t *vic_val_p)
                                       DBUS_TYPE_STRING,
                                       &v_string[0],
                                       DBUS_TYPE_STRING,
-                                      &v_string[1],
-                                      DBUS_TYPE_INVALID);
+                                      &v_string[1], DBUS_TYPE_INVALID);
 
-	if ( !result ){
-        uim_debug( "Err dbus_message_append_args" );
+    if (!result) {
+        uim_debug("Err dbus_message_append_args");
 
         /* Release the connection */
         dbus_connection_unref(g_connection);
         g_connection = NULL;
+
         /* Release the message */
         dbus_message_unref(message);
 
@@ -1217,7 +1217,7 @@ getAmbDbus(int key, union VicVal_t *vic_val_p)
     }
 
     /* Gets the error name */
-    if (dest && !dbus_message_set_destination (message, dest)){
+    if (dest && !dbus_message_set_destination(message, dest)) {
         uim_debug("Err dbus_message_new_method_call");
 
         /* Release the connection */
@@ -1233,9 +1233,8 @@ getAmbDbus(int key, union VicVal_t *vic_val_p)
     /* Queues a message to send */
     reply = dbus_connection_send_with_reply_and_block(g_connection,
                                                       message,
-                                                      reply_timeout,
-                                                      &error);
-    if (reply == NULL){
+                                                      reply_timeout, &error);
+    if (reply == NULL) {
 //DEBUG        uim_debug( "Err dbus_connection_send_with_reply_and_block" );
 
         /* Release the connection */
@@ -1258,7 +1257,7 @@ getAmbDbus(int key, union VicVal_t *vic_val_p)
     /* Type conversion of the resulting value */
     result = parse_value(tmp_vic_val_p, &iter_array);
     if (result != TRUE) {
-        uim_debug( "Err parse_elementary_value" );
+        uim_debug("Err parse_elementary_value");
 
         /* Release the connection */
         dbus_connection_unref(g_connection);
@@ -1272,8 +1271,8 @@ getAmbDbus(int key, union VicVal_t *vic_val_p)
     }
 
     /* Release the message */
-    dbus_message_unref(message);   
-    dbus_message_unref(reply);   
+    dbus_message_unref(message);
+    dbus_message_unref(reply);
 
     return 0;
 }
@@ -1287,61 +1286,52 @@ getAmbDbus(int key, union VicVal_t *vic_val_p)
  * @return   none
  */
 /*--------------------------------------------------------------------------*/
-static void
-getLocationFromAmb()
+static void getLocationFromAmb()
 {
     union VicVal_t vic_val[32];
     int result = 0;
     int i;
-    char vic_str[256];
 
-    for(i = 0; i < property_num ; i++){
+    for (i = 0; i < property_num; i++) {
         result = getAmbDbus(i, vic_val);
 
-        if (result != 0){
-//DEBUG            uim_debug("Err getAmbDbus : %s",vic_data[i].name);
+        if (result != 0) {
+//DEBUG            uim_debug("Err getAmbDbus : Unacquired [%s]",vic_data[i].name);
             continue;
         }
 
-        switch(vic_data[i].property){
-        case LATITUDE :
-            if((camera_geocode.lat != vic_val[0].d_val) &&
-               (vic_val[0].d_val != 0))
-            {
-                uim_debug ("%s(%f)",vic_data[i].name, vic_val[0].d_val);
+        switch (vic_data[i].property) {
+        case LATITUDE:
+            if ((camera_geocode.lat != vic_val[0].d_val) &&
+                (vic_val[0].d_val != 0)) {
+                uim_debug("%s(%f)", vic_data[i].name, vic_val[0].d_val);
                 camera_geocode.lat = vic_val[0].d_val;
             }
-
             break;
-        case LONGITUDE :
-            if((camera_geocode.lon != vic_val[0].d_val) &&
-               (vic_val[0].d_val != 0))
-            {
-                uim_debug ("%s(%f)",vic_data[i].name, vic_val[0].d_val);
+        case LONGITUDE:
+            if ((camera_geocode.lon != vic_val[0].d_val) &&
+                (vic_val[0].d_val != 0)) {
+                uim_debug("%s(%f)", vic_data[i].name, vic_val[0].d_val);
                 camera_geocode.lon = vic_val[0].d_val;
             }
-
             break;
-        case DIRECTION :
-            if(camera_geocode.dir != vic_val[0].i32_val)
-            {
-                uim_debug ("%s(%d)",vic_data[i].name, vic_val[0].i32_val);
+        case DIRECTION:
+            if (camera_geocode.dir != vic_val[0].i32_val) {
+                uim_debug("%s(%d)", vic_data[i].name, vic_val[0].i32_val);
                 camera_geocode.dir = vic_val[0].i32_val;
             }
             break;
-        case VEHICLESPEED :
+        case VEHICLESPEED:
 //DEBUG            uim_debug ("%s(%d)",vic_data[i].name, vic_val[0].i32_val);
-            if(ui_vicspeed != vic_val[0].i32_val)
-            {
-                uim_debug ("%s(%d)",vic_data[i].name, vic_val[0].i32_val);
+            if (ui_vicspeed != vic_val[0].i32_val) {
+                uim_debug("%s(%d)", vic_data[i].name, vic_val[0].i32_val);
                 ui_vicspeed = vic_val[0].i32_val;
             }
             break;
-        default :
-            uim_debug ("ERROR no property : %s", vic_data[i].name);
+        default:
+            uim_debug("ERROR no property : %s", vic_data[i].name);
             break;
         }
-
     }
     return;
 }
@@ -1357,67 +1347,79 @@ getLocationFromAmb()
  * @retval   =-1      error
  */
 /*--------------------------------------------------------------------------*/
-static int
-get_config()
+static int get_config()
 {
     FILE *fp;
     int k = 0;
     int j, m;
     char buff[512];
-    char *tp; 
-    char *clm = " \n"; 
+    char *tp;
+    char *clm = " \n";
 
-    fp = fopen( CONFIG_FILE , "r" );
-    if( fp == NULL ) {
-        uim_debug( "File open error" );
+    fp = fopen(CONFIG_FILE, "r");
+    if (fp == NULL) {
+        uim_debug("File open error");
         return -1;
     }
 
-    for(m = 0 ; k < MAX_PARA_NUM ; m++){
-        if( fgets( buff, sizeof(buff) - 2, fp) != NULL){
-            tp = strtok( buff, clm );
-            if(tp != NULL){
-                if(tp[0] != '#' ){
-                    for(j = 0; vic_key_data[j].id != -1; j++ ){
-                        if(strcmp(tp, vic_key_data[j].name) == 0){
+    for (m = 0; k < MAX_PARA_NUM; m++) {
+        if (fgets(buff, sizeof(buff) - 2, fp) != NULL) {
+            tp = strtok(buff, clm);
+            if (tp != NULL) {
+                if (tp[0] != '#') {
+                    for (j = 0; vic_key_data[j].id != -1; j++) {
+                        if (strcmp(tp, vic_key_data[j].name) == 0) {
                             vic_data[k].property = vic_key_data[j].id;
-                            strcpy( vic_data[k].name, tp);
-                            strcpy( vic_data[k].path_name, strtok( NULL, clm ));
-                            strcpy( vic_data[k].interface_name, strtok( NULL, clm ));
-                            strcpy( vic_data[k].property_name, strtok(NULL,clm ));
+                            strcpy(vic_data[k].name, tp);
+                            strcpy(vic_data[k].path_name, strtok(NULL, clm));
+                            strcpy(vic_data[k].interface_name,
+                                   strtok(NULL, clm));
+                            strcpy(vic_data[k].property_name,
+                                   strtok(NULL, clm));
 
-                            uim_debug( "vic_data[%d].property=%d",k,vic_data[k].property );
-                            uim_debug( "vic_data[%d].name=%s",k,vic_data[k].name );
-                            uim_debug( "vic_data[%d].path_name=%s", k, vic_data[k].path_name);
-                            uim_debug( "vic_data[%d].interface_name=%s", k,vic_data[k].interface_name);
-                            uim_debug( "vic_data[%d].property_name=%s", k,vic_data[k].property_name);
-
+                            uim_debug("vic_data[%d].property=%d", k,
+                                      vic_data[k].property);
+                            uim_debug("vic_data[%d].name=%s", k,
+                                      vic_data[k].name);
+                            uim_debug("vic_data[%d].path_name=%s", k,
+                                      vic_data[k].path_name);
+                            uim_debug("vic_data[%d].interface_name=%s", k,
+                                      vic_data[k].interface_name);
+                            uim_debug("vic_data[%d].property_name=%s", k,
+                                      vic_data[k].property_name);
                             k++;
                             break;
                         }
                     }
-                    if(vic_key_data[j].id == -1){
-                        uim_debug("Err config.txt Line:%d Unregistered parameter name",m+1);
-                    } 
-   
-                }else{
-                    uim_debug("config.txt Line:%d Comment out  '#'Discovery",m+1);
+                    if (vic_key_data[j].id == -1) {
+                        uim_debug
+                            ("Err config.txt Line:%d Unregistered parameter name",
+                             m + 1);
+                    }
+
                 }
-            }else{
-                uim_debug("config.txt Line:%d Comment out  Null line",m+1);
+                else {
+                    uim_debug("config.txt Line:%d Comment out  '#'Discovery",
+                              m + 1);
+                }
             }
-        }else{
+            else {
+                uim_debug("config.txt Line:%d Comment out  Null line", m + 1);
+            }
+        }
+        else {
             uim_debug("config.txt The end of data reading");
             break;
-        } 
+        }
     }
     fclose(fp);
 
     property_num = k;
-    if( property_num == 0 ) {
-        uim_debug( "config.txt No valid data");
+    if (property_num == 0) {
+        uim_debug("config.txt No valid data");
         return -1;
     }
+
     return 0;
 }
 
@@ -1433,18 +1435,18 @@ get_config()
  * @retval       NULL     error
  */
 /*--------------------------------------------------------------------------*/
-static char* edje_parse_str(void *in, int arg_num)
+static char *edje_parse_str(void *in, int arg_num)
 {
     int i;
-    unsigned char *data;
+    char *data;
 
     uim_debug("edje_parse_str %s, arg = %d", in, arg_num);
     data = strtok(in, " ");
     /* arg_num : 0 to n */
     for (i = 0; i < arg_num; i++) {
-        data = strtok( NULL, " ");
+        data = strtok(NULL, " ");
     }
-    uim_debug("edje_parse_str data: %s",data);
+    uim_debug("edje_parse_str data: %s", data);
     return data;
 }
 
@@ -1458,8 +1460,7 @@ static char* edje_parse_str(void *in, int arg_num)
  * @return      none
  */
 /*--------------------------------------------------------------------------*/
-static void
-event_message(struct libwebsocket *wsi, char *format, ...)
+static void event_message(struct libwebsocket *wsi, char *format, ...)
 {
     va_list list;
     char message[256];
@@ -1468,19 +1469,19 @@ event_message(struct libwebsocket *wsi, char *format, ...)
     vsnprintf(message, sizeof(message), format, list);
     va_end(list);
 
-    uim_debug("OnScreen: event_message wsi = %p, %s", wsi, message);
+    uim_debug("Setting screen: event_message wsi = %p, %s", wsi, message);
     if (wsi) {
         int n = 0;
         unsigned char buf[LWS_SEND_BUFFER_PRE_PADDING + 512 +
-                      LWS_SEND_BUFFER_POST_PADDING];
+                          LWS_SEND_BUFFER_POST_PADDING];
         unsigned char *p = &buf[LWS_SEND_BUFFER_PRE_PADDING];
 
-        n = sprintf((char *)p, "%s", message);
+        n = sprintf((char *) p, "%s", message);
         n = libwebsocket_write(wsi, p, n, LWS_WRITE_TEXT);
-        uim_debug("OnScreen: libwebsocket_write return = %d", n);
+        uim_debug("Setting screen: libwebsocket_write return = %d", n);
     }
     else {
-        uim_debug("OnScreen: wsi is not initialized");
+        uim_debug("Setting screen: wsi is not initialized");
     }
 
     return;
@@ -1498,21 +1499,19 @@ event_message(struct libwebsocket *wsi, char *format, ...)
  */
 /*--------------------------------------------------------------------------*/
 static void
-_touch_up_edje(void *data, Evas *evas , Evas_Object *obj, void *event_info)
+_touch_up_edje(void *data, Evas *evas, Evas_Object *obj, void *event_info)
 {
     /* get name from userdata */
     if (data != NULL) {
-        uim_debug("OnScreen: user data is %s", (const char *)data);
+        uim_debug("Setting screen: user data is %s", (const char *) data);
 
-        if(socket_val)
-        {
+        if (socket_val) {
             event_message(socket_val, "TOUCH %s %s", edje_str, data);
-            uim_debug ("SEND TOUCH %s ",data);
+            uim_debug("SEND TOUCH %s ", data);
         }
     }
-    else
-    {
-        uim_debug("OnScreen: user data is NULL");
+    else {
+        uim_debug("Setting screen: user data is NULL");
     }
 }
 
@@ -1527,18 +1526,17 @@ _touch_up_edje(void *data, Evas *evas , Evas_Object *obj, void *event_info)
  * @retval      =-1      error
  */
 /*--------------------------------------------------------------------------*/
-static int
-loading_edje_file(const char *edje_file)
+static int loading_edje_file(const char *edje_file)
 {
-    Evas_Object *part;      /* part handle */
-    Eina_List *group;       /* edje group list */
-    Eina_List *list;        /* part list in edje */
-    int group_count = 0;    /* group counter */
-    int name_count = 0;     /* name counter */
+    Evas_Object *part;          /* part handle */
+    Eina_List *group;           /* edje group list */
+    Eina_List *list;            /* part list in edje */
+    int group_count = 0;        /* group counter */
+    int name_count = 0;         /* name counter */
 
     g_evas = ecore_evas_get(window);
     if (!g_evas) {
-        uim_debug("OnScreen: could not create evas.");
+        uim_debug("Setting screen: could not create evas.");
         return -1;
     }
 
@@ -1548,39 +1546,45 @@ loading_edje_file(const char *edje_file)
     /* create and add object in canvas from edje */
     g_edje = edje_object_add(g_evas);
     if (!g_edje) {
-        uim_debug("OnScreen: could not create edje object!");
+        uim_debug("Setting screen: could not create edje object!");
         return -1;
     }
 
     /* get group list */
     group = edje_file_collection_list(edje_file);
-    while (group != NULL)
-    {
+    while (group != NULL) {
         /* Set the edj file */
-        if (!edje_object_file_set(g_edje, edje_file, (const char *)group->data)) {
+        if (!edje_object_file_set
+            (g_edje, edje_file, (const char *) group->data)) {
             int err = edje_object_load_error_get(g_edje);
             const char *errmsg = edje_load_error_str(err);
-            uim_debug("OnScreen: could not load %s: %s", edje_file, errmsg);
+            uim_debug("Setting screen: could not load %s: %s", edje_file, errmsg);
 
             edje_file_collection_list_free(group);
             evas_object_del(g_edje);
             return -1;
         }
-        uim_debug("OnScreen: group[%d] data : %s", group_count, (const char *)group->data);
+        uim_debug("Setting screen: group[%d] data : %s", group_count,
+                  (const char *) group->data);
 
         /* get list */
         list = edje_object_access_part_list_get(g_edje);
         while (list != NULL) {
-            uim_debug("OnScreen: list[%d] data : %s", name_count, (const char *)list->data);
+            uim_debug("Setting screen: list[%d] data : %s", name_count,
+                      (const char *) list->data);
 
             /* set callback for part name */
-            part = edje_object_part_object_get((const Evas_Object *)g_edje, (const char *)list->data);
-            if(part != NULL) {
-                uim_debug("OnScreen: list[%d] name : %s", name_count, (const char *)list->data);
-                evas_object_event_callback_add(part, EVAS_CALLBACK_MOUSE_UP, _touch_up_edje, list->data);
+            part =
+                edje_object_part_object_get((const Evas_Object *) g_edje,
+                                            (const char *) list->data);
+            if (part != NULL) {
+                uim_debug("Setting screen: list[%d] name : %s", name_count,
+                          (const char *) list->data);
+                evas_object_event_callback_add(part, EVAS_CALLBACK_MOUSE_UP,
+                                               _touch_up_edje, list->data);
             }
             else {
-                uim_debug("OnScreen: list[%d] is NULL", name_count);
+                uim_debug("Setting screen: list[%d] is NULL", name_count);
             }
 
             /* to next list */
@@ -1592,8 +1596,8 @@ loading_edje_file(const char *edje_file)
         group = group->next;
         group_count++;
     }
-    uim_debug("OnScreen: group num is %d", group_count);
-    uim_debug("OnScreen: name num is %d", name_count);
+    uim_debug("Setting screen: group num is %d", group_count);
+    uim_debug("Setting screen: name num is %d", name_count);
 
     /* Put in the image */
     evas_object_move(g_edje, 0, 0);
@@ -1603,9 +1607,6 @@ loading_edje_file(const char *edje_file)
     evas_object_show(g_edje);
 
     evas_object_layer_set(g_edje, LAYER_UI);
-
-    /* Show the window */
-    /* ecore_evas_show(g_window); */
 
     return 0;
 }
@@ -1621,33 +1622,39 @@ loading_edje_file(const char *edje_file)
  */
 /*--------------------------------------------------------------------------*/
 static void
-res_callback(ico_apf_resource_notify_info_t* info, void *user_data)
+res_callback(ico_apf_resource_notify_info_t *info, void *user_data)
 {
     int ret;
 
     uim_debug("##==> Callbacked evt=%d res=%d id=%d bid=%d appid=%s dev=%s"
-                " user_data=%d", info->state, info->resid, info->id, info->bid,
-                info->appid, info->device, (int)user_data);
+              " user_data=%d", info->state, info->resid, info->id, info->bid,
+              info->appid, info->device, (int) user_data);
 
-    switch (info->state)    {
+    switch (info->state) {
     case ICO_APF_RESOURCE_STATE_ACQUIRED:
     case ICO_APF_RESOURCE_STATE_DEPRIVED:
     case ICO_APF_RESOURCE_STATE_WAITTING:
     case ICO_APF_RESOURCE_STATE_RELEASED:
         if (info->resid == ICO_APF_RESID_INT_SCREEN) {
-            ret = ico_apf_resource_reply_int_screen_mode(info->device, info->bid, info->id, 1);
+            ret =
+                ico_apf_resource_reply_int_screen_mode(info->device,
+                                                       info->bid, info->id,
+                                                       1);
             uim_debug("##==> callback reply int_screen(%s,%d,%d,1) = %d",
-                        info->device, info->bid, info->id, ret);
+                      info->device, info->bid, info->id, ret);
         }
         else if (info->resid == ICO_APF_RESID_ON_SCREEN) {
-            ret = ico_apf_resource_reply_int_screen_mode_disp(info->device, info->id, 1);
+            ret =
+                ico_apf_resource_reply_int_screen_mode_disp(info->device,
+                                                            info->id, 1);
             uim_debug("##==> callback reply on_screen(%s,%d,1) = %d",
-                        info->device, info->id, ret);
+                      info->device, info->id, ret);
         }
-        else    {
-            ret = ico_apf_resource_reply_screen_mode(info->device, info->id, 1);
+        else {
+            ret =
+                ico_apf_resource_reply_screen_mode(info->device, info->id, 1);
             uim_debug("##==> callback reply screen(%s,%d,1) = %d",
-                        info->device, info->id, ret);
+                      info->device, info->id, ret);
         }
         break;
     default:
@@ -1667,14 +1674,12 @@ res_callback(ico_apf_resource_notify_info_t* info, void *user_data)
  * @retval  =-1      failed
  */
 /*--------------------------------------------------------------------------*/
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     int i;
     int getscreen;
-    char    appid[ICO_UXF_MAX_PROCESS_NAME+1];
+    char appid[ICO_UXF_MAX_PROCESS_NAME + 1];
     int ret = 0;
-    static struct libwebsocket *wsi;
     connected = 0;
 
     /* Setting the log output */
@@ -1686,32 +1691,31 @@ main(int argc, char *argv[])
 
     elm_init(argc, argv);
 
-    // TODO
     enable_navi = FALSE;
     set_route = FALSE;
 
     /* initialize */
-    if(0 != get_config()){
-        uim_debug( "ERROR get_config()" );
+    if (0 != get_config()) {
+        uim_debug("ERROR get_config()");
         return -1;
     }
 
     getscreen = 0;
-        sscrntype[0] = 0;
-    for (i = 1; i < argc; i++)  {
-        if (argv[i][0] == '-')  {
+    sscrntype[0] = 0;
+    for (i = 1; i < argc; i++) {
+        if (argv[i][0] == '-') {
             if (strcasecmp(argv[i], "-basescreen") == 0) {
-                getscreen = 1;              /* get base screen */
-                                strcpy(sscrntype, "BasicScreen");
+                getscreen = 1;  /* get base screen */
+                strcpy(sscrntype, "BasicScreen");
                 uim_debug("BasicScreen");
             }
             else if (strcasecmp(argv[i], "-intscreen") == 0) {
-                getscreen = 2;              /* get interrupt screen */
-                                strcpy(sscrntype, "IntScreen");
+                getscreen = 2;  /* get interrupt screen */
+                strcpy(sscrntype, "IntScreen");
             }
             else if (strcasecmp(argv[i], "-onscreen") == 0) {
-                getscreen = 3;              /* get on screen */
-                                strcpy(sscrntype, "OnScreen");
+                getscreen = 3;  /* get on screen */
+                strcpy(sscrntype, "OnScreen");
             }
         }
     }
@@ -1740,11 +1744,12 @@ main(int argc, char *argv[])
             ret = ico_apf_resource_get_int_screen_mode_disp(NULL, 0);
         }
     }
-    uim_debug("getscreen = %d, ret = %d",getscreen, ret);
+    uim_debug("getscreen = %d, ret = %d", getscreen, ret);
 
     /* window setup */
     window = ecore_evas_new(NULL, 0, 0, W_WIDTH, W_HEIGHT, "frame=0");
-    if (!window) goto error;
+    if (!window)
+        goto error;
 
     ecore_evas_show(window);
 
@@ -1759,15 +1764,16 @@ main(int argc, char *argv[])
     }
 
     captureImage = cvQueryFrame(capture);
-    uim_debug("camera width = %d, height = %d", captureImage->width, captureImage->height);
+    uim_debug("camera width = %d, height = %d", captureImage->width,
+              captureImage->height);
     convert_data_evas_cv(cam, captureImage);
 #else
 
 #ifdef _USE_OPENCV_
     evas_object_image_from_cv(cam, test_camera_path);
-#else
-	evas_object_image_file_set(cam, test_camera_path, NULL);
-#endif
+#else /* _USE_OPENCV_ */
+    evas_object_image_file_set(cam, test_camera_path, NULL);
+#endif /* _USE_OPENCV_ */
 
 #endif
     evas_object_image_fill_set(cam, 0, 0, W_WIDTH, W_NAVI_HEIGHT);
@@ -1784,10 +1790,13 @@ main(int argc, char *argv[])
     e_ui_init();
 
     /* Server */
-    context = libwebsocket_create_context(port, NULL, protocols, libwebsocket_internal_extensions,
-                        NULL, NULL, -1, -1, 0);
+    context =
+        libwebsocket_create_context(port, NULL, protocols,
+                                    libwebsocket_internal_extensions, NULL,
+                                    NULL, -1, -1, 0);
     if (context == NULL) {
-        fprintf(stderr, "libwebsocket_create_context failed.");     goto error;
+        fprintf(stderr, "libwebsocket_create_context failed.");
+        goto error;
     }
 
     connected = 1;
@@ -1813,8 +1822,7 @@ main(int argc, char *argv[])
     cvReleaseCapture(&capture);
 #endif
 
-    if (NULL != g_connection)
-    {
+    if (NULL != g_connection) {
         dbus_connection_unref(g_connection);
         g_connection = NULL;
     }
@@ -1826,9 +1834,8 @@ main(int argc, char *argv[])
 
     return 0;
 
-error:
+  error:
     fprintf(stderr, "Evas engine error.");
     ecore_evas_shutdown();
     return -1;
 }
-

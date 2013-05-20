@@ -1,3 +1,51 @@
+* Fri May 14 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
+- 0.0.6
+-ico-app-samplenavi
+-ico-app-vicsample
+-ico-app-soundsample
+   -The NoDisplay parameter of a desktop file is changed into "false" from "ture". 
+- DemoMeterApp(wgt)
+   -vic ver.0.4.0 Add function (night mode)
+- DemoAudioApp(wgt)
+   -sound ver.0.1.7 Bug fixed (can't tap while playing audio by js) 
+   -sound ver.0.2.0 Add function (night mode)
+
+* Fri May 10 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
+- 0.0.5
+- ico-app-samplenavi
+   -Cleaned up all source codes.
+- DemoMeterApp(wgt)
+- DemoAudioApp(wgt)
+   -Delete changes file 
+
+* Fri Apr 26 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
+- 0.0.4
+- DemoMeterApp(wgt)
+   -Modified (setting page)
+- DemoAudioApp(wgt)
+   -Change the video/audio files
+
+* Fri Apr 26 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
+- 0.0.3
+- ico-app-samplenavi
+   -Update time change of a map
+- ico-app-soundsample
+   -It changes into a full-screen display
+
+* Fri Apr 26 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
+- 0.0.2
+- ico-app-samplenavi
+   -Proxy setting correction of a config file 
+
+* Fri Apr 26 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
+- Intial import (0.0.1).
+- package included
+   -ico-app-samplenavi
+   -ico-app-vicsample
+   -ico-app-soundsample
+   -DemoMeterApp(wgt)
+   -DemoAudioApp(wgt)
+
 * Fri Apr 26 19:27:12 UTC 2013 - tracy.graydon@intel.com
 - Setting up 2.0alpha-wayland branch (master not used in IVI) 
 
