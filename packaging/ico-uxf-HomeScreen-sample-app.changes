@@ -1,50 +1,64 @@
-* Fri May 14 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
-- 0.0.6
--ico-app-samplenavi
+* Wed May 22 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/2.0alpha-wayland/20130520.103636@a26f959
+- ico-app-samplenavi
+- Bug fix: The NoDisplay parameter of a desktop file is changed into "false" from "ture".(TIVI-972)
+- Update time change of a map.
+- Proxy setting correction of a config file.
+- Cleaned up some source codes.
+
 -ico-app-vicsample
+- Bug fix: The NoDisplay parameter of a desktop file is changed into "false" from "ture".(TIVI-972)
+- Bug fix: In The second read request, application down.
+- Acquisition of the right to use screen, sound.
+- Cleaned up some source codes.
+
 -ico-app-soundsample
-   -The NoDisplay parameter of a desktop file is changed into "false" from "ture". 
-- DemoMeterApp(wgt)
-   -vic ver.0.4.0 Add function (night mode)
-- DemoAudioApp(wgt)
-   -sound ver.0.1.7 Bug fixed (can't tap while playing audio by js) 
-   -sound ver.0.2.0 Add function (night mode)
+- Bug fix: The NoDisplay parameter of a desktop file is changed into "false" from "ture".(TIVI-972)
+- It changes into a full-screen display.
+- Acquisition of the right to use screen, sound.
+- Cleaned up some source codes.
 
-* Fri May 10 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
-- 0.0.5
-- ico-app-samplenavi
-   -Cleaned up all source codes.
-- DemoMeterApp(wgt)
-- DemoAudioApp(wgt)
-   -Delete changes file 
+-DemoMeterApp(wgt)
+- 0.4.0
+- Add function: Night Mode. (using cowhide)
+- Add function: Show initial vehicle value in the table at "Set Vehicle" tab.
+- Delete file: delete changes file from widget.
+- Modified: The setting page corresponds to the AMB's vehicle info.
+- Bug fix: Changed alert message's display position.
+- Bug fix: Modified meter panel's size and meter image position.
+- Add file (LICENSE.Apache-2.0).
+- Bug fix: Websocket will close when sending the string data to AMB.
+- Bug fix: Update value of velocity when KPH/MPH button pushed.
+- Add Copyright (index.html, js/meter.js, js/resource_control.js, css/style.css)
+- Add function: Setting vehicle information.
+- Changed the application's icon. (license free)
+- Add function: Using resource controller. (screen/sound)
+- Bug fix: Application's display size is too small.
+- Bug fix: Application's display flickered in red.
+- Cleaned up some source codes.
 
-* Fri Apr 26 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
-- 0.0.4
-- DemoMeterApp(wgt)
-   -Modified (setting page)
-- DemoAudioApp(wgt)
-   -Change the video/audio files
+-DemoAudioApp(wgt)
+- 0.2.0
+- Add function: Night Mode. (using cowhide)
+- Bug fix: Can't tap the any button while playing audio by javascript.
+(delete UI component's progress bar)
+- Bug fix: Can't change image when happened "mousedown" event.
+(modified javascript and style sheet)
+- Delete file: delete changes file from widget.
+- Bug fix: Area that user tap to play/pause video is on top of default control bar.
+(User can sometimes not use default control bar.)
+- Modified: Add video tag using the default control bar. (Not using javascript)
+- Modified: Modified style sheet.
+- Add file (LICENSE.Apache-2.0).
+- Change audio/video files.
+- Add Copyright (index.html, css/style.css)
+- Modified Copyright (js/main.js)
+- Add Copyright (js/resource_control.js)
+- Add function: Using resource controller. (screen/sound)
+- Changed the application's icon. (license free)
+- Changed privilege. (add "application.read")
+- Bug fix: Application's display size is too small. (It is difficult to tap the UI component.)
+- Cleaned up some source codes.
 
-* Fri Apr 26 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
-- 0.0.3
-- ico-app-samplenavi
-   -Update time change of a map
-- ico-app-soundsample
-   -It changes into a full-screen display
-
-* Fri Apr 26 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
-- 0.0.2
-- ico-app-samplenavi
-   -Proxy setting correction of a config file 
-
-* Fri Apr 26 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp>"g
-- Intial import (0.0.1).
-- package included
-   -ico-app-samplenavi
-   -ico-app-vicsample
-   -ico-app-soundsample
-   -DemoMeterApp(wgt)
-   -DemoAudioApp(wgt)
 
 * Fri Apr 26 19:27:12 UTC 2013 - tracy.graydon@intel.com
 - Setting up 2.0alpha-wayland branch (master not used in IVI) 
