@@ -1,3 +1,10 @@
+* Fri May 24 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/2.0alpha-wayland/20130520.103636@6271b38
+- ico-app-samplenavi
+- Bug fix: 0 display processing correction of the number of the place of 10.
+
+-ico-app-vicsample
+- A display is changed. (The left : the camera shot, the right : map)
+
 * Wed May 22 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/2.0alpha-wayland/20130520.103636@a26f959
 - ico-app-samplenavi
 - Bug fix: The NoDisplay parameter of a desktop file is changed into "false" from "ture".(TIVI-972)

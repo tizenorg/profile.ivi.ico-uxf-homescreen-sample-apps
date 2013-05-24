@@ -61,17 +61,19 @@
 #define W_WIDTH                     (1920)
 #define W_HEIGHT                    (1080-64)       /* StatusBar window height:64 */
 
-#define W_NAVI_HEIGHT               (480)
-#define W_MAP_HEIGHT                (536)
+#define W_NAVI_WIDTH                (W_WIDTH / 2)
+#define W_NAVI_HEIGHT               (W_HEIGHT - W_TEXTAREA_HEIGHT)
 
 #define W_NAVI_ORIGINE_X            (0)
 #define W_NAVI_ORIGINE_Y            (0)
 
-#define W_MAP_ORIGINE_X             (0)
-#define W_MAP_ORIGINE_Y             (480)
+#define W_MAP_WIDTH                 (W_WIDTH / 2)
+#define W_MAP_HEIGHT                (W_HEIGHT - W_TEXTAREA_HEIGHT)
+#define W_MAP_ORIGINE_X             (W_WIDTH / 2)
+#define W_MAP_ORIGINE_Y             (0)
 
 #define W_TEXTAREA_X                (0)
-#define W_TEXTAREA_Y                (416)
+#define W_TEXTAREA_Y                (W_HEIGHT - W_TEXTAREA_HEIGHT)
 #define W_TEXTAREA_HEIGHT           (64)
 #define W_TEXTAREA_WIDTH            (W_WIDTH)
 
@@ -82,8 +84,8 @@
 
 #define W_GOALMESSAGE_HEIGHT        (50)
 #define W_GOALMESSAGE_WIDTH         (478)
-#define W_GOALMESSAGE_X             (150)
-#define W_GOALMESSAGE_Y             (283)
+#define W_GOALMESSAGE_X             (75)
+#define W_GOALMESSAGE_Y             (566)
 
 #define W_ADDRESS_HEIGHT            (50)
 #define W_ADDRESS_WIDTH             (570)
@@ -93,6 +95,16 @@
 #define MAX_ROUTE_POINTS            (500)
 #define LON_CONVERT                 (90550.8)
 #define LAT_CONVERT                 (111240)
+
+#define W_METER_HEIGHT              (300)
+#define W_METER_WIDTH               (320)
+#define W_METER_X                   (0)
+#define W_METER_Y                   (W_HEIGHT - 180)
+
+#define W_METER_UNIT_HEIGHT         (45)
+#define W_METER_UNIT_WIDTH          (478)
+#define W_METER_UNIT_X              (180)
+#define W_METER_UNIT_Y              (W_HEIGHT - W_METER_UNIT_HEIGHT)
 
 /* Directory */
 #define RESOURCE_DIR                "/opt/apps/org.tizen.ico.app-samplenavi/res"

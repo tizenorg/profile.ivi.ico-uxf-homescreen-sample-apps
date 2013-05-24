@@ -1,6 +1,6 @@
 Name:       ico-uxf-HomeScreen-sample-app
 Summary:    HomeScreen sample application 
-Version:    0.0.6
+Version:    0.0.9
 Release:    1
 Group:      System/GUI
 License:    Apache License, Version 2.0
@@ -109,6 +109,9 @@ Requires: dbus-glib
 Requires: automotive-message-broker
 #Requires: libopencv2_4
 
+#DemoMeterApp.wgt DemoAudioApp.wgt
+Requires: pkgmgr
+
 %description
 HomeScreen sample application 
 
@@ -196,8 +199,14 @@ install -m 0644 wgt/*.wgt %{buildroot}/tmp/
 %post
 # install shell(DemoMeterApp.wgt DemoAudioApp.wgt)
 #sh /opt/apps/homescreen-sample-app/wgt/wgt-install.sh
-wrt-installer -i /tmp/DemoMeterApp.wgt
-wrt-installer -i /tmp/DemoAudioApp.wgt
+pkgcmd -i -t wgt -p /tmp/DemoMeterApp.wgt -q
+pkgcmd -i -t wgt -p /tmp/DemoAudioApp.wgt -q
+#wrt-installer -i /tmp/DemoMeterApp.wgt
+#wrt-installer -i /tmp/DemoAudioApp.wgt
+
+rm -rf /opt/dbspace/.app_info*
+/usr/bin/ail_initdb
+
 rm -f /tmp/DemoMeterApp.wgt
 rm -f /tmp/DemoAudioApp.wgt
 
@@ -206,7 +215,12 @@ rm -f /tmp/DemoAudioApp.wgt
 #sh /opt/apps/homescreen-sample-app/wgt/wgt-uninstall.sh
 
 %postun
-id=`wrt-launcher -l | grep -e " DemoMeterApp " | sed -e 's/\s\{1,\}/ /g' | cut -d' ' -f3`
-wrt-installer -u $id
-id=`wrt-launcher -l | grep -e " DemoAudioApp " | sed -e 's/\s\{1,\}/ /g' | cut -d' ' -f3`
-wrt-installer -u $id
+#id=`wrt-launcher -l | grep -e " DemoMeterApp " | sed -e 's/\s\{1,\}/ /g' | cut -d' ' -f3`
+#wrt-installer -u $id
+#id=`wrt-launcher -l | grep -e " DemoAudioApp " | sed -e 's/\s\{1,\}/ /g' | cut -d' ' -f3`
+#wrt-installer -u $id
+pkgcmd -u -t wgt -n AKsMREAjt9 -q
+pkgcmd -u -t wgt -n d41dRLC2Qs -q
+
+rm -rf /opt/dbspace/.app_info*
+/usr/bin/ail_initdb
