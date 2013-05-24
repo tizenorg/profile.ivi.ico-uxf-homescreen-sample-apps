@@ -1,3 +1,14 @@
+* Fri May 24 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/2.0alpha-wayland/20130520.103636@6271b38
+- ico-app-samplenavi
+- Bug fix: 0 display processing correction of the number of the place of 10.
+- Bug fix: The NoDisplay parameter of a desktop file is changed into "false" from "true".(TIVI-972)
+
+-ico-app-vicsample
+- Bug fix: The NoDisplay parameter of a desktop file is changed into "false" from "true".(TIVI-972)
+- A display is changed. (The left : the camera shot, the right : map)
+
+-ico-app-soundsample
+- Bug fix: The NoDisplay parameter of a desktop file is changed into "false" from "true".(TIVI-972)
 * Wed May 22 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/2.0alpha-wayland/20130520.103636@a26f959
 - ico-app-samplenavi
 - Bug fix: The NoDisplay parameter of a desktop file is changed into "false" from "ture".(TIVI-972)

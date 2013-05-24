@@ -742,33 +742,32 @@ static void _plane_draw(Plane *plane)
 
     /* set points */
     evas_map_point_coord_set(m2, 0,
-                             (Evas_Coord) (plane->pt[0].x + ((W_WIDTH) / 2)),
+                             (Evas_Coord) (plane->pt[0].x + ((W_WIDTH) / 4)),
                              (Evas_Coord) (plane->pt[0].y +
-                                           ((W_NAVI_HEIGHT) / 2)),
+                                           ((W_NAVI_HEIGHT) / 4)),
                              (Evas_Coord) (plane->pt[0].z + FRONT_SIDE_Z));
     evas_map_point_coord_set(m2, 1,
-                             (Evas_Coord) (plane->pt[1].x + ((W_WIDTH) / 2)),
+                             (Evas_Coord) (plane->pt[1].x + ((W_WIDTH) / 4)),
                              (Evas_Coord) (plane->pt[1].y +
-                                           ((W_NAVI_HEIGHT) / 2)),
+                                           ((W_NAVI_HEIGHT) / 4)),
                              (Evas_Coord) (plane->pt[1].z + FRONT_SIDE_Z));
     evas_map_point_coord_set(m2, 2,
-                             (Evas_Coord) (plane->pt[2].x + ((W_WIDTH) / 2)),
+                             (Evas_Coord) (plane->pt[2].x + ((W_WIDTH) / 4)),
                              (Evas_Coord) (plane->pt[2].y +
-                                           ((W_NAVI_HEIGHT) / 2)),
+                                           ((W_NAVI_HEIGHT) / 4)),
                              (Evas_Coord) (plane->pt[2].z + FRONT_SIDE_Z));
     evas_map_point_coord_set(m2, 3,
-                             (Evas_Coord) (plane->pt[3].x + ((W_WIDTH) / 2)),
+                             (Evas_Coord) (plane->pt[3].x + ((W_WIDTH) / 4)),
                              (Evas_Coord) (plane->pt[3].y +
-                                           ((W_NAVI_HEIGHT) / 2)),
+                                           ((W_NAVI_HEIGHT) / 4)),
                              (Evas_Coord) (plane->pt[3].z + FRONT_SIDE_Z));
 
     for (i = 0; i < 4; i++) {
         evas_map_point_image_uv_set(m2, i, plane->pt[i].u, plane->pt[i].v);
         evas_map_point_color_set(m2, i, 255, 255, 255, 255);
     }
-    evas_map_util_3d_perspective(m2, (W_WIDTH / 2), (W_NAVI_HEIGHT / 2) - 100,
-                                 Z0_POSITION, FOCUS_LENGTH);
-
+    evas_map_util_3d_perspective(m2, (W_WIDTH / 4), (W_NAVI_HEIGHT / 4) - 100,
+                                 Z0_POSITION, FOCUS_LENGTH / 2);
     evas_object_map_enable_set(plane->o, 1);
     evas_object_map_set(plane->o, m2);
 
@@ -847,6 +846,7 @@ static Cube *_cube_new(Evas *e3d, Evas_Coord w, Evas_Coord h, Evas_Coord d,
             break;
         }
     }
+
     /* First Plane (Front) */
     CUBE_POINT(0, 0, -w, -h, -d, 0, 0);
     CUBE_POINT(0, 1, w, -h, -d, 600, 0);
@@ -893,7 +893,7 @@ static Cube *_cube_new(Evas *e3d, Evas_Coord w, Evas_Coord h, Evas_Coord d,
  *
  * @param[in]    c     cube address
  * @param[in]    x     x coordinates
- * @param[in]    y     y coordinates
+ * param[in]    y     y coordinates
  * @param[in]    z     z coordinates
  * @param[in]    dx    amount of degrees from 0.0 to 360.0 to rotate around X axis. 
  * @param[in]    dy    amount of degrees from 0.0 to 360.0 to rotate around Y axis.
@@ -923,10 +923,10 @@ _cube_draw(Cube *c, Evas_Coord x, Evas_Coord y, Evas_Coord z,
         for (j = 0; j < 4; j++) {
 
             evas_map_point_coord_set(m, j,
-                                     c->side[i].pt[j].x + ((W_WIDTH) / 2) +
+                                     c->side[i].pt[j].x + ((W_WIDTH) / 4) +
                                      x - camera.x,
                                      c->side[i].pt[j].y +
-                                     ((W_NAVI_HEIGHT) / 2) + y - camera.y,
+                                     (W_NAVI_HEIGHT / 2) + y - camera.y,
                                      c->side[i].pt[j].z + z - camera.z +
                                      FRONT_SIDE_Z);
             if (!(i == 4 || i == 5)) {
@@ -937,17 +937,17 @@ _cube_draw(Cube *c, Evas_Coord x, Evas_Coord y, Evas_Coord z,
             evas_map_point_color_set(m, j, 255, 255, 255, 255);
         }
         evas_map_util_3d_rotate(m, dx, dy, dz,
-                                (W_WIDTH / 2) + x - camera.x,
+                                ((W_WIDTH) / 4) + x - camera.x,
                                 (W_NAVI_HEIGHT / 2) + y - camera.y,
                                 z - camera.z + FRONT_SIDE_Z);
 
         /* for camera angle */
         evas_map_util_3d_rotate(m, 0, -camera.angle, 0,
-                                (W_WIDTH / 2), (W_NAVI_HEIGHT / 2),
+                                ((W_WIDTH) / 4), (W_NAVI_HEIGHT / 2),
                                 FRONT_SIDE_Z);
 
-        evas_map_util_3d_perspective(m, (W_WIDTH / 2), (W_NAVI_HEIGHT / 2),
-                                     Z0_POSITION, FOCUS_LENGTH);
+        evas_map_util_3d_perspective(m, ((W_WIDTH) / 4), (W_NAVI_HEIGHT / 2),
+                                     Z0_POSITION, FOCUS_LENGTH / 2);
 
 #ifdef _USE_Z_LIMIT_FIX_
         for (j = 0; j < 4; j++) {
@@ -1074,22 +1074,22 @@ static void goal_object_draw(Plane *plane)
     evas_map_smooth_set(m3, 0);
 
     evas_map_point_coord_set(m3, 0,
-                             (Evas_Coord) (plane->pt[0].x + ((W_WIDTH) / 2)),
+                             (Evas_Coord) (plane->pt[0].x + ((W_WIDTH) / 4)),
                              (Evas_Coord) (plane->pt[0].y +
                                            ((W_NAVI_HEIGHT) / 2)),
                              (Evas_Coord) (plane->pt[0].z + FRONT_SIDE_Z));
     evas_map_point_coord_set(m3, 1,
-                             (Evas_Coord) (plane->pt[0].x + ((W_WIDTH) / 2)),
+                             (Evas_Coord) (plane->pt[0].x + ((W_WIDTH) / 4)),
                              (Evas_Coord) ((-1) * plane->pt[0].y +
-                                           (W_NAVI_HEIGHT) / 2),
+                                           ((W_NAVI_HEIGHT) / 2)),
                              (Evas_Coord) (plane->pt[0].z + FRONT_SIDE_Z));
     evas_map_point_coord_set(m3, 2,
-                             (Evas_Coord) (plane->pt[3].x + ((W_WIDTH) / 2)),
+                             (Evas_Coord) (plane->pt[3].x + ((W_WIDTH) / 4)),
                              (Evas_Coord) ((-1) * plane->pt[3].y +
-                                           (W_NAVI_HEIGHT) / 2),
+                                           ((W_NAVI_HEIGHT) / 2)),
                              (Evas_Coord) (plane->pt[3].z + FRONT_SIDE_Z));
     evas_map_point_coord_set(m3, 3,
-                             (Evas_Coord) (plane->pt[3].x + ((W_WIDTH) / 2)),
+                             (Evas_Coord) (plane->pt[3].x + ((W_WIDTH) / 4)),
                              (Evas_Coord) (plane->pt[3].y +
                                            ((W_NAVI_HEIGHT) / 2)),
                              (Evas_Coord) (plane->pt[3].z + FRONT_SIDE_Z));
@@ -1099,8 +1099,8 @@ static void goal_object_draw(Plane *plane)
     evas_map_point_image_uv_set(m3, 2, 0, 600);
     evas_map_point_image_uv_set(m3, 3, 0, 0);
 
-    evas_map_util_3d_perspective(m3, (W_WIDTH / 2), (W_NAVI_HEIGHT / 2) - 100,
-                                 Z0_POSITION, FOCUS_LENGTH);
+    evas_map_util_3d_perspective(m3, (W_WIDTH / 4), (W_NAVI_HEIGHT / 2) - 100,
+                                 Z0_POSITION, FOCUS_LENGTH / 2);
 
     evas_object_map_enable_set(goal_object, 1);
     evas_object_map_set(goal_object, m3);

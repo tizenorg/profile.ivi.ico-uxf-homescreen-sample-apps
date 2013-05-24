@@ -44,10 +44,12 @@
 
 //#define DEBUG_VIC_INFO_SET
 #ifdef DEBUG_VIC_INFO_SET
+#include <math.h>
 extern int route_data_count;
 extern CsvRoute csv_route[MAX_ROUTE_POINTS];
 static double test_lat = 35.47945;
 static double test_lon = 139.40026;
+static int test_dir = 0;
 static int test_cnt = 0;
 #endif
 /* DEBUG.e */
@@ -439,7 +441,7 @@ static void e_ui_draw()
         fig_r = w_fig_r;
     }
 
-    if (w_fig_c != fig_c) {
+    if (w_fig_c != fig_c || fig_c == 0) {
         evas_object_hide(ui_meter_c[fig_c]);
 
         if (w_fig_c != 0 || w_fig_l == 1) {
@@ -528,33 +530,36 @@ static void e_ui_init()
     sprintf(str, "[kph]  %d", ui_vicspeed);
     evas_object_text_text_set(ui_vicspeed_text, str);
     evas_object_move(ui_vicspeed_text, 0, 430);
-    evas_object_resize(ui_vicspeed_text, W_GOALMESSAGE_WIDTH,
-                       W_GOALMESSAGE_HEIGHT);
+    evas_object_resize(ui_vicspeed_text, W_METER_UNIT_WIDTH,
+                       W_METER_UNIT_HEIGHT);
     evas_object_show(ui_vicspeed_text);
     evas_object_layer_set(ui_vicspeed_text, LAYER_UI);
 #else
     ui_meter_l = evas_object_image_add(e_ui);
     evas_object_image_file_set(ui_meter_l, meter_l_path, NULL);
-    evas_object_image_fill_set(ui_meter_l, 0, 0, 300, 320);
-    evas_object_move(ui_meter_l, 0, 300);
-    evas_object_resize(ui_meter_l, 300, 320);
+    evas_object_image_fill_set(ui_meter_l, 0, 0, W_METER_HEIGHT,
+                               W_METER_WIDTH);
+    evas_object_move(ui_meter_l, W_METER_X, W_METER_Y);
+    evas_object_resize(ui_meter_l, W_METER_HEIGHT, W_METER_WIDTH);
     evas_object_hide(ui_meter_l);
     evas_object_layer_set(ui_meter_l, LAYER_UI);
 
     for (i = 0; i < 10; i++) {
         ui_meter_c[i] = evas_object_image_add(e_ui);
         evas_object_image_file_set(ui_meter_c[i], meter_c_path[i], NULL);
-        evas_object_image_fill_set(ui_meter_c[i], 0, 0, 300, 320);
-        evas_object_move(ui_meter_c[i], 0, 300);
-        evas_object_resize(ui_meter_c[i], 300, 320);
+        evas_object_image_fill_set(ui_meter_c[i], 0, 0, W_METER_HEIGHT,
+                                   W_METER_WIDTH);
+        evas_object_move(ui_meter_c[i], W_METER_X, W_METER_Y);
+        evas_object_resize(ui_meter_c[i], W_METER_HEIGHT, W_METER_WIDTH);
         evas_object_hide(ui_meter_c[i]);
         evas_object_layer_set(ui_meter_c[i], LAYER_UI);
 
         ui_meter_r[i] = evas_object_image_add(e_ui);
         evas_object_image_file_set(ui_meter_r[i], meter_r_path[i], NULL);
-        evas_object_image_fill_set(ui_meter_r[i], 0, 0, 300, 320);
-        evas_object_move(ui_meter_r[i], 0, 300);
-        evas_object_resize(ui_meter_r[i], 300, 320);
+        evas_object_image_fill_set(ui_meter_r[i], 0, 0, W_METER_HEIGHT,
+                                   W_METER_WIDTH);
+        evas_object_move(ui_meter_r[i], W_METER_X, W_METER_Y);
+        evas_object_resize(ui_meter_r[i], W_METER_HEIGHT, W_METER_WIDTH);
         evas_object_hide(ui_meter_r[i]);
         evas_object_layer_set(ui_meter_r[i], LAYER_UI);
     }
@@ -565,10 +570,11 @@ static void e_ui_init()
     evas_object_color_set(ui_vicspeed_text, 255, 255, 255, 255);
     evas_object_text_font_set(ui_vicspeed_text, "Utopia", 24);
     evas_object_text_text_set(ui_vicspeed_text, "kph");
-    evas_object_move(ui_vicspeed_text, 180, 440);
-    evas_object_resize(ui_vicspeed_text, W_GOALMESSAGE_WIDTH,
-                       W_GOALMESSAGE_HEIGHT);
+    evas_object_move(ui_vicspeed_text, W_METER_UNIT_X, W_METER_UNIT_Y);
+    evas_object_resize(ui_vicspeed_text, W_METER_UNIT_WIDTH,
+                       W_METER_UNIT_HEIGHT);
     evas_object_show(ui_vicspeed_text);
+
     evas_object_layer_set(ui_vicspeed_text, LAYER_UI);
 #endif
 
@@ -628,7 +634,7 @@ static void e_map_init()
     browser = ewk_view_add(e_map);
     ewk_context_proxy_uri_set(ewk_view_context_get(browser), proxy_uri);
     evas_object_move(browser, W_MAP_ORIGINE_X, W_MAP_ORIGINE_Y);
-    evas_object_resize(browser, W_WIDTH, W_MAP_HEIGHT);
+    evas_object_resize(browser, W_MAP_WIDTH, W_MAP_HEIGHT);
     evas_object_show(browser);
     ewk_view_uri_set(browser, default_url);
     evas_object_layer_set(browser, LAYER_MAP);
@@ -748,9 +754,9 @@ static Eina_Bool _time_interval_navi_cb(void *cam)
         evas_object_show(cam);
     }
 #else
-    evas_object_image_fill_set(cam, 0, 0, W_WIDTH, W_NAVI_HEIGHT);
+    evas_object_image_fill_set(cam, 0, 0, W_NAVI_WIDTH, W_NAVI_HEIGHT);
     evas_object_move(cam, W_NAVI_ORIGINE_X, W_NAVI_ORIGINE_Y);
-    evas_object_resize(cam, W_WIDTH, W_NAVI_HEIGHT);
+    evas_object_resize(cam, W_NAVI_WIDTH, W_NAVI_HEIGHT);
     evas_object_show(cam);
 #endif
 
@@ -809,13 +815,53 @@ static Eina_Bool _time_interval_map_renew_cb(void *data)
 {
 /* DEBUG.s */
 #ifdef DEBUG_VIC_INFO_SET
-    if (test_cnt < route_data_count) {
-        test_lat = csv_route[test_cnt].lat;
-        test_lon = csv_route[test_cnt].lon;
-        camera_geocode.lat = test_lat;
-        camera_geocode.lon = test_lon;
-        test_cnt++;
+double lat_tmp = 0;
+double lon_tmp = 0;
+int add_angle = 0;
+
+if (test_cnt < route_data_count) {
+    test_lat = csv_route[test_cnt].lat;
+    test_lon = csv_route[test_cnt].lon;
+
+    if ((test_cnt + 1) != route_data_count) {
+        lat_tmp = csv_route[test_cnt + 1].lat - test_lat;
+        lon_tmp = csv_route[test_cnt + 1].lon - test_lon;
+
+        if (lat_tmp >= 0 && lon_tmp >= 0) {
+            add_angle = 0;
+            test_dir =
+                atan((fabs(lon_tmp) / fabs(lat_tmp))) * 180.0 / (atan(1.0) *
+                                                                 4.0);
+        }
+        else if (lat_tmp < 0 && lon_tmp >= 0) {
+            add_angle = 90;
+            test_dir =
+                atan((fabs(lat_tmp) / fabs(lon_tmp))) * 180.0 / (atan(1.0) *
+                                                                 4.0);
+        }
+        else if (lat_tmp < 0 && lon_tmp < 0) {
+            add_angle = 180;
+            test_dir =
+                atan((fabs(lon_tmp) / fabs(lat_tmp))) * 180.0 / (atan(1.0) *
+                                                                 4.0);
+        }
+        else if (lat_tmp >= 0 && lon_tmp < 0) {
+            add_angle = 270;
+            test_dir =
+                atan((fabs(lat_tmp) / fabs(lon_tmp))) * 180.0 / (atan(1.0) *
+                                                                 4.0);
+        }
+        test_dir = test_dir + add_angle;
     }
+    camera_geocode.lat = test_lat;
+    camera_geocode.lon = test_lon;
+    camera_geocode.dir = test_dir;
+    test_cnt++;
+
+    uim_debug("test_lat = [%f]", test_lat);
+    uim_debug("test_lon = [%f]", test_lon);
+    uim_debug("test_dir = [%d]", test_dir);
+}
 #endif
 /* DEBUG.e */
 
@@ -952,6 +998,7 @@ callback_http(struct libwebsocket_context *context, struct libwebsocket *wsi,
             }
         }
         else if ((in != NULL) && (strncmp("CLOSE", in, strlen("CLOSE")) == 0)) {
+            evas_object_hide(g_edje);
             evas_object_del(g_edje);
             uim_debug("ONSCREEN CLOSE");
         }
@@ -1235,7 +1282,7 @@ static int getAmbDbus(int key, union VicVal_t *vic_val_p)
                                                       message,
                                                       reply_timeout, &error);
     if (reply == NULL) {
-//DEBUG        uim_debug( "Err dbus_connection_send_with_reply_and_block" );
+        uim_debug( "Err dbus_connection_send_with_reply_and_block" );
 
         /* Release the connection */
         dbus_connection_unref(g_connection);
@@ -1296,7 +1343,7 @@ static void getLocationFromAmb()
         result = getAmbDbus(i, vic_val);
 
         if (result != 0) {
-//DEBUG            uim_debug("Err getAmbDbus : Unacquired [%s]",vic_data[i].name);
+            uim_debug("Err getAmbDbus : Unacquired [%s]",vic_data[i].name);
             continue;
         }
 
@@ -1322,7 +1369,6 @@ static void getLocationFromAmb()
             }
             break;
         case VEHICLESPEED:
-//DEBUG            uim_debug ("%s(%d)",vic_data[i].name, vic_val[0].i32_val);
             if (ui_vicspeed != vic_val[0].i32_val) {
                 uim_debug("%s(%d)", vic_data[i].name, vic_val[0].i32_val);
                 ui_vicspeed = vic_val[0].i32_val;
@@ -1558,7 +1604,8 @@ static int loading_edje_file(const char *edje_file)
             (g_edje, edje_file, (const char *) group->data)) {
             int err = edje_object_load_error_get(g_edje);
             const char *errmsg = edje_load_error_str(err);
-            uim_debug("Setting screen: could not load %s: %s", edje_file, errmsg);
+            uim_debug("Setting screen: could not load %s: %s", edje_file,
+                      errmsg);
 
             edje_file_collection_list_free(group);
             evas_object_del(g_edje);
@@ -1776,10 +1823,10 @@ int main(int argc, char *argv[])
 #endif /* _USE_OPENCV_ */
 
 #endif
-    evas_object_image_fill_set(cam, 0, 0, W_WIDTH, W_NAVI_HEIGHT);
-    evas_object_move(cam, W_NAVI_ORIGINE_X, W_NAVI_ORIGINE_Y);
-    evas_object_resize(cam, W_WIDTH, W_NAVI_HEIGHT);
 
+    evas_object_image_fill_set(cam, 0, 0, W_NAVI_WIDTH, W_NAVI_HEIGHT);
+    evas_object_move(cam, W_NAVI_ORIGINE_X, W_NAVI_ORIGINE_Y);
+    evas_object_resize(cam, W_NAVI_WIDTH, W_NAVI_HEIGHT);
     evas_object_show(cam);
 
     /* 3D Layer */
