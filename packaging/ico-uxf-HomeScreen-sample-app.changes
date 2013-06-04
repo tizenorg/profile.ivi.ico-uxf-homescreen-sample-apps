@@ -1,3 +1,14 @@
+* Tue Jun 04 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/2.0alpha-wayland/20130603.172708@41b3e77
+-ico-app-samplenavi
+-Bug fix: When there is no proxy of samplenavi.conf, it corrects so that proxy may not be set up.
+
+-Package whole
+-Directory composition change of a package.
+  The following directory is created and a file is moved.
+         ico-app-samplenavi/
+         ico-app-vicsample/
+         ico-app-soundsample/
+
 * Fri May 24 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/2.0alpha-wayland/20130520.103636@6271b38
 - ico-app-samplenavi
 - Bug fix: 0 display processing correction of the number of the place of 10.
@@ -72,4 +83,5 @@
 
 * Fri Apr 26 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> c744832
 - Import initial.
+
 

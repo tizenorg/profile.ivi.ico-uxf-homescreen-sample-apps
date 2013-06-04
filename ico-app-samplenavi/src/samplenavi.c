@@ -632,7 +632,11 @@ static void e_map_init()
 {
     e_map = ecore_evas_get(window);
     browser = ewk_view_add(e_map);
-    ewk_context_proxy_uri_set(ewk_view_context_get(browser), proxy_uri);
+
+    if(strlen(proxy_uri)) {
+        ewk_context_proxy_uri_set(ewk_view_context_get(browser), proxy_uri);
+    }
+
     evas_object_move(browser, W_MAP_ORIGINE_X, W_MAP_ORIGINE_Y);
     evas_object_resize(browser, W_MAP_WIDTH, W_MAP_HEIGHT);
     evas_object_show(browser);

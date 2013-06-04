@@ -2,10 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_CONFIG_SRCDIR([src/soundsample_pulse_async_test.cpp])
 AC_INIT([ico-uxf-HomeScreen-sample-app], [0.0.1], [https://BUG-REPORT-ADDRESS])
 AM_INIT_AUTOMAKE([1.11.1 -Wall -Werror foreign silent-rules])
-AC_CONFIG_SRCDIR([src/soundsample_yswavfile.cpp])
+AC_CONFIG_SRCDIR([ico-app-vicsample/src/vicsample.c])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
@@ -29,5 +28,8 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([gettimeofday memset sqrt strcasecmp strncasecmp strtol tzset])
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 ico-app-samplenavi/src/Makefile
+                 ico-app-soundsample/src/Makefile
+                 ico-app-vicsample/src/Makefile])
+
 AC_OUTPUT
