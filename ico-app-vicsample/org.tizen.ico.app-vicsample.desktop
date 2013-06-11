@@ -1,6 +1,6 @@
 Name=ico-app-vicsample
 Type=Application
-Exec=/opt/apps/org.tizen.ico.app-vicsample/bin/ico-app-vicsample
+Exec=/opt/apps/org.tizen.ico.app-vicsample/bin/ico-app-vicsample rightoption -basescreen
 Icon=org.tizen.ico.app-vicsample.png
 NoDisplay=false
 Version=0.1.0

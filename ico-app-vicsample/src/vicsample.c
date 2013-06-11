@@ -28,6 +28,7 @@
 #include <dbus/dbus.h>          /* dbus */
 #include <string.h>             /* test log output */
 #include <stdbool.h>            // bool type define //TEST
+#include <bundle.h>
 //#include "app_log.h"
 #include "ico_apf.h"
 #include "ico_apf_ecore.h"
@@ -927,20 +928,26 @@ int main(int argc, char *argv[])
     int getscreen;
     Evas *evas;
     char appid[ICO_UXF_MAX_PROCESS_NAME + 1];
+    bundle *b;
+    const char *val;
 
+    /* get argment */
+    b = bundle_import_from_argv(argc, argv);
     getscreen = 0;
     sscrntype[0] = 0;
-    for (i = 1; i < argc; i++) {
-        if (argv[i][0] == '-') {
-            if (strcasecmp(argv[i], "-basescreen") == 0) {
+	if(b != NULL){
+        val = bundle_get_val(b, "rightoption");
+		if (val != NULL) {
+            if (strcasecmp(val, "-basescreen") == 0) {
                 getscreen = 1;  /* get base screen */
                 strcpy(sscrntype, "BasicScreen");
+                uim_debug("BasicScreen");
             }
-            else if (strcasecmp(argv[i], "-intscreen") == 0) {
+            else if (strcasecmp(val, "-intscreen") == 0) {
                 getscreen = 2;  /* get interrupt screen */
                 strcpy(sscrntype, "IntScreen");
             }
-            else if (strcasecmp(argv[i], "-onscreen") == 0) {
+            else if (strcasecmp(val, "-onscreen") == 0) {
                 getscreen = 3;  /* get on screen */
                 strcpy(sscrntype, "OnScreen");
             }
