@@ -1,3 +1,10 @@
+* Tue Jun 11 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/2.0alpha-wayland/20130606.173127@1f825f5
+- 0.0.11 release
+-ico-app-samplenavi
+-ico-app-soundsample
+-ico-app-vicsample
+- Bug fix: Change the way of getting argument.
+
 * Tue Jun 04 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/2.0alpha-wayland/20130603.172708@41b3e77
 -ico-app-samplenavi
 -Bug fix: When there is no proxy of samplenavi.conf, it corrects so that proxy may not be set up.

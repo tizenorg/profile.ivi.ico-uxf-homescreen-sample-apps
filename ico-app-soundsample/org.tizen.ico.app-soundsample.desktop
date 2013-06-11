@@ -1,6 +1,6 @@
 Name=ico-app-soundsample
 Type=Application
-Exec=/opt/apps/org.tizen.ico.app-soundsample/bin/ico-app-soundsample
+Exec=/opt/apps/org.tizen.ico.app-soundsample/bin/ico-app-soundsample rightoption -basesound
 Icon=org.tizen.ico.app-soundsample.png
 NoDisplay=false
 Version=0.1.0

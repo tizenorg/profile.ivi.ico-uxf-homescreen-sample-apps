@@ -18,6 +18,7 @@
 #include <time.h>
 #include <stddef.h>
 #include <getopt.h>
+#include <bundle.h>
 #include <dbus/dbus.h>
 #include <libwebsockets.h>
 #include <EWebKit2.h>
@@ -1727,11 +1728,12 @@ res_callback(ico_apf_resource_notify_info_t *info, void *user_data)
 /*--------------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
-    int i;
     int getscreen;
     char appid[ICO_UXF_MAX_PROCESS_NAME + 1];
     int ret = 0;
     connected = 0;
+    bundle *b;
+    const char *val;
 
     /* Setting the log output */
     if (ico_apf_get_app_id(0, appid) == ICO_APP_CTL_E_NONE) {
@@ -1751,20 +1753,23 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    /* get argment */
+    b = bundle_import_from_argv(argc, argv);
     getscreen = 0;
     sscrntype[0] = 0;
-    for (i = 1; i < argc; i++) {
-        if (argv[i][0] == '-') {
-            if (strcasecmp(argv[i], "-basescreen") == 0) {
+	if(b != NULL){
+        val = bundle_get_val(b, "rightoption");
+		if (val != NULL) {
+            if (strcasecmp(val, "-basescreen") == 0) {
                 getscreen = 1;  /* get base screen */
                 strcpy(sscrntype, "BasicScreen");
                 uim_debug("BasicScreen");
             }
-            else if (strcasecmp(argv[i], "-intscreen") == 0) {
+            else if (strcasecmp(val, "-intscreen") == 0) {
                 getscreen = 2;  /* get interrupt screen */
                 strcpy(sscrntype, "IntScreen");
             }
-            else if (strcasecmp(argv[i], "-onscreen") == 0) {
+            else if (strcasecmp(val, "-onscreen") == 0) {
                 getscreen = 3;  /* get on screen */
                 strcpy(sscrntype, "OnScreen");
             }

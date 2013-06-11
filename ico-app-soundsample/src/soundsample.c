@@ -26,6 +26,7 @@
 
 #include <unistd.h>
 #include <glib.h>
+#include <bundle.h>
 //#include "app_log.h"
 #include "ico_apf.h"
 #include "ico_apf_ecore.h"
@@ -654,22 +655,26 @@ int main(int argc, char *argv[])
     char buf[256];
     char buf2[256];
     int i = 0;
+    bundle *b;
+    const char *val;
 
     /* get resource control option  */
+    b = bundle_import_from_argv(argc, argv);
     getsound = 0;
     ssndtype[0] = 0;
-    for (i = 1; i < argc; i++) {
-        if (argv[i][0] == '-') {
-            if (strcasecmp(argv[i], "-basesound") == 0) {
+	if(b != NULL){
+        val = bundle_get_val(b, "rightoption");
+		if (val != NULL) {
+            if (strcasecmp(val, "-basesound") == 0) {
                 getsound = 1;   /* get base sound       */
                 strcpy(ssndtype, "BasecSound");
             }
-            else if (strcasecmp(argv[i], "-intsound") == 0) {
+            else if (strcasecmp(val, "-intsound") == 0) {
                 getsound = 2;   /* get interrupt sound  */
                 strcpy(ssndtype, "IntSound");
             }
-            else if (strncasecmp(argv[i], "-int=", 5) == 0) {
-                getsound = strtol(&argv[i][5], (char **) 0, 0);
+            else if (strncasecmp(val, "-int=", 5) == 0) {
+                getsound = strtol(val + 5, (char **) 0, 0);
                 getsound += 2;  /* get interrupt sound  */
                 sprintf(ssndtype, "IntSound.%d", getsound - 2);
             }

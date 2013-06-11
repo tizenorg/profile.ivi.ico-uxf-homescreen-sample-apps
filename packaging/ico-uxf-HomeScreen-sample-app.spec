@@ -1,6 +1,6 @@
 Name:       ico-uxf-HomeScreen-sample-app
 Summary:    HomeScreen sample application 
-Version:    0.0.10
+Version:    0.0.11
 Release:    1
 Group:      System/GUI
 License:    Apache License, Version 2.0
@@ -25,10 +25,10 @@ BuildRequires: pkgconfig(ail)
 BuildRequires: libwebsockets-devel
 BuildRequires: pulseaudio-libs-devel
 BuildRequires: ico-uxf-weston-plugin-devel
-BuildRequires: ico-uxf-HomeScreen-devel
+BuildRequires: ico-uxf-HomeScreen-devel >= 0.3.06
 Requires: weston >= 1.0
 Requires: ico-uxf-weston-plugin
-Requires: ico-uxf-HomeScreen
+Requires: ico-uxf-HomeScreen >= 0.3.06
 Requires: ecore
 Requires: elementary
 Requires: evas
@@ -45,9 +45,9 @@ BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(aul)
 BuildRequires: libwebsockets-devel
 BuildRequires: ico-uxf-weston-plugin-devel
-BuildRequires: ico-uxf-HomeScreen-devel
+BuildRequires: ico-uxf-HomeScreen-devel >= 0.3.06
 Requires: ico-uxf-weston-plugin
-Requires: ico-uxf-HomeScreen
+Requires: ico-uxf-HomeScreen >= 0.3.06
 Requires: ecore
 Requires: elementary
 Requires: evas
@@ -82,11 +82,11 @@ BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(aul)
 BuildRequires: libwebsockets-devel
 BuildRequires: ico-uxf-weston-plugin-devel
-BuildRequires: ico-uxf-HomeScreen-devel
+BuildRequires: ico-uxf-HomeScreen-devel >= 0.3.06
 BuildRequires: edje-tools
 #BuildRequires: pkgconfig(opencv)
 Requires: ico-uxf-weston-plugin
-Requires: ico-uxf-HomeScreen
+Requires: ico-uxf-HomeScreen >= 0.3.06
 Requires: ecore
 Requires: evas
 Requires: ecore-evas
