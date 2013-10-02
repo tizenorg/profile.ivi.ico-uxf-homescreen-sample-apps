@@ -17,9 +17,8 @@
 #include <string.h>
 #include <math.h>
 #include "soundsample_yswavfile.h"
-
-//#include "app_log.h"
-#include "ico_apf_log.h"
+//#include "ico_apf_log.h"
+#include "ico_log.h"
 
 YsWavFile::YsWavFile()
 {
@@ -115,7 +114,7 @@ YSRESULT YsWavFile::LoadWav(const char fn[])
 {
     FILE *fp;
 
-    uim_debug("Loading %s", fn);
+    ICO_DBG("Loading %s", fn);
 
     fp = fopen(fn, "rb");
     if (fp != NULL) {
@@ -130,36 +129,36 @@ YSRESULT YsWavFile::LoadWav(const char fn[])
 
 
         if (fread(buf, 1, 4, fp) != 4) {
-            uim_debug("Error in reading RIFF.");
+            ICO_DBG("Error in reading RIFF.");
             goto ERREND;
         }
         if (strncmp((char *) buf, "RIFF", 4) != 0) {
-            uim_debug("Warning: RIFF not found.");
+            ICO_DBG("Warning: RIFF not found.");
         }
 
 
         if (fread(buf, 1, 4, fp) != 4) {
-            uim_debug("Error in reading file size.");
+            ICO_DBG("Error in reading file size.");
             goto ERREND;
         }
         fSize = GetUnsigned(buf);
-        uim_debug("File Size=%d", fSize + 8);
+        ICO_DBG("File Size=%d", fSize + 8);
 
         if (fread(buf, 1, 8, fp) != 8) {
-            uim_debug("Error in reading WAVEfmt.");
+            ICO_DBG("Error in reading WAVEfmt.");
             goto ERREND;
         }
         if (strncmp((char *) buf, "WAVEfmt", 7) != 0) {
-            uim_debug("Warning: WAVEfmt not found");
+            ICO_DBG("Warning: WAVEfmt not found");
         }
 
 
         if (fread(buf, 1, 4, fp) != 4) {
-            uim_debug("Error in reading header size.");
+            ICO_DBG("Error in reading header size.");
             goto ERREND;
         }
         hdrSize = GetUnsigned(buf);
-        uim_debug("Header Size=%d", hdrSize);
+        ICO_DBG("Header Size=%d", hdrSize);
 
 
         //    WORD  wFormatTag;
@@ -170,7 +169,7 @@ YSRESULT YsWavFile::LoadWav(const char fn[])
         //    WORD  wBitsPerSample;
         //    WORD  cbSize;
         if (fread(buf, 1, hdrSize, fp) != hdrSize) {
-            uim_debug("Error in reading header.");
+            ICO_DBG("Error in reading header.");
             goto ERREND;
         }
         wFormatTag = GetUnsignedShort(buf);
@@ -181,19 +180,19 @@ YSRESULT YsWavFile::LoadWav(const char fn[])
         wBitsPerSample = (hdrSize >= 16 ? GetUnsignedShort(buf + 14) : 0);
         cbSize = (hdrSize >= 18 ? GetUnsignedShort(buf + 16) : 0);
 
-        uim_debug("wFormatTag=%d", wFormatTag);
-        uim_debug("nChannels=%d", nChannels);
-        uim_debug("nSamplesPerSec=%d", nSamplesPerSec);
-        uim_debug("nAvgBytesPerSec=%d", nAvgBytesPerSec);
-        uim_debug("nBlockAlign=%d", nBlockAlign);
-        uim_debug("wBitsPerSample=%d", wBitsPerSample);
-        uim_debug("cbSize=%d", cbSize);
+        ICO_DBG("wFormatTag=%d", wFormatTag);
+        ICO_DBG("nChannels=%d", nChannels);
+        ICO_DBG("nSamplesPerSec=%d", nSamplesPerSec);
+        ICO_DBG("nAvgBytesPerSec=%d", nAvgBytesPerSec);
+        ICO_DBG("nBlockAlign=%d", nBlockAlign);
+        ICO_DBG("wBitsPerSample=%d", wBitsPerSample);
+        ICO_DBG("cbSize=%d", cbSize);
 
 
 
         while (1) {
             if (fread(buf, 1, 4, fp) != 4) {
-                uim_debug("Error while waiting for data.");
+                ICO_DBG("Error while waiting for data.");
                 goto ERREND;
             }
 
@@ -204,10 +203,10 @@ YSRESULT YsWavFile::LoadWav(const char fn[])
                 break;
             }
             else {
-                uim_debug("Skipping %c%c%c%c", buf[0], buf[1], buf[2],
+                ICO_DBG("Skipping %c%c%c%c", buf[0], buf[1], buf[2],
                             buf[3]);
                 if (fread(buf, 1, 4, fp) != 4) {
-                    uim_debug("Error while skipping unknown block.");
+                    ICO_DBG("Error while skipping unknown block.");
                     goto ERREND;
                 }
 
@@ -215,7 +214,7 @@ YSRESULT YsWavFile::LoadWav(const char fn[])
 
                 l = GetUnsigned(buf);
                 if (fread(buf, 1, l, fp) != l) {
-                    uim_debug("Error while skipping unknown block.");
+                    ICO_DBG("Error while skipping unknown block.");
                     goto ERREND;
                 }
             }
@@ -223,16 +222,16 @@ YSRESULT YsWavFile::LoadWav(const char fn[])
 
 
         if (fread(buf, 1, 4, fp) != 4) {
-            uim_debug("Error in reading data size.");
+            ICO_DBG("Error in reading data size.");
             goto ERREND;
         }
         dataSize = GetUnsigned(buf);
-        uim_debug("Data Size=%d (0x%x)", dataSize, dataSize);
+        ICO_DBG("Data Size=%d (0x%x)", dataSize, dataSize);
 
         dat = new unsigned char[dataSize];
         if ((l = fread(dat, 1, dataSize, fp)) != dataSize) {
-            uim_debug("Warning: File ended before reading all data.");
-            uim_debug("  %d (0x%x) bytes have been read", l, l);
+            ICO_DBG("Warning: File ended before reading all data.");
+            ICO_DBG("  %d (0x%x) bytes have been read", l, l);
         }
 
         stereo = (nChannels == 2 ? YSTRUE : YSFALSE);
@@ -253,7 +252,7 @@ YSRESULT YsWavFile::LoadWav(const char fn[])
     return YSERR;
 
   ERREND:
-    uim_debug("Err!");
+    ICO_DBG("Err!");
     if (fp != NULL) {
         fclose(fp);
     }
@@ -269,7 +268,6 @@ YSRESULT YsWavFile::ConvertTo16Bit(void)
     else if (bit == 8) {
         if (sizeInBytes > 0 && dat != NULL) {
             unsigned char *newDat = new unsigned char[sizeInBytes * 2];
-//          for (int i=0; i<sizeInBytes; i++)
             for (unsigned int i = 0; i < sizeInBytes; i++) {
                 newDat[i * 2] = dat[i];
                 newDat[i * 2 + 1] = dat[i];
@@ -292,7 +290,6 @@ YSRESULT YsWavFile::ConvertTo8Bit(void)
     }
     else if (bit == 16) {
         unsigned char *newDat = new unsigned char[sizeInBytes / 2];
-//      for (int i=0; i<sizeInBytes; i+=2)
         for (unsigned int i = 0; i < sizeInBytes; i += 2) {
             newDat[i / 2] = dat[i];
         }
@@ -315,7 +312,6 @@ YSRESULT YsWavFile::ConvertToStereo(void)
     else {
         if (bit == 8) {
             unsigned char *newDat = new unsigned char[sizeInBytes * 2];
-//          for (int i=0; i<sizeInBytes; i++)
             for (unsigned int i = 0; i < sizeInBytes; i++) {
                 newDat[i * 2] = dat[i];
                 newDat[i * 2 + 1] = dat[i];
@@ -330,7 +326,6 @@ YSRESULT YsWavFile::ConvertToStereo(void)
         }
         else if (bit == 16) {
             unsigned char *newDat = new unsigned char[sizeInBytes * 2];
-//          for (int i=0; i<sizeInBytes; i+=2)
             for (unsigned int i = 0; i < sizeInBytes; i += 2) {
                 newDat[i * 2] = dat[i];
                 newDat[i * 2 + 1] = dat[i + 1];
@@ -349,7 +344,6 @@ YSRESULT YsWavFile::ConvertToStereo(void)
     return YSERR;
 }
 
-//YSRESULT YsWavFile::Resample(int newRate)
 YSRESULT YsWavFile::Resample(unsigned int newRate)
 {
     if (rate != newRate) {
@@ -480,13 +474,11 @@ YSRESULT YsWavFile::ConvertToSigned(void)
     }
     else {
         if (bit == 8) {
-//          for (int i = 0; i < sizeInBytes; i++)
             for (unsigned int i = 0; i < sizeInBytes; i++) {
                 dat[i] -= 128;
             }
         }
         else if (bit == 16) {
-//          for (int i = 0; i < sizeInBytes-1; i+=2)
             for (unsigned int i = 0; i < sizeInBytes - 1; i += 2) {
                 int d;
                 d = dat[i] + dat[i + 1] * 256;
@@ -507,13 +499,11 @@ YSRESULT YsWavFile::ConvertToUnsigned(void)
     }
     else {
         if (bit == 8) {
-//          for (int i = 0; i < sizeInBytes; i++)
             for (unsigned int i = 0; i < sizeInBytes; i++) {
                 dat[i] += 128;
             }
         }
         else if (bit == 16) {
-//          for (int i = 0; i < sizeInBytes-1; i+=2)
             for (unsigned int i = 0; i < sizeInBytes - 1; i += 2) {
                 int d = dat[i] + dat[i + 1] * 256;
                 if (d >= 32768) {
@@ -528,13 +518,6 @@ YSRESULT YsWavFile::ConvertToUnsigned(void)
     }
     return YSOK;
 }
-
-//int main(int ac,char *av[])
-//{
-//  YsWavFile test;
-//  test.LoadWav(av[1]);
-//  return 0;
-//}
 
 int YsWavFile::GetNumChannel(void) const
 {

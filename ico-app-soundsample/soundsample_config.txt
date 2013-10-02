@@ -2,7 +2,7 @@
 ##	/opt/apps/org.tizen.ico.ico-app-soundsample/res/soundsample_config.txt
 
 [data]
-wavfile_path=/opt/apps/org.tizen.ico.app-soundsample/sounds/musicbox.wav
+wavfile_path=/usr/apps/org.tizen.ico.app-soundsample/sounds/musicbox.wav
 server_ip=127.0.0.1
 device_name=0
 volume1=30000

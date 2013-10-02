@@ -1,15 +1,21 @@
 # The number of the vehicles information maximum displays 32 
-#Name           Path Name                                   Interface Name               Property Name
-#----------------------------------------------------------------------------------------------------------
- VehicleSpeed   /org/automotive/runningstatus/vehicleSpeed  org.automotive.vehicleSpeed  VehicleSpeed
- AccelerationX  /org/automotive/runningstatus/acceleration  org.automotive.acceleration  X
- ShiftPosition  /org/automotive/runningstatus/transmission  org.automotive.transmission  ShiftPosition
- EngineSpeed    /org/automotive/runningstatus/engineSpeed   org.automotive.engineSpeed   EngineSpeed
- Latitude       /org/automotive/custom/Latitude             org.automotive.Latitude      Latitude 
- Longitude      /org/automotive/custom/Longitude            org.automotive.Longitude     Longitude 
- Direction      /org/automotive/custom/Direction            org.automotive.Direction     Direction
- BrakePressure  /org/automotive/custom/BrakePressure        org.automotive.BrakePressure BrakePressure
- LeftTurn       /org/automotive/runningstatus/lightStatus   org.automotive.lightStatus   LeftTurn
- RightTurn      /org/automotive/runningstatus/lightStatus   org.automotive.lightStatus   RightTurn
- GearPosition   /org/automotive/runningstatus/transmission  org.automotive.transmission  GearPosition 
- BrakeSignal    /org/automotive/runningstatus/wheelBrake    org.automotive.wheelBrake    Engaged
+#Name               Path Name                                      Interface Name                    Property Name
+#------------------------------------------------------------------------------------------------------------------
+ Latitude           /org/automotive/runningstatus/Location         org.automotive.Location           Latitude
+ Longitude          /org/automotive/runningstatus/Location         org.automotive.Location           Longitude
+ Altitude           /org/automotive/runningstatus/Location         org.automotive.Location           Altitude 
+ Direction          /org/automotive/runningstatus/Location         org.automotive.Location           Direction
+ VehicleSpeed       /org/automotive/runningstatus/VehicleSpeed     org.automotive.VehicleSpeed       VehicleSpeed
+ EngineSpeed        /org/automotive/runningstatus/EngineSpeed      org.automotive.EngineSpeed        EngineSpeed
+ ShiftPosition      /org/automotive/runningstatus/Transmission     org.automotive.Transmission       ShiftPosition
+ GearPosition       /org/automotive/runningstatus/Transmission     org.automotive.Transmission       GearPosition 
+ Mode               /org/automotive/runningstatus/Transmission     org.automotive.Transmission       Mode 
+ BrakeSignal        /org/automotive/runningstatus/WheelBrake       org.automotive.WheelBrake         Engaged
+ AccelerationX      /org/automotive/runningstatus/Acceleration     org.automotive.Acceleration       X
+ AccelerationY      /org/automotive/custom/AccelerataionY          org.automotive.AccelerataionY     AccelerataionY
+ AccelerationZ      /org/automotive/runningstatus/Acceleration     org.automotive.Acceleration       Z
+ LeftTurn           /org/automotive/runningstatus/LightStatus      org.automotive.LightStatus        LeftTurn
+ RightTurn          /org/automotive/runningstatus/LightStatus      org.automotive.LightStatus        RightTurn
+# WheelBrakePressure /org/automotive/custom/WheelBrakePressure      org.automotive.WheelBrakePressure WheelBrakePressure
+ ExteriorBrightness /org/automotive/environment/ExteriorBrightness org.automotive.ExteriorBrightness ExteriorBrightness
+ 

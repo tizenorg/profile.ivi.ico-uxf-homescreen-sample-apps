@@ -1,9 +1,0 @@
-#Name           Path Name                                   Interface Name               Property Name
-#----------------------------------------------------------------------------------------------------------
-# Latitude       /org/automotive/runningstatus/location      org.automotive.location      Latitude
-# Longitude      /org/automotive/runningstatus/location      org.automotive.location      Longitude
-# Direction      /org/automotive/runningstatus/location      org.automotive.location      Direction
- VehicleSpeed   /org/automotive/runningstatus/vehicleSpeed  org.automotive.vehicleSpeed  VehicleSpeed
- Latitude       /org/automotive/custom/Latitude             org.automotive.Latitude      Latitude 
- Longitude      /org/automotive/custom/Longitude            org.automotive.Longitude     Longitude 
- Direction      /org/automotive/custom/Direction            org.automotive.Direction     Direction

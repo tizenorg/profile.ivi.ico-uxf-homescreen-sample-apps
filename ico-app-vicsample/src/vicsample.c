@@ -21,75 +21,63 @@
 #define __UNUSED__
 #endif
 
-//#include <VehicleInfo.h>
 #include <Ecore.h>
 #include <Ecore_Evas.h>
-
-#include <dbus/dbus.h>          /* dbus */
-#include <string.h>             /* test log output */
-#include <stdbool.h>            // bool type define //TEST
+#include <Elementary.h>
+//#include <Ecore_X.h>
+#include <app.h>
+#include <dbus/dbus.h>
+#include <string.h>
+#include <stdbool.h>
 #include <bundle.h>
-//#include "app_log.h"
-#include "ico_apf.h"
-#include "ico_apf_ecore.h"
-#include "ico_apf_log.h"
-//#include    "ico_uxf_conf_common.h"
-/* macro for debug */
-//#define DEBUG_PRINT(...)    ICO_UXF_DEBUG(__VA_ARGS__)
-//#define ERROR_PRINT(...)    ICO_UXF_WARN(__VA_ARGS__)
-
-#if 0
-// log output define
-#include <unistd.h>
-
-#define DEBUG_PRINT(...)    LOG_PRINT(__VA_ARGS__)
-#define LOG_PRINT(fmt,...)  \
-    {log_print("%s> "fmt" (%s,%s:%d)\n", log_curtime("DBG"), ##__VA_ARGS__,\
-               __func__, __FILE__, __LINE__); }
-
-static FILE *sDbgFd = (FILE *) 0;
-void log_print(const char *fmt, ...)
-{
-    va_list list;
-
-    va_start(list, fmt);
-    vfprintf(sDbgFd, fmt, list);
-    va_end(list);
-    fflush(sDbgFd);
-}
-
-/* local time difference(sec) */
-static int sTimeZone = (99 * 60 * 60);
-
-char *log_curtime(const char *level)
-{
-
-    struct timeval NowTime;
-    extern long timezone;
-    static char sBuf[28];
-
-    gettimeofday(&NowTime, (struct timezone *) 0);
-    if (sTimeZone > (24 * 60 * 60)) {
-        tzset();
-        sTimeZone = timezone;
-    }
-    NowTime.tv_sec -= sTimeZone;
-
-    sprintf(sBuf, "%02d:%02d:%02d.%03d[%s]@%d",
-            (int) ((NowTime.tv_sec / 3600) % 24),
-            (int) ((NowTime.tv_sec / 60) % 60),
-            (int) (NowTime.tv_sec % 60),
-            (int) NowTime.tv_usec / 1000, level, getpid());
-
-    return (sBuf);
-}
-#endif
+//#include "ico_apf.h"
+//#include "ico_apf_ecore.h"
+//#include "ico_apf_log.h"
+#include <aul.h>
+#include "ico_log.h"
 
 /*============================================================================*/
 /* Define fixed parameters                                                    */
 /*============================================================================*/
-#define WIDTH  (700)            /* Background width  */
-#define HEIGHT (934)            /* Background height */
+#define STATUS_BAR_HEIGHT (64)
+#define CTRL_BAR_HEIGHT   (128)
+#define WIDTH  (1080) /* Base Background width  */
+#define HEIGHT (1920 - STATUS_BAR_HEIGHT - CTRL_BAR_HEIGHT) /* Base Background height */
+
+/* Base */
+#define SCRN_TYPE_W  800
+#define SCRN_TYPE_H  20
+#define CTG_BX_W     530
+#define CTG_BX_H     250
+//#define VIC_LI_W     1000
+#define VIC_LI_W     1060
+//#define VIC_LI_H     700
+#define VIC_LI_H     1050
+#define GET_BTN_W    800
+#define GET_BTN_H    160
+
+#define SCRN_TYPE_X  20
+#define SCRN_TYPE_Y  20
+#define CTG_BX_X     10
+#define CTG_BX_Y     40
+//#define VIC_LI_X     900
+//#define VIC_LI_Y     40
+#define VIC_LI_X     10
+//#define VIC_LI_Y     800
+#define VIC_LI_Y     450
+//#define GET_BTN_X    1000
+//#define GET_BTN_Y    800
+#define GET_BTN_X    140
+#define GET_BTN_Y    1530
+
+/* font */
+#define FONT_SIZE       48
+#define FONT_FAMILY     (char *)"Sans"  // Mono, Sans, Serif
+
+/* Text class name */
+#define TEXT_BUTTON     (char *)"button"
+#define TEXT_LIST_ITEM  (char *)"list_item"
+#define TEXT_LABEL      (char *)"label"
 
 /* Count vehicle information */
 static int property_num = 0;
@@ -98,21 +86,37 @@ static int property_num = 0;
 #define MAX_PARA_NUM 32
 
 /* vehicle information ID */
-#define VEHICLESPEED  0
-#define ACCELERATIONX 1
-#define SHIFTPOSITION 2
-#define ENGINESPEED   3
-#define LATITUDE      4
-#define ALTITUDE      5
-#define GEARPOSITION  6
-#define LONGITUDE     7
-#define MODE          8
+#define VEHICLESPEED       0
+#define ACCELERATIONX      1
+#define SHIFTPOSITION      2
+#define ENGINESPEED        3
+#define LATITUDE           4
+#define ALTITUDE           5
+#define GEARPOSITION       6
+#define LONGITUDE          7
+#define MODE               8
+#define DIRECTION          9
+#define WHEELBRAKEPRESSURE 10
+#define LEFTTURN           11
+#define RIGHTTURN          12
+#define BRAKESIGNAL        13
+#define ACCELERATIONY      14
+#define ACCELERATIONZ      15
+#define EXTERIORBRIGHTNESS 16
 
-#define DIRECTION     9
-#define BRAKEPRESSURE 10
-#define LEFTTURN      11
-#define RIGHTTURN     12
-#define BRAKESIGNAL   13
+/* maximum categories */
+#define PACKAG "ico-app-vicsample"
+#define MAX_CATEGORY_NUM 8
+
+/* vehicle information Parameter Category */
+#define DRIVINGSAFETY   0
+#define ELECTRICVEHICLE 1
+#define ENVIRONMENT     2
+#define MAINTENANCE     3
+#define PARKING         4
+#define PERSONALIZATION 5
+#define RUNNINGSTATUS   6
+#define VEHICLEINFO     7
 
 /* Definition for use with D-Bus */
 #define DBUS_SERVICE   "org.automotive.message.broker"
@@ -120,33 +124,8 @@ static int property_num = 0;
 #define DBUS_METHOD    "Get"
 
 /* Definition for files */
-//#define CONFIG_FILE    "/home/rpf/src/app/vic_inf_dspTP/vicsample_config.txt"
-//#define TMP_LOG        "/home/rpf/var/log/uifw/tmp_vic_inf_dspTP.log"
-//#define LOG_NAME       "/home/rpf/var/log/uifw/vic_inf_dspTP.log"
-#define CONFIG_FILE    "/opt/apps/org.tizen.ico.app-vicsample/res/vicsample_config.txt"
-#define TMP_LOG        "/tmp/tmp_ico-app-vicsample.log"
-#define LOG_NAME       "/tmp/ico-app-vicsample.log"
-
-
-/* coordinates of  vehicle information table frame */
-#define VTX_SX         50.0F    /* X position of the upper left corner */
-#define VTX_SY         30.0F    /* Y position of the upper left corner */
-#define VTX_EX         650.0F   /* X position of the lower right */
-#define VTX_EY         830.0F   /* Y position of the lower right */
-#define FIX_LINE_NUM   6        /* The number of lines of the table */
-                                /* Percentage of the column 13 = 1+4+4+4 */
-                                /* No.[1]:Name(JP)[4]:Name(EN)[4]:Value[4] */
-#define FIX_SEQ_BASE   (VTX_EX - VTX_SX) / 13
-                                /* X position of the 1st frame vertical line */
-#define FIX_SEQ_LINE1  VTX_SX + FIX_SEQ_BASE
-                                /* X position of the 2nd frame vertical line */
-#define FIX_SEQ_LINE2  FIX_SEQ_LINE1 + (FIX_SEQ_BASE * 4)
-                                /* X position of the 3rd frame vertical line */
-#define FIX_SEQ_LINE3  FIX_SEQ_LINE2 + (FIX_SEQ_BASE * 4)
-
-/* Horizontal line interval size */
-#define UFIX_LINE_BASE (VTX_EY - VTX_SY)/MAX_PARA_NUM
-
+#define CONFIG_FILE    "/usr/apps/org.tizen.ico.app-vicsample/res/vicsample_config.txt"
+#define BG_IMAGE_FILE  "/usr/apps/org.tizen.ico.app-vicsample/res/images/vicinfo_bg.png"
 /*============================================================================*/
 /* Define data types                                                          */
 /*============================================================================*/
@@ -165,6 +144,7 @@ union VicVal_t
 struct vic_data_t
 {
     int property;
+    int category;
     char name[32];
     char path_name[64];
     char interface_name[64];
@@ -174,19 +154,40 @@ struct vic_data_t
 struct vic_key_data_t
 {
     int id;
+    int category;
     char name[32];
 };
 
+struct vic_category_data_t
+{
+    int category;
+    char name[32];
+};
+
+struct appdata_t
+{
+    Evas_Object *win;           //main window
+    Evas_Object *bg;
+
+    Evas_Object *scrn_type;
+    Evas_Object *ctg_bx;
+    Evas_Object *ctg_bx2;
+    Evas_Object *ctg_btn[MAX_CATEGORY_NUM];
+    Evas_Object *vic_ini_li;
+    Evas_Object *vic_li[MAX_CATEGORY_NUM];
+    Evas_Object *vic_val_text[MAX_PARA_NUM];
+    Evas_Object *vic_val_dmy_text[MAX_CATEGORY_NUM];
+    Evas_Object *get_btn;
+};
 /*============================================================================*/
 /* Function prototype for static(internal) functions                          */
 /*============================================================================*/
-static void _canvas_resize_cb(Ecore_Evas *ee);
-static void _on_destroy(Ecore_Evas *ee __UNUSED__);
-static Eina_Bool _timer_cb(void *data);
-static void cmdlog_output(int key);
+static double Width = 0;        /* Background width  */
+static double Height = 0;       /* Background height */
 static void drawVehicleInfo(void);
-static void _on_mousedown(void *data, Evas *evas, Evas_Object *o,
-                          void *einfo);
+static void _on_mousedown(void *data, Evas_Object *obj, void *event_info);
+static void _on_ctg_mousedown(void *data, Evas_Object *obj,
+                              void *event_info);
 static int getVehicleInfo(int key, union VicVal_t *vic_val_p);
 static bool parse_elementary_value(union VicVal_t *vic_val_p,
                                    DBusMessageIter *iter);
@@ -199,121 +200,55 @@ static bool parse_dict_entry(union VicVal_t *vic_val_p,
 static bool parse_array(union VicVal_t *vic_val_p, DBusMessageIter *iter);
 // TEST
 static bool parse_struct(union VicVal_t *vic_val_p, DBusMessageIter *iter);
-static int get_config(void);
 
+static int get_config(void);
+static void _winCreate(void);
+static void elmListCreate(void);
 /*============================================================================*/
 /* Tables and Valiables                                                       */
 /*============================================================================*/
 const static char Bus_name[] = DBUS_SERVICE;
 static struct vic_data_t vic_data[MAX_PARA_NUM];
+static DBusConnection *g_connection = NULL;
+static struct appdata_t Ad;
+static char SscrnType[32];
+static int ListDispSts = -1;
+
+const struct vic_category_data_t vic_category_data[MAX_CATEGORY_NUM] = {
+    {DRIVINGSAFETY, "Driving safety"},
+    {ELECTRICVEHICLE, "Electric Vehicle"},
+    {ENVIRONMENT, "Environment"},
+    {MAINTENANCE, "Maintenance"},
+    {PARKING, "Parking"},
+    {PERSONALIZATION, "Personalization"},
+    {RUNNINGSTATUS, "Running Status"},
+    {VEHICLEINFO, "Vehicle Info"}
+};
 
 const struct vic_key_data_t vic_key_data[] = {
-    {VEHICLESPEED, "VehicleSpeed"},
-    {ACCELERATIONX, "AccelerationX"},
-    {SHIFTPOSITION, "ShiftPosition"},
-    {ENGINESPEED, "EngineSpeed"},
-    {LATITUDE, "Latitude"},
-    {ALTITUDE, "Altitude"},
-    {GEARPOSITION, "GearPosition"},
-    {LONGITUDE, "Longitude"},
-    {MODE, "Mode"},
-    {DIRECTION, "Direction"},
-    {BRAKEPRESSURE, "BrakePressure"},
-    {LEFTTURN, "LeftTurn"},
-    {RIGHTTURN, "RightTurn"},
-    {BRAKESIGNAL, "BrakeSignal"},
-    {-1, "END"}
+    {VEHICLESPEED, RUNNINGSTATUS, "VehicleSpeed"},
+    {ACCELERATIONX, RUNNINGSTATUS, "AccelerationX"},
+    {SHIFTPOSITION, RUNNINGSTATUS, "ShiftPosition"},
+    {ENGINESPEED, RUNNINGSTATUS, "EngineSpeed"},
+    {LATITUDE, RUNNINGSTATUS, "Latitude"},
+    {ALTITUDE, RUNNINGSTATUS, "Altitude"},
+    {GEARPOSITION, RUNNINGSTATUS, "GearPosition"},
+    {LONGITUDE, RUNNINGSTATUS, "Longitude"},
+    {MODE, RUNNINGSTATUS, "Mode"},
+    {DIRECTION, RUNNINGSTATUS, "Direction"},
+    {WHEELBRAKEPRESSURE, RUNNINGSTATUS, "WheelBrakePressure"},
+    {LEFTTURN, RUNNINGSTATUS, "LeftTurn"},
+    {RIGHTTURN, RUNNINGSTATUS, "RightTurn"},
+    {BRAKESIGNAL, RUNNINGSTATUS, "BrakeSignal"},
+    {ACCELERATIONY, RUNNINGSTATUS, "AccelerationY"},
+    {ACCELERATIONZ, RUNNINGSTATUS, "AccelerationZ"},
+    {EXTERIORBRIGHTNESS, ENVIRONMENT, "ExteriorBrightness"},
+    {-1, -1, "END"}
 };
 
-/* Storage area of vehicle information */
-static union VicVal_t s_vic_val[MAX_PARA_NUM];
-/* Object for displaying vehicle information */
-static Evas_Object *vic_val_text[MAX_PARA_NUM];
-
-/* Table border line */
-const static Evas_Coord f_vtx[FIX_LINE_NUM][4] = {
-    {VTX_SX, VTX_SY, VTX_SX, VTX_EY},   // Border of the Left frame
-    {VTX_EX, VTX_SY, VTX_EX, VTX_EY},   // Border of the Right frame
-    {VTX_SX, VTX_SY, VTX_EX, VTX_SY},   // Border of the upper frame
-    {VTX_SX, VTX_EY, VTX_EX, VTX_EY},   // Border of the lower frame
-
-    {FIX_SEQ_LINE1, VTX_SY, FIX_SEQ_LINE1, VTX_EY},     // Border of the column 1
-    {FIX_SEQ_LINE2, VTX_SY, FIX_SEQ_LINE2, VTX_EY},     // Border of the column 2
-//{FIX_SEQ_LINE3, VTX_SY, FIX_SEQ_LINE3, VTX_EY}  // Border of the column 3
-};
-
-//#define WIDTH  (300)
-//#define HEIGHT (300)
-
-static Ecore_Evas *ee;
-static Evas_Object *text, *bg;
-static char sscrntype[32];
-
-static const char commands[] =
-    "commands are:\n"
-    "\tm - impose a minumum size to the window\n"
-    "\tx - impose a maximum size to the window\n"
-    "\tb - impose a base size to the window\n"
-    "\ts - impose a step size (different than 1 px) to the window\n"
-    "\th - print help\n";
-
-/* to inform current window's size */
-static void _canvas_resize_cb(Ecore_Evas *ee)
-{
-    int w, h;
-    char buf[256];
-
-    ecore_evas_geometry_get(ee, NULL, NULL, &w, &h);
-    snprintf(buf, sizeof(buf), "%s %d x %d", sscrntype, w, h);
-    evas_object_text_text_set(text, buf);
-    evas_object_move(text, VTX_SX, VTX_SY - 22);
-    evas_object_resize(bg, w, h);
-}
-
-static void _on_destroy(Ecore_Evas *ee __UNUSED__)
-{
-    ecore_main_loop_quit();
-}
-
-/* drawing current time */
-static Eina_Bool _timer_cb(void *data)
-{
-    char str[32];
-    time_t timer;
-    struct tm *date;
-    timer = time(NULL);         /* get time in seconds */
-    date = localtime(&timer);   /* Converted to calendar time */
-    sprintf(str, "%s", asctime(date));
-    evas_object_text_text_set((Evas_Object *) data, str);
-
-//    drawVehicleInfo(); /* Get the vehicle information than AMB */ TEST
-
-    return EINA_TRUE;           /* Continuation of the timer */
-}
-
-/* log output for DBUS command result (Debug functin) */
-static void cmdlog_output(int key)
-{
-#if 0
-    char mes1[] =
-        "dbus-send --system --dest=org.automotive.message.broker --type=method_call --print-reply";
-    char mes2[] = "org.freedesktop.DBus.Properties.Get";
-    char mes3[] = "string:";
-    char str[1024];
-    sprintf(str, "%s %s %s %s\"%s\" %s\"%s\" > %s",
-            mes1, vic_data[key].path_name, mes2, mes3,
-            vic_data[key].interface_name, mes3, vic_data[key].property_name,
-            TMP_LOG);
-
-    DEBUG_PRINT("%s(D-bus  Command Result)", vic_data[key].name);
-    system(str);
-
-    /* logout */
-    log_output();
-#endif
-    return;
-}
-
+/*============================================================================*/
+/* Function                                                                   */
+/*============================================================================*/
 static void drawVehicleInfo()
 {
     union VicVal_t vic_val[32];
@@ -323,143 +258,124 @@ static void drawVehicleInfo()
 
     for (i = 0; i < property_num; i++) {
         result = getVehicleInfo(i, vic_val);
+        memset(vic_str, 0x00, sizeof(vic_str));
 
         if (result != 0) {
-            uim_debug("Err getVehicleInfo : %s", vic_data[i].name);
+            ICO_DBG("Err getVehicleInfo : %s", vic_data[i].name);
             continue;
         }
 
         switch (vic_data[i].property) {
         case VEHICLESPEED:
-            uim_debug("%s(D-bus I/F Result) = %d", vic_data[i].name,
-                        vic_val[0].i32_val);
-            cmdlog_output(i);
-
-//            if (vic_val[0].i32_val != s_vic_val[i].i32_val) {
-//                uim_debug("%s update Front:%d Back:%d", vic_data[i].name,
-//                            s_vic_val[i].i32_val, vic_val[0].i32_val);
-            s_vic_val[i].i32_val = vic_val[0].i32_val;
-
+            ICO_DBG("%s(D-bus I/F Result) = %d", vic_data[i].name,
+                      vic_val[0].i32_val);
             /* Drawing update */
             sprintf(vic_str, "%d", vic_val[0].i32_val);
-            evas_object_text_text_set(vic_val_text[i], vic_str);
-
-//            }
-//            else {
-//                uim_debug("%s no update:%d", vic_data[i].name,
-//                            vic_val[0].i32_val);
-//            }
-
+            elm_object_text_set(Ad.vic_val_text[i], vic_str);
             break;
 
         case ACCELERATIONX:
-            uim_debug("%s(D-bus I/F Result) = %d", vic_data[i].name,
-                        vic_val[0].u16_val);
-            cmdlog_output(i);
-
-//            if (vic_val[0].u16_val != s_vic_val[i].u16_val) {
-//                uim_debug("%s update Front:%d Back:%d", vic_data[i].name,
-//                            s_vic_val[i].u16_val, vic_val[0].u16_val);
-            s_vic_val[i].u16_val = vic_val[0].u16_val;
-
+        case ACCELERATIONZ:
+            ICO_DBG("%s(D-bus I/F Result) = %d", vic_data[i].name,
+                      vic_val[0].u16_val);
             /* Drawing update */
-            sprintf(vic_str, "%d", vic_val[0].i32_val);
             sprintf(vic_str, "%d", vic_val[0].u16_val);
-            evas_object_text_text_set(vic_val_text[i], vic_str);
-//            }
-//            else {
-//                uim_debug("%s no update:%d", vic_data[i].name,
-//                            vic_val[0].u16_val);
-//            }
-
+            elm_object_text_set(Ad.vic_val_text[i], vic_str);
             break;
 
         case SHIFTPOSITION:
-            uim_debug("%s(D-bus I/F Result) = %d", vic_data[i].name,
-                        vic_val[0].byte_val);
-            cmdlog_output(i);
-
-//            if (vic_val[0].byte_val != s_vic_val[i].byte_val) {
-//                uim_debug("%s update Front:%d Back:%d", vic_data[i].name,
-//                            s_vic_val[i].byte_val, vic_val[0].byte_val);
-            s_vic_val[i].byte_val = vic_val[0].byte_val;
-
+            ICO_DBG("%s(D-bus I/F Result) = %d", vic_data[i].name,
+                      vic_val[0].byte_val);
             /* Drawing update */
             sprintf(vic_str, "%d", vic_val[0].byte_val);
-            evas_object_text_text_set(vic_val_text[i], vic_str);
-//            }
-//            else {
-//                uim_debug("%s noupdate:%d", vic_data[i].name,
-//                            vic_val[0].byte_val);
-//            }
-
+            elm_object_text_set(Ad.vic_val_text[i], vic_str);
             break;
 
         case ENGINESPEED:
         case DIRECTION:
-        case BRAKEPRESSURE:
-            uim_debug("%s(D-bus I/F Result) = %d", vic_data[i].name,
-                        vic_val[0].i32_val);
-            cmdlog_output(i);
-            s_vic_val[i].i32_val = vic_val[0].i32_val;
+        case WHEELBRAKEPRESSURE:
+        case ACCELERATIONY:
+            ICO_DBG("%s(D-bus I/F Result) = %d", vic_data[i].name,
+                      vic_val[0].i32_val);
             sprintf(vic_str, "%d", vic_val[0].i32_val);
-            evas_object_text_text_set(vic_val_text[i], vic_str);
+            elm_object_text_set(Ad.vic_val_text[i], vic_str);
             break;
 
         case LATITUDE:
         case ALTITUDE:
         case LONGITUDE:
-            uim_debug("%s(D-bus I/F Result) = %f", vic_data[i].name,
-                        vic_val[0].d_val);
-            cmdlog_output(i);
-            s_vic_val[i].d_val = vic_val[0].d_val;
+            ICO_DBG("%s(D-bus I/F Result) = %f", vic_data[i].name,
+                      vic_val[0].d_val);
             sprintf(vic_str, "%f", vic_val[0].d_val);
-            evas_object_text_text_set(vic_val_text[i], vic_str);
+            elm_object_text_set(Ad.vic_val_text[i], vic_str);
             break;
 
         case GEARPOSITION:
         case MODE:
-            uim_debug("%s(D-bus I/F Result) = %d", vic_data[i].name,
-                        vic_val[0].byte_val);
-            cmdlog_output(i);
-            s_vic_val[i].byte_val = vic_val[0].byte_val;
+        case EXTERIORBRIGHTNESS:
+            ICO_DBG("%s(D-bus I/F Result) = %d", vic_data[i].name,
+                      vic_val[0].byte_val);
             sprintf(vic_str, "%d", vic_val[0].byte_val);
-            evas_object_text_text_set(vic_val_text[i], vic_str);
+            elm_object_text_set(Ad.vic_val_text[i], vic_str);
             break;
 
         case LEFTTURN:
         case RIGHTTURN:
         case BRAKESIGNAL:
-            uim_debug("%s(D-bus I/F Result) = %d", vic_data[i].name,
-                        vic_val[0].b_val);
-            cmdlog_output(i);
-            s_vic_val[i].b_val = vic_val[0].b_val;
+            ICO_DBG("%s(D-bus I/F Result) = %d", vic_data[i].name,
+                      vic_val[0].b_val);
             if (vic_val[0].b_val == TRUE) {
                 sprintf(vic_str, "%s", "true");
             }
             else {
                 sprintf(vic_str, "%s", "false");
             }
-            evas_object_text_text_set(vic_val_text[i], vic_str);
+            elm_object_text_set(Ad.vic_val_text[i], vic_str);
             break;
 
         default:
-            uim_debug("Err no property : %s\n", vic_data[i].name);
+            ICO_DBG("Err no property : %s\n", vic_data[i].name);
             break;
         }
     }
     return;
 }
 
-static void _on_mousedown(void *data, Evas *evas, Evas_Object *o,
-                          void *einfo)
+static void _on_mousedown(void *data, Evas_Object *obj, void *event_info)
 {
     drawVehicleInfo();
     return;
 }
 
+static void _on_ctg_mousedown(void *data, Evas_Object *obj, void *event_info)
+{
+    int category = -1;
+    if (data != NULL) {
+        category = *((int *) data);
+    }
+
+    if ((category != -1) && (category != ListDispSts)) {
+        if (ListDispSts != -1) {
+            evas_object_color_set(Ad.ctg_btn[ListDispSts], 255, 255, 255,
+                                  255);
+            evas_object_hide(Ad.vic_li[ListDispSts]);
+        }
+        else {
+            evas_object_hide(Ad.vic_ini_li);
+            elm_list_clear(Ad.vic_ini_li);
+        }
+        evas_object_color_set(Ad.ctg_btn[category], 0, 255, 255, 255);
+
+        elm_list_go(Ad.vic_li[category]);
+        evas_object_show(Ad.vic_li[category]);
+
+        ListDispSts = category;
+
+    }
+    return;
+}
+
 /* Get the vehicle information than AMB */
-DBusConnection *g_connection = NULL;
 static int getVehicleInfo(int key, union VicVal_t *vic_val_p)
 {
     /* local variable */
@@ -484,11 +400,11 @@ static int getVehicleInfo(int key, union VicVal_t *vic_val_p)
         g_connection = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
 
         if (g_connection == NULL) {
-            uim_debug("Err dbus_bus_get");
+            ICO_DBG("Err dbus_bus_get");
 
-			/* Release err parameter */
+            /* Release err parameter */
             dbus_error_free(&error);
-			return -1;
+            return -1;
         }
     }
     /* Constructs a new message */
@@ -496,7 +412,7 @@ static int getVehicleInfo(int key, union VicVal_t *vic_val_p)
                                            vic_data[key].path_name,
                                            DBUS_INTERFACE, DBUS_METHOD);
     if (message == NULL) {
-        uim_debug("Err dbus_message_new_method_call");
+        ICO_DBG("Err dbus_message_new_method_call");
 
         /* Release the connection */
         dbus_connection_unref(g_connection);
@@ -511,7 +427,7 @@ static int getVehicleInfo(int key, union VicVal_t *vic_val_p)
                                       DBUS_TYPE_STRING,
                                       &v_string[1], DBUS_TYPE_INVALID);
     if (!result) {
-        uim_debug("Err dbus_message_append_args");
+        ICO_DBG("Err dbus_message_append_args");
 
         /* Release the connection */
         dbus_connection_unref(g_connection);
@@ -524,7 +440,7 @@ static int getVehicleInfo(int key, union VicVal_t *vic_val_p)
 
     /* Gets the error name */
     if ((dest) && (!dbus_message_set_destination(message, dest))) {
-        uim_debug("Err dbus_message_new_method_call");
+        ICO_DBG("Err dbus_message_new_method_call");
 
         /* Release the connection */
         dbus_connection_unref(g_connection);
@@ -541,7 +457,7 @@ static int getVehicleInfo(int key, union VicVal_t *vic_val_p)
                                                       message,
                                                       reply_timeout, &error);
     if (reply == NULL) {
-        uim_debug("Err dbus_connection_send_with_reply_and_block");
+        ICO_DBG("Err dbus_connection_send_with_reply_and_block");
 
         /* Release the connection */
         dbus_connection_unref(g_connection);
@@ -550,7 +466,7 @@ static int getVehicleInfo(int key, union VicVal_t *vic_val_p)
         /* Release the message */
         dbus_message_unref(message);
 
-		/* Release err parameter */
+        /* Release err parameter */
         dbus_error_free(&error);
 
         return -1;
@@ -566,7 +482,7 @@ static int getVehicleInfo(int key, union VicVal_t *vic_val_p)
     result = parse_value(tmp_vic_val_p, &iter_array);   //TEST
 
     if (result != TRUE) {
-        uim_debug("Err parse_elementary_value");
+        ICO_DBG("Err parse_elementary_value");
 
         /* Release the connection */
         dbus_connection_unref(g_connection);
@@ -603,7 +519,7 @@ static bool parse_elementary_value(union VicVal_t *vic_val_p,
     char sig;
 
     if ((vic_val_p == NULL) || (iter == NULL)) {
-        uim_debug("Err Parameter NG ");
+        ICO_DBG("Err Parameter NG ");
         return FALSE;
     }
 
@@ -649,7 +565,7 @@ static bool parse_elementary_value(union VicVal_t *vic_val_p,
         dbus_message_iter_get_basic(iter, &s_val);
         w_s_val = (char *) malloc(strlen(s_val) + 1);   // Release required
         if (w_s_val == NULL) {
-            uim_debug("Err malloc");
+            ICO_DBG("Err malloc");
             return FALSE;
         }
         strncpy(w_s_val, s_val, strlen(s_val));
@@ -658,7 +574,7 @@ static bool parse_elementary_value(union VicVal_t *vic_val_p,
 //        vic_val_p->s_val = s_val;
         break;
     default:
-        uim_debug("Err parse_elementary_value: unknown type");
+        ICO_DBG("Err parse_elementary_value: unknown type");
         return FALSE;
     }
 
@@ -670,7 +586,7 @@ static bool parse_value(union VicVal_t *vic_val_p, DBusMessageIter *iter)
     char curr;
 
     if ((vic_val_p == NULL) || (iter == NULL)) {
-        uim_debug("Err Parameter NG ");
+        ICO_DBG("Err Parameter NG ");
         return FALSE;
     }
 
@@ -707,7 +623,7 @@ static bool parse_array(union VicVal_t *vic_val_p, DBusMessageIter *iter)
     int element_type;
 
     if ((vic_val_p == NULL) || (iter == NULL)) {
-        uim_debug("Err Parameter NG ");
+        ICO_DBG("Err Parameter NG ");
         return FALSE;
     }
 
@@ -753,7 +669,7 @@ static bool parse_dict_entry(union VicVal_t *vic_val_p,
     DBusMessageIter new_iter;
 
     if ((vic_val_p == NULL) || (iter == NULL)) {
-        uim_debug("Err Parameter NG ");
+        ICO_DBG("Err Parameter NG ");
         return FALSE;
     }
 
@@ -781,7 +697,7 @@ static bool parse_struct(union VicVal_t *vic_val_p, DBusMessageIter *iter)
     DBusMessageIter new_iter;
 
     if ((vic_val_p == NULL) || (iter == NULL)) {
-        uim_debug("Err Parameter NG ");
+        ICO_DBG("Err Parameter NG ");
         return FALSE;
     }
 
@@ -808,6 +724,7 @@ static bool parse_struct(union VicVal_t *vic_val_p, DBusMessageIter *iter)
 /* Read configuration file */
 static int get_config(void)
 {
+    ICO_DBG("ENTER get_config");
 
     FILE *fp;
     int k = 0;
@@ -818,7 +735,7 @@ static int get_config(void)
 
     fp = fopen(CONFIG_FILE, "r");
     if (fp == NULL) {
-        uim_debug("File open error");
+        ICO_DBG("File open error");
         return -1;
     }
 
@@ -830,46 +747,49 @@ static int get_config(void)
                     for (j = 0; vic_key_data[j].id != -1; j++) {
                         if (strcmp(tp, vic_key_data[j].name) == 0) {
                             vic_data[k].property = vic_key_data[j].id;
+                            vic_data[k].category = vic_key_data[j].category;
                             strcpy(vic_data[k].name, tp);
                             strcpy(vic_data[k].path_name, strtok(NULL, clm));
                             strcpy(vic_data[k].interface_name,
                                    strtok(NULL, clm));
                             strcpy(vic_data[k].property_name,
                                    strtok(NULL, clm));
-                           uim_debug("vic_data[%d].property=%d", k,
-                                   vic_data[k].property);
-                           uim_debug("vic_data[%d].name=%s", k,
-                                   vic_data[k].name);
-                           uim_debug("vic_data[%d].path_name=%s", k,
-                                   vic_data[k].path_name);
-                           uim_debug("vic_data[%d].interface_name=%s", k,
-                                   vic_data[k].interface_name);
-                           uim_debug("vic_data[%d].property_name=%s", k,
-                                   vic_data[k].property_name);
+                            ICO_DBG("vic_data[%d].property=%d", k,
+                                      vic_data[k].property);
+                            ICO_DBG("vic_data[%d].name=%s", k,
+                                      vic_data[k].name);
+                            ICO_DBG("vic_data[%d].path_name=%s", k,
+                                      vic_data[k].path_name);
+                            ICO_DBG("vic_data[%d].interface_name=%s", k,
+                                      vic_data[k].interface_name);
+                            ICO_DBG("vic_data[%d].property_name=%s", k,
+                                      vic_data[k].property_name);
 
                             k++;
                             break;
                         }
                     }
                     if (vic_key_data[j].id == -1) {
-                        uim_debug("Err vicsample_config.txt Line:%d Unregistered"
-                                    " parameter name", m + 1);
+                        ICO_DBG
+                            ("Err vicsample_config.txt Line:%d Unregistered"
+                             " parameter name", m + 1);
                     }
 
                 }
                 else {
-                    uim_debug
+                    ICO_DBG
                         ("vicsample_config.txt Line:%d Comment out  '#'Discovery",
                          m + 1);
                 }
             }
             else {
-                uim_debug("vicsample_config.txt Line:%d Comment out  Null line",
-                            m + 1);
+                ICO_DBG
+                    ("vicsample_config.txt Line:%d Comment out  Null line",
+                     m + 1);
             }
         }
         else {
-            uim_debug("vicsample_config.txt The end of data reading");
+            ICO_DBG("vicsample_config.txt The end of data reading");
             break;
         }
     }
@@ -877,20 +797,22 @@ static int get_config(void)
 
     property_num = k;
     if (property_num == 0) {
-        uim_debug("vicsample_config.txt No valid data");
+        ICO_DBG("vicsample_config.txt No valid data");
         return -1;
     }
+
+    ICO_DBG("LEAVE get_config");
     return 0;
 }
-
+#if 0
 static void res_callback(ico_apf_resource_notify_info_t *info,
                          void *user_data)
 {
     int ret;
 
-    uim_debug("##==> Callbacked evt=%d res=%d id=%d bid=%d appid=%s dev=%s"
-                " user_data=%d", info->state, info->resid, info->id,
-                info->bid, info->appid, info->device, (int) user_data);
+    ICO_DBG("##==> Callbacked evt=%d res=%d id=%d bid=%d appid=%s dev=%s"
+              " user_data=%d", info->state, info->resid, info->id,
+              info->bid, info->appid, info->device, (int) user_data);
     switch (info->state) {
     case ICO_APF_RESOURCE_STATE_ACQUIRED:
     case ICO_APF_RESOURCE_STATE_DEPRIVED:
@@ -900,20 +822,20 @@ static void res_callback(ico_apf_resource_notify_info_t *info,
             ret = ico_apf_resource_reply_int_screen_mode(info->device,
                                                          info->bid, info->id,
                                                          1);
-            uim_debug("##==> callback reply int_screen(%s,%d,%d,1) = %d",
-                        info->device, info->bid, info->id, ret);
+            ICO_DBG("##==> callback reply int_screen(%s,%d,%d,1) = %d",
+                      info->device, info->bid, info->id, ret);
         }
         else if (info->resid == ICO_APF_RESID_ON_SCREEN) {
             ret = ico_apf_resource_reply_int_screen_mode_disp(info->device,
                                                               info->id, 1);
-            uim_debug("##==> callback reply on_screen(%s,%d,1) = %d",
-                        info->device, info->id, ret);
+            ICO_DBG("##==> callback reply on_screen(%s,%d,1) = %d",
+                      info->device, info->id, ret);
         }
         else {
             ret =
                 ico_apf_resource_reply_screen_mode(info->device, info->id, 1);
-            uim_debug("##==> callback reply screen(%s,%d,1) = %d",
-                        info->device, info->id, ret);
+            ICO_DBG("##==> callback reply screen(%s,%d,1) = %d",
+                      info->device, info->id, ret);
         }
         break;
     default:
@@ -921,59 +843,331 @@ static void res_callback(ico_apf_resource_notify_info_t *info,
         break;
     }
 }
-
-int main(int argc, char *argv[])
+#endif
+/**
+ * @breif _winCreate
+ */
+static void _winCreate(void)
 {
-    int i;
-    int getscreen;
-    Evas *evas;
-    char appid[ICO_UXF_MAX_PROCESS_NAME + 1];
-    bundle *b;
-    const char *val;
+    ICO_DBG("ENTER _winCreate");
 
-    /* get argment */
-    b = bundle_import_from_argv(argc, argv);
-    getscreen = 0;
-    sscrntype[0] = 0;
-	if(b != NULL){
-        val = bundle_get_val(b, "rightoption");
-		if (val != NULL) {
-            if (strcasecmp(val, "-basescreen") == 0) {
-                getscreen = 1;  /* get base screen */
-                strcpy(sscrntype, "BasicScreen");
-                uim_debug("BasicScreen");
-            }
-            else if (strcasecmp(val, "-intscreen") == 0) {
-                getscreen = 2;  /* get interrupt screen */
-                strcpy(sscrntype, "IntScreen");
-            }
-            else if (strcasecmp(val, "-onscreen") == 0) {
-                getscreen = 3;  /* get on screen */
-                strcpy(sscrntype, "OnScreen");
-            }
+    int i;
+    double w_mag;
+    double h_mag;
+
+    if (NULL == Ad.win) {
+        ICO_DBG("Err Param NG");
+        return;
+    }
+
+    w_mag = Width / WIDTH;
+    h_mag = Height / HEIGHT;
+    ICO_DBG("Width =%f,Height=%f", Width, Height);
+    ICO_DBG("w_mag =%f,h_magh=%f", w_mag, h_mag);
+
+    Ad.scrn_type = elm_label_add(Ad.win);
+    elm_object_text_set(Ad.scrn_type, SscrnType);
+    evas_object_resize(Ad.scrn_type, SCRN_TYPE_W * w_mag,
+                       SCRN_TYPE_H * h_mag);
+    evas_object_move(Ad.scrn_type, SCRN_TYPE_X * w_mag, SCRN_TYPE_Y * h_mag);
+    evas_object_show(Ad.scrn_type);
+
+    Ad.ctg_bx = elm_box_add(Ad.win);
+    evas_object_resize(Ad.ctg_bx, CTG_BX_W * w_mag, CTG_BX_H * h_mag);
+    evas_object_move(Ad.ctg_bx, CTG_BX_X * w_mag, CTG_BX_Y * h_mag);
+    evas_object_show(Ad.ctg_bx);
+
+    Ad.ctg_bx2 = elm_box_add(Ad.win);
+    evas_object_resize(Ad.ctg_bx2, CTG_BX_W * w_mag , CTG_BX_H * h_mag);
+    evas_object_move(Ad.ctg_bx2, (CTG_BX_X + CTG_BX_W) * w_mag, CTG_BX_Y * h_mag);
+    evas_object_show(Ad.ctg_bx2);
+
+    for (i = 0; i < MAX_CATEGORY_NUM; i++) {
+        /* category buttn create */
+        Ad.ctg_btn[i] = elm_button_add(Ad.win);
+        elm_object_text_set(Ad.ctg_btn[i], vic_category_data[i].name);
+        if (i < (MAX_CATEGORY_NUM / 2)) { 
+            elm_box_pack_end(Ad.ctg_bx, Ad.ctg_btn[i]);
+        }
+        else {
+            elm_box_pack_end(Ad.ctg_bx2, Ad.ctg_btn[i]);
+        }
+
+        /* The present category to support "Running Status" "Eenvironment" */
+        if ((vic_category_data[i].category == RUNNINGSTATUS)
+            || (vic_category_data[i].category == ENVIRONMENT)) {
+            evas_object_smart_callback_add(Ad.ctg_btn[i], "clicked",
+                                           _on_ctg_mousedown,
+                                           &(vic_category_data[i].category));
+        }
+        else {
+            /* Unsupported Grayout */
+            evas_object_color_set(Ad.ctg_btn[i], 128, 128, 128, 255);
+        }
+
+        evas_object_size_hint_weight_set(Ad.ctg_btn[i], EVAS_HINT_EXPAND, 0);
+        evas_object_size_hint_align_set(Ad.ctg_btn[i], EVAS_HINT_FILL, 0);
+        evas_object_show(Ad.ctg_btn[i]);
+
+        /* list create */
+        Ad.vic_li[i] = elm_list_add(Ad.win);
+        elm_list_select_mode_set(Ad.vic_li[i], ELM_OBJECT_SELECT_MODE_NONE);
+        evas_object_resize(Ad.vic_li[i], VIC_LI_W * w_mag, VIC_LI_H * h_mag);
+        evas_object_move(Ad.vic_li[i], VIC_LI_X * w_mag, VIC_LI_Y * h_mag);
+    }
+
+    /* Initial list display */
+    Ad.vic_ini_li = elm_list_add(Ad.win);
+    elm_list_select_mode_set(Ad.vic_ini_li, ELM_OBJECT_SELECT_MODE_NONE);
+    evas_object_resize(Ad.vic_ini_li, VIC_LI_W * w_mag, VIC_LI_H * h_mag);
+    evas_object_move(Ad.vic_ini_li, VIC_LI_X * w_mag, VIC_LI_Y * h_mag);
+    elm_list_item_append(Ad.vic_ini_li, NULL, NULL, NULL, NULL, NULL);
+    elm_list_go(Ad.vic_ini_li);
+    evas_object_show(Ad.vic_ini_li);
+
+    Ad.get_btn = elm_button_add(Ad.win);
+    elm_object_text_set(Ad.get_btn, "Get VehicleInfo");
+    evas_object_smart_callback_add(Ad.get_btn, "clicked", _on_mousedown,
+                                   NULL);
+    evas_object_resize(Ad.get_btn, GET_BTN_W * w_mag, GET_BTN_H * h_mag);
+    evas_object_move(Ad.get_btn, GET_BTN_X * w_mag, GET_BTN_Y * h_mag);
+    evas_object_show(Ad.get_btn);
+
+    ICO_DBG("LEAVE _winCreate");
+    return;
+}
+
+/**
+ * @brief elmListCreate
+ */
+static void elmListCreate(void)
+{
+    ICO_DBG("ENTER elmListCreate");
+
+    int i;
+
+    if (NULL == Ad.win) {
+        ICO_DBG("Err Param NG");
+        return;
+    }
+
+    for (i = 0; vic_key_data[i].id != -1 && i < MAX_PARA_NUM; i++) {
+        Ad.vic_val_text[i] = elm_label_add(Ad.win);
+        elm_list_item_append(Ad.vic_li[vic_data[i].category],
+                             vic_data[i].name, NULL, Ad.vic_val_text[i], NULL,
+                             NULL);
+    }
+
+    /* dummy set */
+    for (i = 0; i < MAX_CATEGORY_NUM; i++) {
+        Ad.vic_val_dmy_text[i] = elm_label_add(Ad.win);
+        elm_list_item_append(Ad.vic_li[i], NULL, NULL, NULL, NULL, NULL);
+    }
+
+    ICO_DBG("LEAVE elmListCreate");
+    return;
+}
+
+/**
+ * @brief app_terminate
+ */
+static void app_terminate(void *data)
+{
+    ICO_DBG("ENTER app_terminate");
+    // Release all resources
+    int i;
+
+    if (Ad.win) {
+        evas_object_del(Ad.win);
+        Ad.win = NULL;
+    }
+
+    if (Ad.bg) {
+        evas_object_del(Ad.bg);
+        Ad.bg = NULL;
+    }
+
+    if (Ad.scrn_type) {
+        evas_object_del(Ad.scrn_type);
+        Ad.scrn_type = NULL;
+    }
+
+    if (Ad.ctg_bx) {
+        evas_object_del(Ad.ctg_bx);
+        Ad.ctg_bx = NULL;
+    }
+
+    if (Ad.ctg_bx2) {
+        evas_object_del(Ad.ctg_bx2);
+        Ad.ctg_bx2 = NULL;
+    }
+
+    for (i = 0; i < MAX_CATEGORY_NUM; i++) {
+        if (Ad.ctg_btn[i]) {
+            evas_object_del(Ad.ctg_btn[i]);
+            Ad.ctg_btn[i] = NULL;
+        }
+
+        if (Ad.vic_li[i]) {
+            evas_object_del(Ad.vic_li[i]);
+            Ad.vic_li[i] = NULL;
+        }
+
+        if (Ad.vic_val_dmy_text[i]) {
+            evas_object_del(Ad.vic_val_dmy_text[i]);
+            Ad.vic_val_dmy_text[i] = NULL;
         }
     }
 
-    if (!ecore_evas_init()) {
-        return EXIT_FAILURE;
-    }
-    /* Setting the log output */
-    if (ico_apf_get_app_id(0, appid) == ICO_APP_CTL_E_NONE) {
-        ico_apf_log_open(appid);
+    if (Ad.vic_ini_li) {
+        evas_object_del(Ad.vic_ini_li);
+        Ad.vic_ini_li = NULL;
     }
 
-    uim_debug("main ENTER");
+    for (i = 0; i < MAX_PARA_NUM; i++) {
+        if (Ad.vic_val_text[i]) {
+            evas_object_del(Ad.vic_val_text[i]);
+            Ad.vic_val_text[i] = NULL;
+        }
+    }
 
-    /* Read configuration file */
-    if (get_config() != 0) {
-        uim_debug("Err get_config");
-        return -1;
+    if (Ad.get_btn) {
+        evas_object_del(Ad.get_btn);
+        Ad.get_btn = NULL;
+    }
+    ICO_DBG("LEAVE app_terminate");
+    return;
+}
+
+/**
+ * @brief _win_del
+ */
+static void _win_del(void *data, Evas_Object *obj, void *event_info)
+{
+    ICO_DBG("ENTER _win_del");
+
+    elm_exit();
+
+    ICO_DBG("LEAVE _win_del");
+    return;
+}
+
+/**
+ * @brief _create_win
+ */
+static Evas_Object *_create_win(const char *name)
+{
+    ICO_DBG("ENTER _create_win");
+
+    Evas_Object *eo;
+//    int w, h;
+    eo = elm_win_add(NULL, name, ELM_WIN_BASIC);
+    if (eo) {
+        elm_win_title_set(eo, name);
+        evas_object_smart_callback_add(eo, "delete,request", _win_del, NULL);
+//        ecore_x_window_size_get(ecore_x_window_root_first_get(), &w,
+//                                &h);
+//      ICO_DBG("window size w=%d,h=%d",w,h);
+//        evas_object_resize(eo, w, h - STATUS_BAR_HEIGHT);
+    }
+    ICO_DBG("LEAVE _create_win");
+
+    return eo;
+}
+
+/**
+ * @brief app_create
+ */
+static bool app_create(void *data)
+{
+    ICO_DBG("ENTER app_create");
+
+#if 0 //TEST.s
+    int w, h;
+
+    /* get display size */
+    ecore_x_window_size_get(ecore_x_window_root_first_get(), &w, &h);
+    ICO_DBG("window size w=%d,h=%d", w, h);
+
+    /* set app screen size */
+    Width = w;
+    Height = h - STATUS_BAR_HEIGHT;
+#else
+    Width = WIDTH;
+    Height = HEIGHT;
+#endif //TEST.e
+
+    /* main widnow */
+    Ad.win = _create_win(PACKAGE);
+    if (Ad.win == NULL) {
+        return FALSE;
+    }
+    evas_object_show(Ad.win);
+
+    elm_win_indicator_mode_set(Ad.win, ELM_WIN_INDICATOR_SHOW);
+    elm_win_fullscreen_set(Ad.win, EINA_TRUE);
+
+    Ad.bg = elm_bg_add(Ad.win);
+    elm_win_resize_object_add(Ad.win, Ad.bg);
+    evas_object_size_hint_weight_set(Ad.bg, EVAS_HINT_EXPAND,
+                                     EVAS_HINT_EXPAND);
+    elm_bg_file_set(Ad.bg, BG_IMAGE_FILE, NULL);
+    evas_object_show(Ad.bg);
+
+    evas_object_resize(Ad.win, Width, Height);
+
+    /* set font size */
+    (void)elm_config_font_overlay_set(TEXT_LIST_ITEM, FONT_FAMILY, FONT_SIZE);
+    (void)elm_config_font_overlay_set(TEXT_BUTTON, FONT_FAMILY, FONT_SIZE);
+    (void)elm_config_font_overlay_set(TEXT_LABEL, FONT_FAMILY, FONT_SIZE);
+    (void)elm_config_font_overlay_apply();
+
+    _winCreate();
+
+    elmListCreate();
+
+    ICO_DBG("LEAVE app_create");
+
+    return TRUE;                /* EXIT_SUCCESS */
+}
+#if 0
+/**
+ * @brief get_screen
+ */
+static int get_screen(int argc, char **argv)
+{
+    ICO_DBG("ENTER get_screen");
+
+    int getscreen;
+    bundle *b;
+    const char *val;
+
+    b = bundle_import_from_argv(argc, argv);
+    getscreen = 0;
+    SscrnType[0] = 0;
+    if (b != NULL) {
+        val = bundle_get_val(b, "rightoption");
+        if (val != NULL) {
+            if (strcasecmp(val, "-basescreen") == 0) {
+                getscreen = 1;  /* get base screen */
+                strcpy(SscrnType, "BasicScreen");
+                ICO_DBG("BasicScreen");
+            }
+            else if (strcasecmp(val, "-intscreen") == 0) {
+                getscreen = 2;  /* get interrupt screen */
+                strcpy(SscrnType, "IntScreen");
+            }
+            else if (strcasecmp(val, "-onscreen") == 0) {
+                getscreen = 3;  /* get on screen */
+                strcpy(SscrnType, "OnScreen");
+            }
+        }
     }
 
     if (getscreen > 0) {
         /* initialize resource control for Ecore */
         if (ico_apf_ecore_init(NULL) != ICO_APF_E_NONE) {
-            uim_debug("ico_apf_ecore_init() Error");
+            ICO_DBG("ico_apf_ecore_init() Error");
             ecore_evas_shutdown();
             return -1;
         }
@@ -992,150 +1186,76 @@ int main(int argc, char *argv[])
             ico_apf_resource_get_int_screen_mode_disp(NULL, 0);
         }
     }
-
-    /* this will give you a window with an Evas canvas under the first
-     * engine available */
-    ee = ecore_evas_new(NULL, 0, 0, WIDTH, HEIGHT, "frame=0");
-    if (!ee) {
-        goto error;
-    }
-
-    ecore_evas_callback_delete_request_set(ee, _on_destroy);
-    ecore_evas_title_set(ee, "Ecore_Evas window sizes example");
-    ecore_evas_callback_resize_set(ee, _canvas_resize_cb);
-    ecore_evas_show(ee);
-
-    evas = ecore_evas_get(ee);
-
-    /* Background printing */
-    bg = evas_object_rectangle_add(evas);
-    evas_object_color_set(bg, 255, 255, 255, 255);      /* white bg */
-    evas_object_move(bg, 0, 0); /* at canvas' origin */
-    evas_object_resize(bg, WIDTH, HEIGHT);      /* covers full canvas */
-    evas_object_show(bg);
-
-    evas_object_focus_set(bg, EINA_TRUE);
-
-    /* Drawing window */
-    text = evas_object_text_add(evas);
-    evas_object_color_set(text, 255, 0, 0, 255);
-    evas_object_resize(text, 150, 50);
-    evas_object_text_font_set(text, "Sans", 20);
-    evas_object_show(text);
-
-    /* Button on the output drawing vehicle information */
-    static Evas_Object *sikaku;
-    sikaku = evas_object_rectangle_add(evas);
-    evas_object_color_set(sikaku, 255, 0, 0, 100);
-    evas_object_move(sikaku, 50, ((int) VTX_EY) + 7);
-    int hsz = HEIGHT - (int) VTX_EY - 7 - 7;
-    evas_object_resize(sikaku, 200, hsz);
-    evas_object_show(sikaku);
-
-    /* draw table */
-    static Evas_Object *fix_line[FIX_LINE_NUM];
-
-    for (i = 0; i < FIX_LINE_NUM; i++) {
-        fix_line[i] = evas_object_line_add(evas);
-        evas_object_color_set(fix_line[i], 55, 55, 55, 255);
-        evas_object_line_xy_set(fix_line[i], f_vtx[i][0], f_vtx[i][1],
-                                f_vtx[i][2], f_vtx[i][3]);
-        evas_object_show(fix_line[i]);
-    }
-
-    /* draw order line */
-    static Evas_Object *ufix_line[MAX_PARA_NUM - 1];
-
-    for (i = 0; i < MAX_PARA_NUM - 1; i++) {
-        ufix_line[i] = evas_object_line_add(evas);
-        evas_object_color_set(ufix_line[i], 55, 55, 55, 255);
-        evas_object_line_xy_set(ufix_line[i],
-                                VTX_SX, VTX_SY + UFIX_LINE_BASE * (i + 1),
-                                VTX_EX, VTX_SY + UFIX_LINE_BASE * (i + 1));
-        evas_object_show(ufix_line[i]);
-    }
-
-    /* draw table item */
-    static Evas_Object *num_text[MAX_PARA_NUM];
-    char str[11];
-    static Evas_Object *pname_text2[MAX_PARA_NUM];
-
-    for (i = 0; i < MAX_PARA_NUM; i++) {
-        /* draw table item (No.) */
-        num_text[i] = evas_object_text_add(evas);
-        evas_object_color_set(num_text[i], 0, 0, 0, 255);
-        evas_object_resize(num_text[i], FIX_SEQ_BASE, UFIX_LINE_BASE);
-        evas_object_text_font_set(num_text[i], "Sans",
-                                  (UFIX_LINE_BASE / 3) * 2);
-        evas_object_show(num_text[i]);
-        sprintf(str, "%d", i + 1);
-        evas_object_text_text_set(num_text[i], str);
-        evas_object_move(num_text[i], VTX_SX + FIX_SEQ_BASE / 4,
-                         VTX_SY + UFIX_LINE_BASE * (i) + UFIX_LINE_BASE / 6);
-
-        /* draw table item (Name of vehicle information) */
-        pname_text2[i] = evas_object_text_add(evas);
-        evas_object_color_set(pname_text2[i], 0, 0, 0, 255);
-        evas_object_resize(pname_text2[i], 150, 50);
-        evas_object_text_font_set(pname_text2[i], "Sans",
-                                  (UFIX_LINE_BASE / 3) * 2);
-        evas_object_show(pname_text2[i]);
-        evas_object_text_text_set(pname_text2[i], vic_data[i].name);
-        evas_object_move(pname_text2[i], FIX_SEQ_LINE1 + FIX_SEQ_BASE / 4,
-                         VTX_SY + UFIX_LINE_BASE * (i) + UFIX_LINE_BASE / 6);
-
-        /* draw table item (Value of vehicle information) */
-        vic_val_text[i] = evas_object_text_add(evas);
-        evas_object_color_set(vic_val_text[i], 0, 0, 0, 255);
-        evas_object_resize(vic_val_text[i], FIX_SEQ_BASE, UFIX_LINE_BASE);
-        evas_object_text_font_set(vic_val_text[i], "Sans",
-                                  (UFIX_LINE_BASE / 3) * 2);
-        evas_object_show(vic_val_text[i]);
-        evas_object_move(vic_val_text[i], FIX_SEQ_LINE2 + FIX_SEQ_BASE / 4,
-                         VTX_SY + UFIX_LINE_BASE * (i) + UFIX_LINE_BASE / 6);
-    }
-
-    /* entry of the function event callback Vehicle Information */
-    evas_object_event_callback_add(sikaku, EVAS_CALLBACK_MOUSE_DOWN,
-                                   _on_mousedown, vic_val_text);
-
-    /* drawing current time */
-    static Evas_Object *time_text;
-
-    time_text = evas_object_text_add(evas);
-    evas_object_color_set(time_text, 0, 0, 0, 255);
-    evas_object_resize(time_text, 150, 50);
-    evas_object_text_font_set(time_text, "Sans", 20);
-    evas_object_show(time_text);
-    evas_object_move(time_text, 400, VTX_SY - 22);
-
-    /* entry of the function event Interval Timer */
-    ecore_timer_add(0.1, _timer_cb, time_text);
-
-    _canvas_resize_cb(ee);
-    fprintf(stdout, commands);
-    ecore_main_loop_begin();
-
-    ico_apf_ecore_term();
-
-    ecore_evas_free(ee);
-    ecore_evas_shutdown();
-
-    if (NULL != g_connection) {
-        dbus_connection_unref(g_connection);
-        g_connection = NULL;
-    }
-    uim_debug("main EXIT");
+    ICO_DBG("LEAVE get_screen");
     return 0;
+}
+#endif
 
-  error:
-    fprintf(stderr, "You got to have at least one Evas engine built"
-            " and linked up to ecore-evas for this example to run"
-            " properly.\n");
+int main(int argc, char *argv[])
+{
+//    char appid[ICO_UXF_MAX_PROCESS_NAME + 1];
+    char appid[256];
+    int pid;
+    app_event_callback_s event_callback;
+    int result = 0;
+
+    if (!ecore_evas_init()) {
+        return EXIT_FAILURE;
+    }
+
+    /* Setting the log output */
+//    if (ico_apf_get_app_id(0, appid) == ICO_APP_CTL_E_NONE) {
+//        ico_apf_log_open(appid);
+//    }
+
+    /* Setting the log output */
+    memset(appid, 0, sizeof(appid));
+    pid = getpid();
+    if (aul_app_get_appid_bypid(pid, appid, sizeof(appid)) == AUL_R_OK) {
+        ico_log_open(appid);
+    }
+    else {
+        ico_log_open("org.tizen.ico.app-vicsample");
+    }
+
+    ICO_DBG("ENTER main");
+
+    /* Read configuration file */
+    if (get_config() != 0) {
+        ICO_DBG("Err get_config");
+        return EXIT_FAILURE;
+    }
+
+    /* get argument */
+//    if (get_screen(argc, argv) != 0) {
+//        ICO_DBG("Err get_argument");
+//        return EXIT_FAILURE;
+//    }
+
+    /* set callback fanc */
+    event_callback.create = app_create;
+    event_callback.terminate = app_terminate;
+    event_callback.pause = NULL;
+    event_callback.resume = NULL;
+    event_callback.service = NULL;
+    event_callback.low_memory = NULL;
+    event_callback.low_battery = NULL;
+    event_callback.device_orientation = NULL;
+    event_callback.language_changed = NULL;
+    event_callback.region_format_changed = NULL;
+
+    memset(&Ad, 0x0, sizeof(struct appdata_t));
+
+    result = app_efl_main(&argc, &argv, &event_callback, &Ad);
+
+//    ico_apf_ecore_term();
     ecore_evas_shutdown();
+
     if (NULL != g_connection) {
         dbus_connection_unref(g_connection);
         g_connection = NULL;
     }
-    return -1;
+    ICO_DBG("EXIT main");
+
+    return result;
 }

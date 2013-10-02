@@ -23,33 +23,33 @@
 
 #include <Ecore.h>
 #include <Ecore_Evas.h>
-
+#include <Elementary.h>
+//#include <Ecore_X.h>
+#include <app.h>
 #include <unistd.h>
 #include <glib.h>
 #include <bundle.h>
-//#include "app_log.h"
-#include "ico_apf.h"
-#include "ico_apf_ecore.h"
-#include "ico_apf_log.h"
+//#include "ico_apf.h"
+//#include "ico_apf_ecore.h"
+//#include "ico_apf_log.h"
 #include "soundsample.h"
+#include <aul.h>
+#include "ico_log.h"
 
 /*============================================================================*/
 /* Define fixed parameters                                                    */
 /*============================================================================*/
-//#define WIDTH  (700)    /* Background width  */
-//#define HEIGHT (934)    /* Background height */
-//#define WIDTH  (400)    /* Background width  */
-//#define HEIGHT (400)    /* Background height */
-#define WIDTH  (600)            /* Background width  */
-#define HEIGHT (600)            /* Background height */
+#define STATUS_BAR_HEIGHT (64)
+#define CTRL_BAR_HEIGHT   (128)
+#define WIDTH  (1080) /* Base Background width  */
+#define HEIGHT (1920 - STATUS_BAR_HEIGHT - CTRL_BAR_HEIGHT) /* Base Background height */
 
-//#define LOG_NAME       "/home/rpf/var/log/uifw/audioTP.log"
-#define LOG_NAME       "/tmp/ico-app-soundsample.log"
-//#define CONFIG_FILE    "/home/rpf/src/app/audioTP/soundsample_config.txt"
-#define CONFIG_FILE    "/opt/apps/org.tizen.ico.app-soundsample/res/soundsample_config.txt"
+#define PACKAG            "ico-app-soundsample"
+#define CONFIG_FILE       "/usr/apps/org.tizen.ico.app-soundsample/res/soundsample_config.txt"
+#define BG_IMAGE_FILE     "/usr/apps/org.tizen.ico.app-soundsample/res/images/sound_bg.png"
 
-#define MAX_BUTTON_NUM 3
-#define MAX_DRAW_LEM   20
+#define MAX_BUTTON_NUM    (3)
+#define MAX_DRAW_LEM      (20)
 
 #define GROUP_DATA        "data"
 #define KEY_WAVFILE_PATH  "wavfile_path"
@@ -59,6 +59,14 @@
 #define KEY_VOLUME2       "volume2"
 #define KEY_APP_NAME      "app_name"
 #define KEY_STREAM_NAME   "stream_name"
+
+/* font */
+#define FONT_SIZE       48
+#define FONT_FAMILY     (char *)"Sans"  // Mono, Sans, Serif
+
+/* Text class name */
+#define TEXT_BUTTON     (char *)"button"
+#define TEXT_LABEL      (char *)"label"
 
 /*============================================================================*/
 /* Define data types                                                          */
@@ -104,21 +112,31 @@ struct object_figure_val_t
     struct color_val_t color;
     struct size_val_t size;
     struct pos_val_t pos;
+    char icon_name[64];
     void *func;
+};
+
+struct appdata_t
+{
+    Evas_Object *win;           //main window
+    Evas_Object *bg;
+
+    Evas_Object *snd_type;
+    Evas_Object *btn_name[MAX_BUTTON_NUM];
+    Evas_Object *btn[MAX_BUTTON_NUM];
+    Evas_Object *icon[MAX_BUTTON_NUM];
+    Evas_Object *sts_txt;
+    Evas_Object *app_name;
+    Evas_Object *strm_name;
+    Evas_Object *pid_txt;
 };
 
 /*============================================================================*/
 /* Function prototype for static(internal) functions                          */
 /*============================================================================*/
-static void _canvas_resize_cb(Ecore_Evas *ee);
-static void _on_destroy(Ecore_Evas *ee __UNUSED__);
-static Eina_Bool _timer_cb(void *data);
-static void _on_mousedown1(void *data, Evas *evas, Evas_Object *o,
-                           void *einfo);
-static void _on_mousedown2(void *data, Evas *evas, Evas_Object *o,
-                           void *einfo);
-static void _on_mousedown3(void *data, Evas *evas, Evas_Object *o,
-                           void *einfo);
+static void _on_mousedown1(void *data, Evas_Object *obj, void *event_info);
+static void _on_mousedown2(void *data, Evas_Object *obj, void *event_info);
+static void _on_mousedown3(void *data, Evas_Object *obj, void *event_info);
 static int start_audio(void);
 static Eina_Bool stop_audio(void *data, Ecore_Fd_Handler *fd_handler);
 static void rcv_event(int event_num);
@@ -129,15 +147,28 @@ static void conf_check_gerror(char *para_num, GError ** error);
 static int read_config(void);
 static void draw_text(Evas_Object *obj, struct object_text_val_t *text);
 static void draw_figr(Evas_Object *obj, struct object_figure_val_t *figr);
-
+//static int get_sound(int argc, char **argv);
+static bool app_create(void *data);
+static Evas_Object *_create_win(const char *name);
+static void _win_del(void *data, Evas_Object *obj, void *event_info);
+static void app_terminate(void *data);
+static void _winCreate(void);
 /*============================================================================*/
 /* Tables and Valiables                                                       */
 /*============================================================================*/
 extern int pulse_main(struct audio_config_t *, int);
 
+/* application data  */
+static struct appdata_t Ad;
+
+/* screen size  */
+static double Width = 0;
+static double Height = 0;
+static double W_mag = 0;
+static double H_mag = 0;
+
 /* state values */
 static int StateNum = STATE_STOP;
-static Evas_Object *State_text;
 
 /* file descriptor */
 static int Filedes[2];
@@ -151,130 +182,88 @@ static struct audio_config_t AudioConfig = {
     NULL, NULL, NULL, -1, -1, NULL, NULL
 };
 
+static struct object_text_val_t SndTypeText = {
+    {0, 0, 0, 255}, {500, 50}, {"Sans", 48}, {25, 25}, "", NULL
+};
+
 static struct object_text_val_t ButtonText[MAX_BUTTON_NUM] = {
-    {{255, 0, 0, 255}, {180, 50}, {"Sans", 48}, {15 + 12, 70}, "START", NULL},
-    {{0, 255, 0, 255}, {180, 50}, {"Sans", 48}, {210 + 24, 70}, "STOP", NULL},
-    {{0, 0, 255, 255}, {180, 50}, {"Sans", 48}, {405 + 12, 70}, "PAUSE", NULL}
+    {{255, 0, 0, 255}, {220, 50}, {"Sans", 48}, {100 + 65, 90}, "START",
+     NULL},
+    {{0, 255, 0, 255}, {220, 50}, {"Sans", 48}, {370 + 75, 90}, "STOP", NULL},
+    {{0, 0, 255, 255}, {220, 50}, {"Sans", 48}, {640 + 65, 90}, "PAUSE", NULL}
 };
 
 static struct object_figure_val_t ButtonFigr[MAX_BUTTON_NUM] = {
-    {{255, 0, 0, 100}, {180, 95}, {15, 120}, (void *) _on_mousedown1},
-    {{0, 255, 0, 100}, {180, 95}, {210, 120}, (void *) _on_mousedown2},
-    {{0, 0, 255, 100}, {180, 95}, {405, 120}, (void *) _on_mousedown3}
-};
-
-static struct object_figure_val_t BgFigr = {
-    {255, 255, 255, 255}, {WIDTH, HEIGHT}, {0, 0}, NULL
-};
-
-static struct object_text_val_t TimeText = {
-    {0, 0, 0, 255}, {150, 50}, {"Sans", 24}, {0, 0}, {}, (void *) _timer_cb
+    {{255, 0, 0, 255}, {220, 95}, {130, 140}, "media_player/play",
+     (void *) _on_mousedown1},
+    {{0, 255, 0, 255}, {220, 95}, {400, 140}, "media_player/stop",
+     (void *) _on_mousedown2},
+    {{0, 0, 255, 255}, {220, 95}, {670, 140}, "media_player/pause",
+     (void *) _on_mousedown3}
 };
 
 static struct object_text_val_t StateInfoText = {
-    {0, 0, 0, 255}, {150, 50}, {"Sans", 48}, {140, 300}, "STATE : STOP", NULL
+    {0, 0, 0, 255}, {500, 50}, {"Sans", 48}, {330, 300}, "STATE : STOP", NULL
 };
 
 static struct object_text_val_t AppNameText = {
-    {0, 0, 0, 255}, {150, 50}, {"Sans", 32}, {25, 440}, "App Name :  ", NULL
+    {0, 0, 0, 255}, {900, 50}, {"Sans", 32}, {150, 410}, "App Name :  ", NULL
 };
 
 static struct object_text_val_t StreamNameText = {
-    {0, 0, 0, 255}, {150, 50}, {"Sans", 32}, {25, 480}, "Stream Name :  ",
-        NULL
+    {0, 0, 0, 255}, {900, 50}, {"Sans", 32}, {150, 490}, "Stream Name :  ",
+    NULL
 };
 
 static struct object_text_val_t PidText = {
-    {0, 0, 0, 255}, {150, 50}, {"Sans", 36}, {50, 530}, "PID :  ", NULL
+    {0, 0, 0, 255}, {900, 50}, {"Sans", 36}, {150, 570}, "PID :  ", NULL
 };
 
-static Ecore_Evas *ee;
-static Evas_Object *text, *bg;
-static char ssndtype[32];
+static char SsndType[32];
 
-static const char commands[] =
-    "commands are:\n"
-    "\tm - impose a minumum size to the window\n"
-    "\tx - impose a maximum size to the window\n"
-    "\tb - impose a base size to the window\n"
-    "\ts - impose a step size (different than 1 px) to the window\n"
-    "\th - print help\n";
-
-
-/* to inform current window's size */
-static void _canvas_resize_cb(Ecore_Evas *ee)
+/*============================================================================*/
+/* Function                                                                   */
+/*============================================================================*/
+static void _on_mousedown1(void *data, Evas_Object *obj, void *event_info)
 {
-    int w, h;
-    char buf[256];
-
-    ecore_evas_geometry_get(ee, NULL, NULL, &w, &h);
-    snprintf(buf, sizeof(buf), "%s %d x %d", ssndtype, w, h);
-    evas_object_text_text_set(text, buf);
-    evas_object_move(text, 50, 25);
-    evas_object_resize(bg, w, h);
-}
-
-static void _on_destroy(Ecore_Evas *ee __UNUSED__)
-{
-    ecore_main_loop_quit();
-}
-
-static Eina_Bool _timer_cb(void *data)
-{
-    char str[32];
-    time_t timer;
-    struct tm *date;
-    timer = time(NULL);
-    date = localtime(&timer);
-    sprintf(str, "%s", asctime(date));
-    evas_object_text_text_set((Evas_Object *) data, str);
-
-    return EINA_TRUE;
-}
-
-static void _on_mousedown1(void *data, Evas *evas, Evas_Object *o,
-                           void *einfo)
-{
-    uim_debug("_on_mousedown1: Enter");
-    uim_debug("Input event   : START");
+    ICO_DBG("_on_mousedown1: Enter");
+    ICO_DBG("Input event   : START");
 
     rcv_event(START_REQ);
 
-    uim_debug("_on_mousedown1: Leave");
+    ICO_DBG("_on_mousedown1: Leave");
 }
 
-static void _on_mousedown2(void *data, Evas *evas, Evas_Object *o,
-                           void *einfo)
+static void _on_mousedown2(void *data, Evas_Object *obj, void *event_info)
 {
-    uim_debug("_on_mousedown2: Enter");
-    uim_debug("Input event  : STOP");
+    ICO_DBG("_on_mousedown2: Enter");
+    ICO_DBG("Input event  : STOP");
 
     rcv_event(STOP_REQ);
 
-    uim_debug("_on_mousedown2: Leave");
+    ICO_DBG("_on_mousedown2: Leave");
 }
 
-static void _on_mousedown3(void *data, Evas *evas, Evas_Object *o,
-                           void *einfo)
+static void _on_mousedown3(void *data, Evas_Object *obj, void *event_info)
 {
-    uim_debug("_on_mousedown3: Enter");
-    uim_debug("Input event  : PAUSE");
+    ICO_DBG("_on_mousedown3: Enter");
+    ICO_DBG("Input event  : PAUSE");
 
     rcv_event(PAUSE_REQ);
 
-    uim_debug("_on_mousedown3: Leave");
+    ICO_DBG("_on_mousedown3: Leave");
 }
 
 static int start_audio(void)
 {
-    uim_debug("start_audio: Enter");
+    ICO_DBG("start_audio: Enter");
 
     int ret = 0;
 
     signal(SIGCLD, SIG_IGN);
 
     if ((ChPid = fork()) < 0) {
-        uim_debug("Err fork");
+        ICO_DBG("Err fork");
         return -1;
     }
     else if (ChPid == 0) {
@@ -282,11 +271,11 @@ static int start_audio(void)
         close(Filedes[1]);
         close(Filedes2[0]);
 
-        uim_debug("Voice response : START");
+        ICO_DBG("Voice response : START");
         ret = pulse_main(&AudioConfig, Filedes[0]);
-        uim_debug("Voice response : END");
+        ICO_DBG("Voice response : END");
 
-        uim_debug("pulse_main: ret = [%d]", ret);
+        ICO_DBG("pulse_main: ret = [%d]", ret);
         recv_event_res(ret);
 
         close(Filedes[0]);
@@ -296,27 +285,27 @@ static int start_audio(void)
     }
 
     /* Processing of parent process */
-    uim_debug("Child process: ChPid = [%d]", ChPid);
+    ICO_DBG("Child process: ChPid = [%d]", ChPid);
 
-    uim_debug("start_audio: Leave");
+    ICO_DBG("start_audio: Leave");
 
     return 0;
 }
 
 static Eina_Bool stop_audio(void *data, Ecore_Fd_Handler *fd_handler)
 {
-    uim_debug("stop_audio: Enter");
+    ICO_DBG("stop_audio: Enter");
 
     char buff[255];
     memset(buff, 0x00, sizeof(buff));
 
     /* Reading from a pipe */
     read(Filedes2[0], buff, sizeof(buff));
-    uim_debug("buff :%s", buff);
+    ICO_DBG("buff :%s", buff);
 
     if (atoi(buff) != 0) {
-        uim_debug("pulse_main Err: ret= [%d]", atoi(buff));
-        _on_destroy(NULL);
+        ICO_DBG("pulse_main Err: ret= [%d]", atoi(buff));
+        _win_del(NULL, NULL, NULL);
     }
 
     /* State change */
@@ -325,14 +314,14 @@ static Eina_Bool stop_audio(void *data, Ecore_Fd_Handler *fd_handler)
     /* Process id initialization */
     ChPid = 0;
 
-    uim_debug("stop_audio: Leave");
+    ICO_DBG("stop_audio: Leave");
 
     return ECORE_CALLBACK_RENEW;
 }
 
 static void rcv_event(int event_num)
 {
-    uim_debug("rcv_event: Enter");
+    ICO_DBG("rcv_event: Enter");
 
     int ret = 0;
 
@@ -354,8 +343,8 @@ static void rcv_event(int event_num)
             break;
 
         default:
-            uim_debug("Not receive: StateNum = [%d],event_num = [%d]",
-                        StateNum, event_num);
+            ICO_DBG("Not receive: StateNum = [%d],event_num = [%d]",
+                      StateNum, event_num);
             break;
         }
 
@@ -371,14 +360,14 @@ static void rcv_event(int event_num)
                 chg_state(STATE_START);
             }
             else {
-                uim_debug("start_audio Err: ret= [%d]", ret);
-                _on_destroy(NULL);
+                ICO_DBG("start_audio Err: ret= [%d]", ret);
+                _win_del(NULL, NULL, NULL);
             }
             break;
 
         default:
-            uim_debug("Not receive: StateNum = [%d],event_num = [%d]",
-                        StateNum, event_num);
+            ICO_DBG("Not receive: StateNum = [%d],event_num = [%d]",
+                      StateNum, event_num);
             break;
         }
 
@@ -401,100 +390,101 @@ static void rcv_event(int event_num)
             break;
 
         default:
-            uim_debug("Not receive: StateNum = [%d],event_num = [%d]",
-                        StateNum, event_num);
+            ICO_DBG("Not receive: StateNum = [%d],event_num = [%d]",
+                      StateNum, event_num);
             break;
         }
 
         break;
 
     default:
-        uim_debug("Not support StateNum: StateNum = [%d]", StateNum);
+        ICO_DBG("Not support StateNum: StateNum = [%d]", StateNum);
         break;
     }
 
-    uim_debug("rcv_event: Leave");
+    ICO_DBG("rcv_event: Leave");
 }
 
 static void send_event_req(int event_num)
 {
-    uim_debug("send_event_req: Enter");
+    ICO_DBG("send_event_req: Enter");
 
     char msg[32];
     memset(msg, 0x00, sizeof(msg));
 
     snprintf(msg, sizeof(msg), "%d", event_num);
-    uim_debug("msg = %s", msg);
+    ICO_DBG("msg = %s", msg);
 
     write(Filedes[1], msg, strlen(msg) + 1);
-    uim_debug("send_event_req: Leave");
+    ICO_DBG("send_event_req: Leave");
 }
 
 static void recv_event_res(int ret)
 {
-    uim_debug("recv_event_res: Enter");
+    ICO_DBG("recv_event_res: Enter");
 
     char msg[32];
     memset(msg, 0x00, sizeof(msg));
 
     snprintf(msg, sizeof(msg), "%d", ret);
-    uim_debug("msg = %s", msg);
+    ICO_DBG("msg = %s", msg);
 
     write(Filedes2[1], msg, strlen(msg) + 1);
-    uim_debug("recv_event_res: Leave");
+    ICO_DBG("recv_event_res: Leave");
 }
 
 static void chg_state(int state_num)
 {
-    uim_debug("chg_state: Enter");
-    uim_debug("chg_state state_num = [%d]", state_num);
+    ICO_DBG("chg_state: Enter");
+    ICO_DBG("chg_state state_num = [%d]", state_num);
 
-    char buf[ICO_UXF_MAX_PROCESS_NAME + 1];
+//    char buf[ICO_UXF_MAX_PROCESS_NAME + 1];
+    char buf[64];
     memset(buf, 0x00, sizeof(buf));
 
     switch (state_num) {
     case STATE_START:
         snprintf(buf, sizeof(buf), "%s", "STATE : START");
-        evas_object_text_text_set(State_text, buf);
+        elm_object_text_set(Ad.sts_txt, buf);
         StateNum = state_num;
         break;
 
     case STATE_STOP:
         snprintf(buf, sizeof(buf), "%s", "STATE : STOP");
-        evas_object_text_text_set(State_text, buf);
+        elm_object_text_set(Ad.sts_txt, buf);
         StateNum = state_num;
         break;
 
     case STATE_PAUSE:
         snprintf(buf, sizeof(buf), "%s", "STATE : PAUSE");
-        evas_object_text_text_set(State_text, buf);
+        elm_object_text_set(Ad.sts_txt, buf);
         StateNum = state_num;
         break;
 
     default:
-        uim_debug("Not support State: state_num = [%d]", state_num);
+        ICO_DBG("Not support State: state_num = [%d]", state_num);
         break;
     }
 
-    uim_debug("chg_state StateNum = [%d]", StateNum);
-    uim_debug("chg_state: Leave");
+    ICO_DBG("chg_state StateNum = [%d]", StateNum);
+    ICO_DBG("chg_state: Leave");
 }
 
 static void conf_check_gerror(char *para_num, GError ** error)
 {
-    uim_debug("conf_check_gerror: Enter");
+    ICO_DBG("conf_check_gerror: Enter");
 
     if (*error != NULL) {
-        uim_debug("Config [%s] : %s", para_num, (*error)->message);
+        ICO_DBG("Config [%s] : %s", para_num, (*error)->message);
     }
     g_clear_error(error);
 
-    uim_debug("conf_check_gerror: Leave");
+    ICO_DBG("conf_check_gerror: Leave");
 }
 
 static int read_config(void)
 {
-    uim_debug("read_config: Enter");
+    ICO_DBG("read_config: Enter");
 
     GKeyFile *keyfile;
     GKeyFileFlags flags;
@@ -512,7 +502,7 @@ static int read_config(void)
                                                      KEY_WAVFILE_PATH,
                                                      &error);
     if ((error) || (strlen(AudioConfig.wavfile_path) <= 0)) {
-        uim_debug("No config data [%s]", KEY_WAVFILE_PATH);
+        ICO_DBG("No config data [%s]", KEY_WAVFILE_PATH);
         conf_check_gerror(KEY_WAVFILE_PATH, &error);
         g_key_file_free(keyfile);
         return -1;
@@ -521,7 +511,7 @@ static int read_config(void)
     AudioConfig.server_ip = g_key_file_get_string(keyfile, GROUP_DATA,
                                                   KEY_SERVER_IP, &error);
     if ((error) || (strlen(AudioConfig.server_ip) <= 0)) {
-        uim_debug("No config data [%s]", KEY_SERVER_IP);
+        ICO_DBG("No config data [%s]", KEY_SERVER_IP);
         conf_check_gerror(KEY_SERVER_IP, &error);
         AudioConfig.server_ip = NULL;
     }
@@ -529,7 +519,7 @@ static int read_config(void)
     AudioConfig.device_name = g_key_file_get_string(keyfile, GROUP_DATA,
                                                     KEY_DEVICE_NAME, &error);
     if ((error) || (strlen(AudioConfig.device_name) <= 0)) {
-        uim_debug("No config data [%s]", KEY_DEVICE_NAME);
+        ICO_DBG("No config data [%s]", KEY_DEVICE_NAME);
         conf_check_gerror(KEY_DEVICE_NAME, &error);
         AudioConfig.device_name = NULL;
     }
@@ -537,7 +527,7 @@ static int read_config(void)
     AudioConfig.volume1 = g_key_file_get_integer(keyfile, GROUP_DATA,
                                                  KEY_VOLUME1, &error);
     if (error) {
-        uim_debug("No config data [%s]", KEY_VOLUME1);
+        ICO_DBG("No config data [%s]", KEY_VOLUME1);
         conf_check_gerror(KEY_VOLUME1, &error);
         AudioConfig.volume1 = -1;
     }
@@ -545,7 +535,7 @@ static int read_config(void)
     AudioConfig.volume2 = g_key_file_get_integer(keyfile, GROUP_DATA,
                                                  KEY_VOLUME2, &error);
     if (error) {
-        uim_debug("No config data [%s]", KEY_VOLUME2);
+        ICO_DBG("No config data [%s]", KEY_VOLUME2);
         conf_check_gerror(KEY_VOLUME2, &error);
         AudioConfig.volume2 = -1;
     }
@@ -553,7 +543,7 @@ static int read_config(void)
     AudioConfig.app_name = g_key_file_get_string(keyfile, GROUP_DATA,
                                                  KEY_APP_NAME, &error);
     if ((error) || (strlen(AudioConfig.app_name) <= 0)) {
-        uim_debug("No config data [%s]", KEY_APP_NAME);
+        ICO_DBG("No config data [%s]", KEY_APP_NAME);
         conf_check_gerror(KEY_APP_NAME, &error);
         AudioConfig.app_name = "TP_PulseAudio";
     }
@@ -561,49 +551,56 @@ static int read_config(void)
     AudioConfig.stream_name = g_key_file_get_string(keyfile, GROUP_DATA,
                                                     KEY_STREAM_NAME, &error);
     if ((error) || (strlen(AudioConfig.stream_name) <= 0)) {
-        uim_debug("No config data [%s]", KEY_STREAM_NAME);
+        ICO_DBG("No config data [%s]", KEY_STREAM_NAME);
         conf_check_gerror(KEY_DEVICE_NAME, &error);
         AudioConfig.stream_name = "Pri0";
     }
 
-    uim_debug("read_config: Leave");
+    ICO_DBG("AudioConfig.wavfile_path = [%s]", AudioConfig.wavfile_path);
+    ICO_DBG("AudioConfig.server_ip = [%s]", AudioConfig.server_ip);
+    ICO_DBG("AudioConfig.device_name = [%s]", AudioConfig.device_name);
+    ICO_DBG("AudioConfig.volume1 = [%d]", AudioConfig.volume1);
+    ICO_DBG("AudioConfig.volume2 = [%d]", AudioConfig.volume2);
+    ICO_DBG("AudioConfig.app_name = [%s]", AudioConfig.app_name);
+    ICO_DBG("AudioConfig.stream_name = [%s]", AudioConfig.stream_name);
+
+    ICO_DBG("read_config: Leave");
     return 0;
 }
 
 static void draw_text(Evas_Object *obj, struct object_text_val_t *text)
 {
-    uim_debug("draw_text: Enter");
+    ICO_DBG("draw_text: Enter");
 
-    evas_object_color_set(obj, text->color.r, text->color.g, text->color.b,
-                          text->color.a);
-    evas_object_resize(obj, text->size.w, text->size.h);
-    evas_object_text_font_set(obj, text->font.name, text->font.size);
-    evas_object_move(obj, text->pos.x, text->pos.y);
+//    evas_object_color_set(obj, text->color.r, text->color.g, text->color.b,
+//                          text->color.a);
+    evas_object_resize(obj, text->size.w * W_mag, text->size.h * H_mag);
+    evas_object_move(obj, text->pos.x * W_mag, text->pos.y * H_mag);
     evas_object_show(obj);
-    evas_object_text_text_set(obj, text->text);
+    elm_object_text_set(obj, text->text);
 
-    uim_debug("draw_text: Leave");
+    ICO_DBG("draw_text: Leave");
 }
 
 static void draw_figr(Evas_Object *obj, struct object_figure_val_t *figr)
 {
-    uim_debug("draw_figr: Enter");
+    ICO_DBG("draw_figr: Enter");
 
-    evas_object_color_set(obj, figr->color.r, figr->color.g, figr->color.b,
-                          figr->color.a);
-    evas_object_resize(obj, figr->size.w, figr->size.h);
-    evas_object_move(obj, figr->pos.x, figr->pos.y);
+//    evas_object_color_set(obj, figr->color.r, figr->color.g, figr->color.b,
+//                          figr->color.a);
+    evas_object_resize(obj, figr->size.w * W_mag, figr->size.h * H_mag);
+    evas_object_move(obj, figr->pos.x * W_mag, figr->pos.y * H_mag);
     evas_object_show(obj);
 
-    uim_debug("draw_figr: Leave");
+    ICO_DBG("draw_figr: Leave");
 }
-
+#if 0
 static void res_callback(ico_apf_resource_notify_info_t *info,
                          void *user_data)
 {
     int ret;
 
-    uim_debug
+    ICO_DBG
         ("##==> Callbacked! evt=%d res=%d id=%d bid=%d appid=%s dev=%s "
          "user_data=%d", info->state, info->resid, info->id, info->bid,
          info->appid, info->device, (int) user_data);
@@ -617,14 +614,14 @@ static void res_callback(ico_apf_resource_notify_info_t *info,
             ret =
                 ico_apf_resource_reply_int_sound_mode(info->device, info->id,
                                                       1);
-            uim_debug("##==> callback reply int_sound(%s,%d,1) = %d",
-                        info->device, info->id, ret);
+            ICO_DBG("##==> callback reply int_sound(%s,%d,1) = %d",
+                      info->device, info->id, ret);
         }
         else {
             ret =
                 ico_apf_resource_reply_sound_mode(info->device, info->id, 1);
-            uim_debug("##==> callback reply sound(%s,%d,1) = %d",
-                        info->device, info->id, ret);
+            ICO_DBG("##==> callback reply sound(%s,%d,1) = %d",
+                      info->device, info->id, ret);
         }
         break;
     default:
@@ -632,91 +629,266 @@ static void res_callback(ico_apf_resource_notify_info_t *info,
         break;
     }
 }
-
-int main(int argc, char *argv[])
+#endif
+static void app_terminate(void *data)
 {
-    int getsound;
-    char appid[64];
+    ICO_DBG("ENTER app_terminate");
+    // Release all resources
+    int i;
 
-    /* Log output setup */
-    if (ico_apf_get_app_id(0, appid) == ICO_APP_CTL_E_NONE) {
-        ico_apf_log_open(appid);
+    if (Ad.win) {
+        evas_object_del(Ad.win);
+        Ad.win = NULL;
     }
 
-    uim_debug("main: Enter");
+    if (Ad.bg) {
+        evas_object_del(Ad.bg);
+        Ad.bg = NULL;
+    }
 
-    Evas *evas;
-    Evas_Object *app_name_text;
-    Evas_Object *stream_name_text;
-    Evas_Object *pid_text;
-    Evas_Object *button_text[MAX_BUTTON_NUM];
-    Evas_Object *button_figr[MAX_BUTTON_NUM];
-    Evas_Object *time_text;
+    if (Ad.snd_type) {
+        evas_object_del(Ad.snd_type);
+        Ad.snd_type = NULL;
+    }
+
+    for (i = 0; i < MAX_BUTTON_NUM; i++) {
+        if (Ad.btn[i]) {
+            evas_object_del(Ad.btn[i]);
+            Ad.btn[i] = NULL;
+        }
+
+        if (Ad.btn_name[i]) {
+            evas_object_del(Ad.btn_name[i]);
+            Ad.btn_name[i] = NULL;
+        }
+
+        if (Ad.icon[i]) {
+            evas_object_del(Ad.icon[i]);
+            Ad.icon[i] = NULL;
+        }
+    }
+
+    if (Ad.sts_txt) {
+        evas_object_del(Ad.sts_txt);
+        Ad.sts_txt = NULL;
+    }
+
+    if (Ad.app_name) {
+        evas_object_del(Ad.app_name);
+        Ad.app_name = NULL;
+    }
+
+    if (Ad.strm_name) {
+        evas_object_del(Ad.strm_name);
+        Ad.strm_name = NULL;
+    }
+
+    if (Ad.pid_txt) {
+        evas_object_del(Ad.pid_txt);
+        Ad.pid_txt = NULL;
+    }
+
+    ICO_DBG("LEAVE app_terminate");
+    return;
+}
+
+static void _winCreate(void)
+{
+    ICO_DBG("ENTER _winCreate");
+
     char buf[256];
     char buf2[256];
-    int i = 0;
+    int i;
+
+    memset(buf, 0x00, sizeof(buf));
+    memset(buf2, 0x00, sizeof(buf));
+
+    if (NULL == Ad.win) {
+        ICO_DBG("Err Param NG");
+        return;
+    }
+
+    /* Sound Type  */
+    Ad.snd_type = elm_label_add(Ad.win);
+    draw_text(Ad.snd_type, &SndTypeText);
+    elm_object_text_set(Ad.snd_type, SsndType);
+
+    /* Button */
+    for (i = 0; i < MAX_BUTTON_NUM; i++) {
+        /* Button Text */
+        Ad.btn_name[i] = elm_label_add(Ad.win);
+        draw_text(Ad.btn_name[i], &ButtonText[i]);
+
+        /* Button Object */
+        Ad.btn[i] = elm_button_add(Ad.win);
+        Ad.icon[i] = elm_icon_add(Ad.win);
+        elm_icon_standard_set(Ad.icon[i], ButtonFigr[i].icon_name);
+        elm_object_part_content_set(Ad.btn[i], "icon", Ad.icon[i]);
+        draw_figr(Ad.btn[i], &ButtonFigr[i]);
+        evas_object_smart_callback_add(Ad.btn[i], "clicked",
+                                       (Evas_Smart_Cb) (ButtonFigr[i].func),
+                                       NULL);
+    }
+
+    /* Status Text */
+    Ad.sts_txt = elm_label_add(Ad.win);
+    draw_text(Ad.sts_txt, &StateInfoText);
+
+    /* Application Name */
+    Ad.app_name = elm_label_add(Ad.win);
+    draw_text(Ad.app_name, &AppNameText);
+
+    if (strlen(AudioConfig.app_name) > MAX_DRAW_LEM) {
+        snprintf(buf2, MAX_DRAW_LEM, "%s", AudioConfig.app_name);
+        snprintf(buf, sizeof(buf), "%s%s...", "App name :  ", buf2);
+    }
+    else {
+        snprintf(buf, sizeof(buf), "%s%s", "App name :  ",
+                 AudioConfig.app_name);
+    }
+    elm_object_text_set(Ad.app_name, buf);
+
+    /* Stream Name */
+    Ad.strm_name = elm_label_add(Ad.win);
+    draw_text(Ad.strm_name, &StreamNameText);
+
+    if (strlen(AudioConfig.stream_name) > MAX_DRAW_LEM) {
+        snprintf(buf2, MAX_DRAW_LEM, "%s", AudioConfig.stream_name);
+        snprintf(buf, sizeof(buf), "%s%s...", "Stream name :  ", buf2);
+    }
+    else {
+        snprintf(buf, sizeof(buf), "%s%s", "Stream name :  ",
+                 AudioConfig.stream_name);
+    }
+    elm_object_text_set(Ad.strm_name, buf);
+
+    /* PID Text */
+    Ad.pid_txt = elm_label_add(Ad.win);
+    draw_text(Ad.pid_txt, &PidText);
+    snprintf(buf, sizeof(buf), "%s%d", "PID :  ", getpid());
+    elm_object_text_set(Ad.pid_txt, buf);
+
+    ICO_DBG("LEAVE _winCreate");
+    return;
+}
+
+static void _win_del(void *data, Evas_Object *obj, void *event_info)
+{
+    ICO_DBG("ENTER _win_del");
+
+    elm_exit();
+
+    ICO_DBG("LEAVE _win_del");
+    return;
+}
+
+static Evas_Object *_create_win(const char *name)
+{
+    ICO_DBG("ENTER _create_win");
+
+    Evas_Object *eo;
+    eo = elm_win_add(NULL, name, ELM_WIN_BASIC);
+    if (eo) {
+        elm_win_title_set(eo, name);
+        evas_object_smart_callback_add(eo, "delete,request", _win_del, NULL);
+    }
+    ICO_DBG("LEAVE _create_win");
+
+    return eo;
+}
+
+static bool app_create(void *data)
+{
+    ICO_DBG("ENTER app_create");
+
+#if 0 //TEST.s
+    int w, h;
+
+    /* get display size */
+    ecore_x_window_size_get(ecore_x_window_root_first_get(), &w, &h);
+    ICO_DBG("window size w=%d,h=%d", w, h);
+
+    /* set app screen size */
+    Width = w;
+    Height = h - STATUS_BAR_HEIGHT;
+#else
+    Width = WIDTH;
+    Height = HEIGHT;
+#endif //TEST.e
+
+    W_mag = Width / WIDTH;
+    H_mag = Height / HEIGHT;
+
+    ICO_DBG("Width =%f,Height=%f", Width, Height);
+    ICO_DBG("W_mag =%f,H_mag=%f", W_mag, H_mag);
+
+    /* main widnow */
+    Ad.win = _create_win(PACKAGE);
+    if (Ad.win == NULL) {
+        return FALSE;
+    }
+    evas_object_show(Ad.win);
+
+    elm_win_indicator_mode_set(Ad.win, ELM_WIN_INDICATOR_SHOW);
+    elm_win_fullscreen_set(Ad.win, EINA_TRUE);
+
+    Ad.bg = elm_bg_add(Ad.win);
+    elm_win_resize_object_add(Ad.win, Ad.bg);
+    evas_object_size_hint_weight_set(Ad.bg, EVAS_HINT_EXPAND,
+                                     EVAS_HINT_EXPAND);
+    elm_bg_file_set(Ad.bg, BG_IMAGE_FILE, NULL);
+    evas_object_show(Ad.bg);
+
+    evas_object_resize(Ad.win, Width, Height);
+
+    /* set font size */
+    (void)elm_config_font_overlay_set(TEXT_BUTTON, FONT_FAMILY, FONT_SIZE);
+    (void)elm_config_font_overlay_set(TEXT_LABEL, FONT_FAMILY, FONT_SIZE);
+    (void)elm_config_font_overlay_apply();
+
+    _winCreate();
+
+    ICO_DBG("LEAVE app_create");
+
+    return TRUE;                /* EXIT_SUCCESS */
+}
+
+#if 0
+static int get_sound(int argc, char **argv)
+{
+    ICO_DBG("ENTER get_sound");
+
+    int getsound;
     bundle *b;
     const char *val;
 
     /* get resource control option  */
     b = bundle_import_from_argv(argc, argv);
     getsound = 0;
-    ssndtype[0] = 0;
-	if(b != NULL){
+    SsndType[0] = 0;
+    if (b != NULL) {
         val = bundle_get_val(b, "rightoption");
-		if (val != NULL) {
+        if (val != NULL) {
             if (strcasecmp(val, "-basesound") == 0) {
                 getsound = 1;   /* get base sound       */
-                strcpy(ssndtype, "BasecSound");
+                strcpy(SsndType, "BaseSound");
             }
             else if (strcasecmp(val, "-intsound") == 0) {
                 getsound = 2;   /* get interrupt sound  */
-                strcpy(ssndtype, "IntSound");
+                strcpy(SsndType, "IntSound");
             }
             else if (strncasecmp(val, "-int=", 5) == 0) {
                 getsound = strtol(val + 5, (char **) 0, 0);
                 getsound += 2;  /* get interrupt sound  */
-                sprintf(ssndtype, "IntSound.%d", getsound - 2);
+                sprintf(SsndType, "IntSound.%d", getsound - 2);
             }
         }
-    }
-
-    StateNum = STATE_STOP;
-    ChPid = 0;
-    memset(buf, 0x00, sizeof(buf));
-    memset(buf2, 0x00, sizeof(buf));
-
-    if (pipe(Filedes) == -1) {
-        uim_debug("Err pipe Filedes");
-        return EXIT_FAILURE;
-    }
-
-    if (pipe(Filedes2) == -1) {
-        uim_debug("Err pipe Filedes2");
-        return EXIT_FAILURE;
-    }
-
-    if (read_config() == -1) {
-        uim_debug("Err Config Read NG");
-        return EXIT_FAILURE;
-    }
-
-    uim_debug("AudioConfig.wavfile_path = [%s]", AudioConfig.wavfile_path);
-    uim_debug("AudioConfig.server_ip = [%s]", AudioConfig.server_ip);
-    uim_debug("AudioConfig.device_name = [%s]", AudioConfig.device_name);
-    uim_debug("AudioConfig.volume1 = [%d]", AudioConfig.volume1);
-    uim_debug("AudioConfig.volume2 = [%d]", AudioConfig.volume2);
-    uim_debug("AudioConfig.app_name = [%s]", AudioConfig.app_name);
-    uim_debug("AudioConfig.stream_name = [%s]", AudioConfig.stream_name);
-
-    if (!ecore_evas_init()) {
-        return EXIT_FAILURE;
     }
 
     if (getsound > 0) {
         /* initialize resource control for Ecore */
         if (ico_apf_ecore_init(NULL) != ICO_APF_E_NONE) {
-            uim_debug("ico_apf_ecore_init() Error");
+            ICO_DBG("ico_apf_ecore_init() Error");
             ecore_evas_shutdown();
             return -1;
         }
@@ -732,110 +904,82 @@ int main(int argc, char *argv[])
             ico_apf_resource_get_int_sound_mode(NULL, getsound - 2, 0);
         }
     }
+    ICO_DBG("LEAVE get_sound");
+    return 0;
+}
+#endif
 
-    /* this will give you a window with an Evas canvas under the first
-     * engine available */
-    ee = ecore_evas_new(NULL, 0, 0, WIDTH, HEIGHT, "frame=0");
-    if (!ee) {
-        goto error;
-    }
+int main(int argc, char *argv[])
+{
+//    char appid[ICO_UXF_MAX_PROCESS_NAME + 1];
+    char appid[256];
+    int pid;
+    app_event_callback_s event_callback;
+    int result = 0;
 
-    ecore_evas_callback_delete_request_set(ee, _on_destroy);
-    ecore_evas_title_set(ee, "Ecore_Evas window sizes example");
-    ecore_evas_callback_resize_set(ee, _canvas_resize_cb);
-    ecore_evas_show(ee);
+    /* Setting the log output */
+//    if (ico_apf_get_app_id(0, appid) == ICO_APP_CTL_E_NONE) {
+//        ico_apf_log_open(appid);
+//    }
 
-    evas = ecore_evas_get(ee);
-
-    /* Background painting */
-    bg = evas_object_rectangle_add(evas);
-    draw_figr(bg, &BgFigr);
-
-    evas_object_focus_set(bg, EINA_TRUE);
-
-    /* App Name drawing */
-    app_name_text = evas_object_text_add(evas);
-    draw_text(app_name_text, &AppNameText);
-
-    if (strlen(AudioConfig.app_name) > MAX_DRAW_LEM) {
-        snprintf(buf2, MAX_DRAW_LEM, "%s", AudioConfig.app_name);
-        snprintf(buf, sizeof(buf), "%s%s...", "App name :  ", buf2);
+    /* Setting the log output */
+    memset(appid, 0, sizeof(appid));
+    pid = getpid();
+    if (aul_app_get_appid_bypid(pid, appid, sizeof(appid)) == AUL_R_OK) {
+        ico_log_open(appid);
     }
     else {
-        snprintf(buf, sizeof(buf), "%s%s", "App name :  ",
-                 AudioConfig.app_name);
+        ico_log_open("org.tizen.ico.app-soundsample");
     }
 
-    evas_object_text_text_set(app_name_text, buf);
+    ICO_DBG("ENTER main");
 
-    /* Drawing window */
-    text = evas_object_text_add(evas);
-    evas_object_color_set(text, 255, 0, 0, 255);
-    evas_object_resize(text, 150, 50);
-    evas_object_text_font_set(text, "Sans", 20);
-    evas_object_show(text);
-
-    /* Stream Name drawing */
-    stream_name_text = evas_object_text_add(evas);
-    draw_text(stream_name_text, &StreamNameText);
-
-    if (strlen(AudioConfig.stream_name) > MAX_DRAW_LEM) {
-        snprintf(buf2, MAX_DRAW_LEM, "%s", AudioConfig.stream_name);
-        snprintf(buf, sizeof(buf), "%s%s...", "Stream name :  ", buf2);
-    }
-    else {
-        snprintf(buf, sizeof(buf), "%s%s", "Stream name :  ",
-                 AudioConfig.stream_name);
+    if (pipe(Filedes) == -1) {
+        ICO_DBG("Err pipe Filedes");
+        return EXIT_FAILURE;
     }
 
-    evas_object_text_text_set(stream_name_text, buf);
-
-    /* PID drawing */
-    pid_text = evas_object_text_add(evas);
-    draw_text(pid_text, &PidText);
-    snprintf(buf, sizeof(buf), "%s%d", "PID :  ", getpid());
-    evas_object_text_text_set(pid_text, buf);
-
-    /* Sound condition drawing */
-    State_text = evas_object_text_add(evas);
-    draw_text(State_text, &StateInfoText);
-
-    /** Button drawing */
-    for (i = 0; i < MAX_BUTTON_NUM; i++) {
-        /* Button name drawing */
-        button_text[i] = evas_object_text_add(evas);
-        draw_text(button_text[i], &ButtonText[i]);
-
-        /* Button Frame drawing */
-        button_figr[i] = evas_object_rectangle_add(evas);
-        draw_figr(button_figr[i], &ButtonFigr[i]);
-
-        /* Callback function entry */
-        evas_object_event_callback_add(button_figr[i],
-                                       EVAS_CALLBACK_MOUSE_DOWN,
-                                       (Evas_Object_Event_Cb) (ButtonFigr[i].
-                                                               func),
-                                       State_text);
+    if (pipe(Filedes2) == -1) {
+        ICO_DBG("Err pipe Filedes2");
+        return EXIT_FAILURE;
     }
 
-    /* Drawing of the current time */
-    time_text = evas_object_text_add(evas);
-    draw_text(time_text, &TimeText);
+    if (read_config() == -1) {
+        ICO_DBG("Err Config Read NG");
+        return EXIT_FAILURE;
+    }
 
-    /* Timer callback function entry */
-    ecore_timer_add(0.1, (Ecore_Task_Cb) (TimeText.func), time_text);
+    if (!ecore_evas_init()) {
+        return EXIT_FAILURE;
+    }
+
+    /* get argument */
+//    if (get_sound(argc, argv) != 0) {
+//        ICO_DBG("Err get_sound");
+//        return EXIT_FAILURE;
+//    }
 
     /* File descriptor to monitor callback function entry */
     ecore_main_fd_handler_add(Filedes2[0], ECORE_FD_READ, stop_audio, NULL,
                               NULL, NULL);
 
-    _canvas_resize_cb(ee);
-    fprintf(stdout, commands);
-    ecore_main_loop_begin();
+    /* set callback fanc */
+    event_callback.create = app_create;
+    event_callback.terminate = app_terminate;
+    event_callback.pause = NULL;
+    event_callback.resume = NULL;
+    event_callback.service = NULL;
+    event_callback.low_memory = NULL;
+    event_callback.low_battery = NULL;
+    event_callback.device_orientation = NULL;
+    event_callback.language_changed = NULL;
+    event_callback.region_format_changed = NULL;
 
-    ico_apf_ecore_term();
+    memset(&Ad, 0x0, sizeof(struct appdata_t));
 
-    ecore_evas_free(ee);
+    result = app_efl_main(&argc, &argv, &event_callback, &Ad);
+
+//    ico_apf_ecore_term();
     ecore_evas_shutdown();
 
     close(Filedes[0]);
@@ -846,16 +990,9 @@ int main(int argc, char *argv[])
     /* Process check */
     if ((ChPid > 0) && (kill(ChPid, 0) != EOF)) {
         kill(ChPid, SIGKILL);
-        uim_debug("END Process ChPid = [%d]", ChPid);
+        ICO_DBG("END Process ChPid = [%d]", ChPid);
     }
-    uim_debug("main: Leave");
+    ICO_DBG("main: Leave");
 
-    return 0;
-
-  error:
-    fprintf(stderr,
-            "You got to have at least one Evas engine built and linked up"
-            " to ecore-evas for this example to run properly.\n");
-    ecore_evas_shutdown();
-    return -1;
+    return result;
 }

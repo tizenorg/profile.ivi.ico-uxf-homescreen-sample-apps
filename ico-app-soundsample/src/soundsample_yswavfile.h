@@ -72,7 +72,6 @@ class YsWavFile
     YSRESULT ConvertTo8Bit(void);
     YSRESULT ConvertToStereo(void);
     YSRESULT ConvertToMono(void);
-//  YSRESULT Resample(int newRate);
     YSRESULT Resample(unsigned int newRate);
 
     YSRESULT ConvertToSigned(void);
