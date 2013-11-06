@@ -59,6 +59,8 @@
 #define KEY_VOLUME2       "volume2"
 #define KEY_APP_NAME      "app_name"
 #define KEY_STREAM_NAME   "stream_name"
+#define KEY_REPEAT_FLG    "repeat_flg"
+#define KEY_MEDIA_ROLE    "media_role"
 
 /* font */
 #define FONT_SIZE       48
@@ -556,6 +558,22 @@ static int read_config(void)
         AudioConfig.stream_name = "Pri0";
     }
 
+    AudioConfig.repeat_flg = g_key_file_get_string(keyfile, GROUP_DATA,
+                                                    KEY_REPEAT_FLG, &error);
+    if ((error) || (strlen(AudioConfig.repeat_flg) <= 0)) {
+        ICO_DBG("No config data [%s]", KEY_REPEAT_FLG);
+        conf_check_gerror(KEY_DEVICE_NAME, &error);
+        AudioConfig.repeat_flg = "OFF";
+    }
+
+    AudioConfig.media_role = g_key_file_get_string(keyfile, GROUP_DATA,
+                                                    KEY_MEDIA_ROLE, &error);
+    if ((error) || (strlen(AudioConfig.media_role) <= 0)) {
+        ICO_DBG("No config data [%s]", KEY_MEDIA_ROLE);
+        conf_check_gerror(KEY_DEVICE_NAME, &error);
+        AudioConfig.media_role = "none";
+    }
+
     ICO_DBG("AudioConfig.wavfile_path = [%s]", AudioConfig.wavfile_path);
     ICO_DBG("AudioConfig.server_ip = [%s]", AudioConfig.server_ip);
     ICO_DBG("AudioConfig.device_name = [%s]", AudioConfig.device_name);
@@ -563,7 +581,8 @@ static int read_config(void)
     ICO_DBG("AudioConfig.volume2 = [%d]", AudioConfig.volume2);
     ICO_DBG("AudioConfig.app_name = [%s]", AudioConfig.app_name);
     ICO_DBG("AudioConfig.stream_name = [%s]", AudioConfig.stream_name);
-
+    ICO_DBG("AudioConfig.repeat_flg = [%s]", AudioConfig.repeat_flg);
+    ICO_DBG("AudioConfig.media_role = [%s]", AudioConfig.media_role);
     ICO_DBG("read_config: Leave");
     return 0;
 }

@@ -30,6 +30,8 @@ extern "C"
         int volume2;
         char *app_name;
         char *stream_name;
+        char *repeat_flg;
+        char *media_role;
     };
 
 /* STATE */

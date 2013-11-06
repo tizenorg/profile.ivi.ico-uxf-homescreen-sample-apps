@@ -1,3 +1,22 @@
+* Wed Nov 06 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> submit/tizen/20131106.102408@3acddd7
+- 0.9.1 release.
+-ico-app-soundsample
+-- bugfix : When it reproduces from a stop, sound is come out slowly.
+-- Config preset value addition
+　・repeat_flg
+     "ON"   A sound is repeated.
+	 "OFF"  A sound is not repeated. 
+　・media_role  (An initial value has no setup. "none")
+
+- 0.9.2 release
+-ico-app-soundsample
+-- bugfix : 100% of the CPU usage rate at the time of a pause.
+
+- 0.9.3 release
+-ico-app-soundsample
+-- Config default configuration change :media role.
+
+
 * Wed Oct 02 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/2.0alpha-wayland/20130612.174822@212f3fb
 - 0.9.0 release.
 -- leave application vicsample, soundsamples. remove other applications.

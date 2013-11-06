@@ -1,5 +1,5 @@
 ## audioTP Config File
-##	/opt/apps/org.tizen.ico.ico-app-soundsample/res/soundsample_config.txt
+##	/usr/apps/org.tizen.ico.ico-app-soundsample/res/soundsample_config.txt
 
 [data]
 wavfile_path=/usr/apps/org.tizen.ico.app-soundsample/sounds/musicbox.wav
@@ -9,3 +9,5 @@ volume1=30000
 volume2=30000
 app_name=SampleSound
 stream_name=sample_sound
+repeat_flg=OFF
+media_role=music

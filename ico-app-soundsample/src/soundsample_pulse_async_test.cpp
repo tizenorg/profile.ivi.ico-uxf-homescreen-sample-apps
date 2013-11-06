@@ -41,7 +41,6 @@ extern "C"
 
 static int ExitFlg;
 static int ReadFiledes;
-#define REPEAT_FLG 1            /* ON:0 ,OFF:1 */
 
 static YSRESULT YsPulseAudioWaitForConnectionEstablished(pa_context *
                                                          paContext,
@@ -85,15 +84,11 @@ static void event_input_callback(pa_mainloop_api *a, pa_io_event *e, int fd,
             pa_stream_cork((pa_stream *) userdata, ICO_PA_STREAM_PAUSE, NULL,
                            NULL);
             ICO_DBG("pa_stream_cork(PAUSE)");
-            sleep(2);
-            ICO_DBG("sleep end");
         }
         else {
             pa_stream_cork((pa_stream *) userdata, ICO_PA_STREAM_RESUME, NULL,
                            NULL);
             ICO_DBG("pa_stream_cork(RESUME)");
-            sleep(2);
-            ICO_DBG("sleep end");
         }
         break;
 
@@ -113,7 +108,8 @@ int pulse_main(struct audio_config_t *audio_config, int filedes)
     int volume_set2 = -1;
     char *app_name = NULL;
     char *stream_name = NULL;
-
+    char *repeat_flg = NULL;
+    char *media_role = NULL;
     pa_cvolume *cvolume = NULL;
 
     char cm[PA_CHANNEL_MAP_SNPRINT_MAX];
@@ -147,6 +143,8 @@ int pulse_main(struct audio_config_t *audio_config, int filedes)
     volume_set2 = audio_config->volume2;
     app_name = audio_config->app_name;
     stream_name = audio_config->stream_name;
+    repeat_flg = audio_config->repeat_flg;
+    media_role = audio_config->media_role;
 
     ICO_DBG("Before Resampling:");
     ICO_DBG("Bit per sample: %d", wavFile.BitPerSample());
@@ -241,7 +239,17 @@ int pulse_main(struct audio_config_t *audio_config, int filedes)
     static pa_io_event *stdio_event = NULL;
     static pa_mainloop_api *mainloop_api = pa_mainloop_get_api(paMainLoop);
 
-    paStream = pa_stream_new(paContext, stream_name, &ss, &cmap);
+    pa_proplist *plist_p = pa_proplist_new();
+    if ((NULL != plist_p) && (NULL != media_role) && (0 != strcmp(media_role, "none"))) {
+        pa_proplist_sets(plist_p, PA_PROP_MEDIA_ROLE, media_role);
+        paStream = pa_stream_new_with_proplist(paContext, stream_name, &ss, &cmap , plist_p);
+        ICO_DBG("pa_stream_new_with_proplist : media role set [%s]", media_role);
+    }
+    else {
+        paStream = pa_stream_new(paContext, stream_name, &ss, &cmap);
+        ICO_DBG("pa_stream_new : media role unset");
+    }
+
     if (NULL != paStream) {
         ICO_DBG("Stream created!  Getting there!");
     }
@@ -314,11 +322,13 @@ int pulse_main(struct audio_config_t *audio_config, int filedes)
             ICO_DBG
                 ("Underflow detected. (Probably the playback is done.)");
             playBackPtr = 0;
-#if REPEAT_FLG
-            break;
-#endif
+
+            if (0 != strcmp(repeat_flg, "ON")) {
+                break;
+            }
         }
         pa_mainloop_iterate(paMainLoop, 0, NULL);
+        usleep(500);
     }
 
     ICO_DBG("STREAM is END.");
