@@ -1,3 +1,14 @@
+* Fri Nov 29 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/tizen_ivi_stable/20131116.012229@90e4561
+- 0.9.5 release
+- ico-app-vicsample
+-- bugfix: TIVI-2125 [3.0] VIC sample app doesn't work
+-- The vehicles information addition to support.
+ ・Head(LightStatus)
+ ・Parking(LightStatus)
+ ・TurnSignal
+ ・SteeringWheelAngle
+ ・EngineCoolantTemperature
+
 * Wed Nov 06 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> submit/tizen/20131106.102408@3acddd7
 - 0.9.1 release.
 -ico-app-soundsample

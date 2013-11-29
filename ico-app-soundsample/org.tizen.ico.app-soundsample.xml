@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns="http://tizen.org/ns/packages" package="org.tizen.ico.app-soundsample" version="0.0.12" install-location="internal-only">
 	<label>ico-app-soundsample</label>
-  	<description>IVI StatusBar Application</description>
-	<ui-application appid="org.tizen.ico.app-soundsample" exec="/usr/apps/org.tizen.ico.app-soundsample/bin/ico-app-soundsample rightoption -basescreen" nodisplay="false" multiple="false" type="capp" taskmanage="true">
+  	<description>IVI Sound Sample Application</description>
+	<ui-application appid="org.tizen.ico.app-soundsample" exec="/usr/apps/org.tizen.ico.app-soundsample/bin/ico-app-soundsample" nodisplay="false" multiple="false" type="capp" taskmanage="true">
 		<icon>org.tizen.ico.app-soundsample.png</icon>
 		<label>ico-app-soundsample</label>
 		<label xml:lang="en-gb">ico-app-soundsample</label>

@@ -228,32 +228,32 @@ static char SsndType[32];
 /*============================================================================*/
 static void _on_mousedown1(void *data, Evas_Object *obj, void *event_info)
 {
-    ICO_DBG("_on_mousedown1: Enter");
-    ICO_DBG("Input event   : START");
+    ICO_DBG("TOUCH_EVENT _on_mousedown1: Enter");
+    ICO_DBG("TOUCH_EVENT Input event   : START");
 
     rcv_event(START_REQ);
 
-    ICO_DBG("_on_mousedown1: Leave");
+    ICO_DBG("TOUCH_EVENT _on_mousedown1: Leave");
 }
 
 static void _on_mousedown2(void *data, Evas_Object *obj, void *event_info)
 {
-    ICO_DBG("_on_mousedown2: Enter");
-    ICO_DBG("Input event  : STOP");
+    ICO_DBG("TOUCH_EVENT _on_mousedown2: Enter");
+    ICO_DBG("TOUCH_EVENT Input event  : STOP");
 
     rcv_event(STOP_REQ);
 
-    ICO_DBG("_on_mousedown2: Leave");
+    ICO_DBG("TOUCH_EVENT _on_mousedown2: Leave");
 }
 
 static void _on_mousedown3(void *data, Evas_Object *obj, void *event_info)
 {
-    ICO_DBG("_on_mousedown3: Enter");
-    ICO_DBG("Input event  : PAUSE");
+    ICO_DBG("TOUCH_EVENT _on_mousedown3: Enter");
+    ICO_DBG("TOUCH_EVENT Input event  : PAUSE");
 
     rcv_event(PAUSE_REQ);
 
-    ICO_DBG("_on_mousedown3: Leave");
+    ICO_DBG("TOUCH_EVENT _on_mousedown3: Leave");
 }
 
 static int start_audio(void)

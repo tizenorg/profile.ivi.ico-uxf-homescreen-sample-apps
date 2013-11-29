@@ -1,6 +1,6 @@
 Name:       ico-uxf-homescreen-sample-apps
 Summary:    HomeScreen sample application 
-Version:    0.9.3
+Version:    0.9.5
 Release:    1.1
 Group:      System/GUI
 License:    Apache License, Version 2.0
@@ -41,12 +41,13 @@ Requires: ico-uxf-utilities
 BuildRequires: pkgconfig(evas)
 BuildRequires: pkgconfig(elementary)
 BuildRequires: pkgconfig(ecore-wayland)
+BuildRequires: pkgconfig(edbus)
 BuildRequires: pkgconfig(dbus-1)
 BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(aul)
 BuildRequires: ico-uxf-weston-plugin-devel
 BuildRequires: ico-uxf-homescreen-system-controller-devel >= 0.9.01
-BuildRequires: ico-uxf-utilities-devel
+BuildRequires: ico-uxf-utilities-devel >= 0.9.04
 BuildRequires: pkgconfig(capi-appfw-application)
 Requires: weston >= 1.2
 Requires: ico-uxf-weston-plugin
@@ -56,9 +57,11 @@ Requires: elementary
 Requires: evas
 Requires: dbus
 Requires: dbus-glib
-Requires: automotive-message-broker
+Requires: automotive-message-broker >= 0.10.804
 Requires: capi-appfw-application
-Requires: ico-uxf-utilities
+Requires: edbus
+Requires: ico-uxf-utilities >= 0.9.04
+Requires: ico-vic-amb-plugin >= 0.9.4
 
 %description
 HomeScreen sample application 
@@ -121,23 +124,14 @@ install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.xml %{buildroot}/u
 
 %post
 /sbin/ldconfig
-
 # init db
-cd /opt/dbspace/
-rm -f .app_info.db .app_info.db-journal .pkgmgr_parser.db .pkgmgr_parser.db-journal .rua.db .rua.db-journal
 /usr/bin/pkg_initdb
 /usr/bin/ail_initdb
 
 %postun
 /sbin/ldconfig
-
-# init db
 rm -f /usr/share/applications/org.tizen.ico.app-soundsample.desktop
-rm -rf /usr/apps/org.tizen.ico.app-soundsample/
 rm -f /usr/share/applications/org.tizen.ico.app-vicsample.desktop
-rm -rf /usr/apps/org.tizen.ico.app-vicsample/
-
-cd /opt/dbspace/
-rm -f .app_info.db .app_info.db-journal .pkgmgr_parser.db .pkgmgr_parser.db-journal .rua.db .rua.db-journal
+# init db
 /usr/bin/pkg_initdb
 /usr/bin/ail_initdb

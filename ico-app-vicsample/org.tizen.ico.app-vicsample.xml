@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns="http://tizen.org/ns/packages" package="org.tizen.ico.app-vicsample" version="0.0.12" install-location="internal-only">
 	<label>ico-app-vicsample</label>
-  	<description>IVI StatusBar Application</description>
-	<ui-application appid="org.tizen.ico.app-vicsample" exec="/usr/apps/org.tizen.ico.app-vicsample/bin/ico-app-vicsample rightoption -basescreen" nodisplay="false" multiple="false" type="capp" taskmanage="true">
+  	<description>IVI Vehicles Sample Application</description>
+	<ui-application appid="org.tizen.ico.app-vicsample" exec="/usr/apps/org.tizen.ico.app-vicsample/bin/ico-app-vicsample" nodisplay="false" multiple="false" type="capp" taskmanage="true">
 		<icon>org.tizen.ico.app-vicsample.png</icon>
 		<label>ico-app-vicsample</label>
 		<label xml:lang="en-gb">ico-app-vicsample</label>

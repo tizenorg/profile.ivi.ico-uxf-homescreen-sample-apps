@@ -1,21 +1,26 @@
 # The number of the vehicles information maximum displays 32 
-#Name               Path Name                                      Interface Name                    Property Name
+#Name                      Object Path               Property Name             Zone(Only 0 is supported.)
 #------------------------------------------------------------------------------------------------------------------
- Latitude           /org/automotive/runningstatus/Location         org.automotive.Location           Latitude
- Longitude          /org/automotive/runningstatus/Location         org.automotive.Location           Longitude
- Altitude           /org/automotive/runningstatus/Location         org.automotive.Location           Altitude 
- Direction          /org/automotive/runningstatus/Location         org.automotive.Location           Direction
- VehicleSpeed       /org/automotive/runningstatus/VehicleSpeed     org.automotive.VehicleSpeed       VehicleSpeed
- EngineSpeed        /org/automotive/runningstatus/EngineSpeed      org.automotive.EngineSpeed        EngineSpeed
- ShiftPosition      /org/automotive/runningstatus/Transmission     org.automotive.Transmission       ShiftPosition
- GearPosition       /org/automotive/runningstatus/Transmission     org.automotive.Transmission       GearPosition 
- Mode               /org/automotive/runningstatus/Transmission     org.automotive.Transmission       Mode 
- BrakeSignal        /org/automotive/runningstatus/WheelBrake       org.automotive.WheelBrake         Engaged
- AccelerationX      /org/automotive/runningstatus/Acceleration     org.automotive.Acceleration       X
- AccelerationY      /org/automotive/custom/AccelerataionY          org.automotive.AccelerataionY     AccelerataionY
- AccelerationZ      /org/automotive/runningstatus/Acceleration     org.automotive.Acceleration       Z
- LeftTurn           /org/automotive/runningstatus/LightStatus      org.automotive.LightStatus        LeftTurn
- RightTurn          /org/automotive/runningstatus/LightStatus      org.automotive.LightStatus        RightTurn
-# WheelBrakePressure /org/automotive/custom/WheelBrakePressure      org.automotive.WheelBrakePressure WheelBrakePressure
- ExteriorBrightness /org/automotive/environment/ExteriorBrightness org.automotive.ExteriorBrightness ExteriorBrightness
+ Latitude                  Location                  Latitude                  0
+ Longitude                 Location                  Longitude                 0
+ Altitude                  Location                  Altitude                  0
+ Direction                 Location                  Direction                 0
+ VehicleSpeed              VehicleSpeed              VehicleSpeed              0
+ EngineSpeed               EngineSpeed               EngineSpeed               0
+ ShiftPosition             Transmission              ShiftPosition             0
+ GearPosition              Transmission              GearPosition              0
+ Mode                      Transmission              Mode                      0
+ BrakeSignal               WheelBrake                Engaged                   0
+ AccelerationX             Acceleration              X                         0
+ AccelerationY             Acceleration              Y                         0
+ AccelerationZ             Acceleration              Z                         0
+ HeadLight                 LightStatus               Head                      0
+ LeftTurnLight             LightStatus               LeftTurn                  0
+ RightTurnLight            LightStatus               RightTurn                 0
+ ParkingLight              LightStatus               Parking                   0
+ WheelBrakePressure        WheelBrakePressure        WheelBrakePressure        0
+ TurnSignal                TurnSignal                TurnSignal                0
+ SteeringWheelAngle        SteeringWheelAngle        SteeringWheelAngle        0
+ EngineCoolantTemperature  EngineCoolantTemperature  EngineCoolantTemperature  0
+ ExteriorBrightness        ExteriorBrightness        ExteriorBrightness        0
  
