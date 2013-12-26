@@ -13,14 +13,6 @@
  * @date    Mar-04-2013
  */
 
-#ifdef HAVE_CONFIG_H
-
-#include "config.h"
-#define __UNUSED__
-#else
-#define __UNUSED__
-#endif
-
 #include <Ecore.h>
 #include <Ecore_Evas.h>
 #include <Elementary.h>
@@ -44,7 +36,9 @@
 #define WIDTH  (1080) /* Base Background width  */
 #define HEIGHT (1920 - STATUS_BAR_HEIGHT - CTRL_BAR_HEIGHT) /* Base Background height */
 
-#define PACKAG            "ico-app-soundsample"
+/* Module name */
+#define MODULE_NAME       "org.tizen.ico.app-soundsample"
+
 #define CONFIG_FILE       "/usr/apps/org.tizen.ico.app-soundsample/res/soundsample_config.txt"
 #define BG_IMAGE_FILE     "/usr/apps/org.tizen.ico.app-soundsample/res/images/sound_bg.png"
 
@@ -228,32 +222,32 @@ static char SsndType[32];
 /*============================================================================*/
 static void _on_mousedown1(void *data, Evas_Object *obj, void *event_info)
 {
-    ICO_DBG("TOUCH_EVENT _on_mousedown1: Enter");
-    ICO_DBG("TOUCH_EVENT Input event   : START");
+    ICO_PRF("TOUCH_EVENT _on_mousedown1: Enter");
+    ICO_PRF("TOUCH_EVENT Input event   : START");
 
     rcv_event(START_REQ);
 
-    ICO_DBG("TOUCH_EVENT _on_mousedown1: Leave");
+    ICO_PRF("TOUCH_EVENT _on_mousedown1: Leave");
 }
 
 static void _on_mousedown2(void *data, Evas_Object *obj, void *event_info)
 {
-    ICO_DBG("TOUCH_EVENT _on_mousedown2: Enter");
-    ICO_DBG("TOUCH_EVENT Input event  : STOP");
+    ICO_PRF("TOUCH_EVENT _on_mousedown2: Enter");
+    ICO_PRF("TOUCH_EVENT Input event  : STOP");
 
     rcv_event(STOP_REQ);
 
-    ICO_DBG("TOUCH_EVENT _on_mousedown2: Leave");
+    ICO_PRF("TOUCH_EVENT _on_mousedown2: Leave");
 }
 
 static void _on_mousedown3(void *data, Evas_Object *obj, void *event_info)
 {
-    ICO_DBG("TOUCH_EVENT _on_mousedown3: Enter");
-    ICO_DBG("TOUCH_EVENT Input event  : PAUSE");
+    ICO_PRF("TOUCH_EVENT _on_mousedown3: Enter");
+    ICO_PRF("TOUCH_EVENT Input event  : PAUSE");
 
     rcv_event(PAUSE_REQ);
 
-    ICO_DBG("TOUCH_EVENT _on_mousedown3: Leave");
+    ICO_PRF("TOUCH_EVENT _on_mousedown3: Leave");
 }
 
 static int start_audio(void)
@@ -842,7 +836,7 @@ static bool app_create(void *data)
     ICO_DBG("W_mag =%f,H_mag=%f", W_mag, H_mag);
 
     /* main widnow */
-    Ad.win = _create_win(PACKAGE);
+    Ad.win = _create_win(MODULE_NAME);
     if (Ad.win == NULL) {
         return FALSE;
     }
@@ -948,9 +942,10 @@ int main(int argc, char *argv[])
         ico_log_open(appid);
     }
     else {
-        ico_log_open("org.tizen.ico.app-soundsample");
+        ico_log_open(MODULE_NAME);
     }
 
+    ICO_INF("START_MODULE %s", MODULE_NAME);
     ICO_DBG("ENTER main");
 
     if (pipe(Filedes) == -1) {
@@ -1012,6 +1007,6 @@ int main(int argc, char *argv[])
         ICO_DBG("END Process ChPid = [%d]", ChPid);
     }
     ICO_DBG("main: Leave");
-
+    ICO_INF("END_MODULE %s", MODULE_NAME);
     return result;
 }

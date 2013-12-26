@@ -1,3 +1,13 @@
+* Thu Dec 26 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> submit/tizen/20131219.041820@49b6060
+- 0.9.6 release
+-- revise: add manifest file for SMACK label setting
+- ico-app-vicsample
+-- Log output level correction.(performance)
+-- Modular start/end log addition.
+- ico-app-soundsample
+-- Log output level correction.(performance)
+-- Modular start/end log addition.
+
 * Fri Nov 29 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/tizen_ivi_stable/20131116.012229@90e4561
 - 0.9.5 release
 - ico-app-vicsample

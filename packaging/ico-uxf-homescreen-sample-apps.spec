@@ -1,7 +1,7 @@
 Name:       ico-uxf-homescreen-sample-apps
 Summary:    HomeScreen sample application 
-Version:    0.9.5
-Release:    1.1
+Version:    0.9.6
+Release:    2.1
 Group:      System/GUI
 License:    Apache License, Version 2.0
 URL:        http://www.toyota.com
@@ -106,6 +106,7 @@ install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.png %{buildroot}%{
 install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.xml %{buildroot}/usr/share/packages/
 
 %files
+%manifest %{name}.manifest
 %defattr(-,root,root,-)
 # files(ico-app-soundsample)
 %{sound_PREFIX}/bin/ico-app-soundsample

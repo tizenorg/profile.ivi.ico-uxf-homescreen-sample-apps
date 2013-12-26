@@ -99,8 +99,8 @@
 #define CONFIG_FILE         BASE_DIR"/res/vicsample_config.txt"
 #define BG_IMAGE_FILE       IMAGE_DIR"/vicinfo_bg.png"
 
-/* Package name */
-#define PACKAGE             "org.tizen.ico.app-vicsample"
+/* Module name */
+#define MODULE_NAME         "org.tizen.ico.app-vicsample"
 
 #define DMY_DATA            "000000000000000"
 #define DIGIT_NUM_OVER_DATA "############"
@@ -305,7 +305,7 @@ static void amb_subscribe_property_cb(const char *objectname,
  */
 static void set_vic_text_data(Evas_Object *obj, const char *text)
 {
-    ICO_DBG("CHG_VIC_INF set_vic_text_data Enter");
+    ICO_PRF("CHG_VIC_INF set_vic_text_data Enter");
 
     if (obj == NULL) {
         ICO_ERR("Parameter NG obj NULL");
@@ -324,7 +324,7 @@ static void set_vic_text_data(Evas_Object *obj, const char *text)
         elm_object_text_set(obj, DIGIT_NUM_OVER_DATA);
     }
 
-    ICO_DBG("CHG_VIC_INF set_vic_text_data Leave");
+    ICO_PRF("CHG_VIC_INF set_vic_text_data Leave");
     return;
 }
 
@@ -333,7 +333,7 @@ static void set_vic_text_data(Evas_Object *obj, const char *text)
  */
 static void set_vic_data(union dbus_value_variant value, void *user_data)
 {
-    ICO_DBG("CHG_VIC_INF set_vic_data Enter");
+    ICO_PRF("CHG_VIC_INF set_vic_data Enter");
 
     int idx = -1;
     char vic_str[256];
@@ -356,7 +356,7 @@ static void set_vic_data(union dbus_value_variant value, void *user_data)
     case MODE:
     case TURNSIGNAL:
     case ENGINECOOLANTTEMPERATURE:
-        ICO_DBG("CHG_VIC_INF %s(D-bus I/F Result) = %d", vic_data[idx].name,
+        ICO_PRF("CHG_VIC_INF %s(D-bus I/F Result) = %d", vic_data[idx].name,
                 value.i32val);
         sprintf(vic_str, "%d", value.i32val);
         set_vic_text_data(Ad.vic_val_text[idx], vic_str);
@@ -371,14 +371,14 @@ static void set_vic_data(union dbus_value_variant value, void *user_data)
     case WHEELBRAKEPRESSURE:
     case EXTERIORBRIGHTNESS:
     case STEERINGWHEELANGLE:
-        ICO_DBG("CHG_VIC_INF %s(D-bus I/F Result) = %d", vic_data[idx].name,
+        ICO_PRF("CHG_VIC_INF %s(D-bus I/F Result) = %d", vic_data[idx].name,
                 value.ui16val);
         sprintf(vic_str, "%d", value.ui16val);
         set_vic_text_data(Ad.vic_val_text[idx], vic_str);
         break;
 
 //    case XXXXXXXX:
-//        ICO_DBG("CHG_VIC_INF %s(D-bus I/F Result) = %d", vic_data[idx].name,
+//        ICO_PRF("CHG_VIC_INF %s(D-bus I/F Result) = %d", vic_data[idx].name,
 //                  value.yval);
 //        sprintf(vic_str, "%d", value.yval);
 //        set_vic_text_data(Ad.vic_val_text[idx], vic_str);
@@ -387,7 +387,7 @@ static void set_vic_data(union dbus_value_variant value, void *user_data)
     case LATITUDE:
     case ALTITUDE:
     case LONGITUDE:
-        ICO_DBG("CHG_VIC_INF %s(D-bus I/F Result) = %f", vic_data[idx].name,
+        ICO_PRF("CHG_VIC_INF %s(D-bus I/F Result) = %f", vic_data[idx].name,
                 value.dval);
         sprintf(vic_str, "%f", value.dval);
         set_vic_text_data(Ad.vic_val_text[idx], vic_str);
@@ -398,7 +398,7 @@ static void set_vic_data(union dbus_value_variant value, void *user_data)
     case RIGHTTURNLIGHT:
     case PARKINGLIGHT:
     case BRAKESIGNAL:
-        ICO_DBG("CHG_VIC_INF %s(D-bus I/F Result) = %d", vic_data[idx].name,
+        ICO_PRF("CHG_VIC_INF %s(D-bus I/F Result) = %d", vic_data[idx].name,
                 value.bval);
         if (value.bval == TRUE) {
             sprintf(vic_str, "%s", "true");
@@ -415,7 +415,7 @@ static void set_vic_data(union dbus_value_variant value, void *user_data)
         break;
     }
 
-    ICO_DBG("CHG_VIC_INF set_vic_data Leave");
+    ICO_PRF("CHG_VIC_INF set_vic_data Leave");
     return;
 }
 
@@ -818,7 +818,7 @@ static bool app_create(void *data)
     ICO_DBG("app_create Enter");
 
     /* main widnow */
-    Ad.win = create_win(PACKAGE);
+    Ad.win = create_win(MODULE_NAME);
     if (Ad.win == NULL) {
         ICO_ERR("main window is un-creating.");
         return FALSE;
@@ -866,9 +866,9 @@ int main(int argc, char *argv[])
         ico_log_open(appid);
     }
     else {
-        ico_log_open(PACKAGE);
+        ico_log_open(MODULE_NAME);
     }
-
+    ICO_INF("START_MODULE %s", MODULE_NAME);
     ICO_DBG("main Enter");
 
     /* Read configuration file */
@@ -900,5 +900,6 @@ int main(int argc, char *argv[])
     result = app_efl_main(&argc, &argv, &event_callback, &Ad);
 
     ICO_DBG("main Leave");
+    ICO_INF("END_MODULE %s", MODULE_NAME);
     return result;
 }

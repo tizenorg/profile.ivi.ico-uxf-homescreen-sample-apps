@@ -73,7 +73,7 @@ static void event_input_callback(pa_mainloop_api *a, pa_io_event *e, int fd,
 
     switch (atoi(buff)) {
     case STOP_REQ:
-        ICO_DBG("STOP_SOUND Stop directions reception");
+        ICO_PRF("STOP_SOUND Stop directions reception");
         ExitFlg = 1;
         break;
 
@@ -83,12 +83,12 @@ static void event_input_callback(pa_mainloop_api *a, pa_io_event *e, int fd,
         if (0 == pa_stream_is_corked((pa_stream *) userdata)) {
             pa_stream_cork((pa_stream *) userdata, ICO_PA_STREAM_PAUSE, NULL,
                            NULL);
-            ICO_DBG("STOP_SOUND pa_stream_cork(PAUSE)");
+            ICO_PRF("STOP_SOUND pa_stream_cork(PAUSE)");
         }
         else {
             pa_stream_cork((pa_stream *) userdata, ICO_PA_STREAM_RESUME, NULL,
                            NULL);
-            ICO_DBG("START_SOUND pa_stream_cork(RESUME)");
+            ICO_PRF("START_SOUND pa_stream_cork(RESUME)");
         }
         break;
 
@@ -312,7 +312,7 @@ int pulse_main(struct audio_config_t *audio_config, int filedes)
                 pa_stream_write(paStream, wavFile.DataPointer() + playBackPtr,
                                 writeSize, NULL, 0, PA_SEEK_RELATIVE);
                 playBackPtr += writeSize;
-                ICO_DBG("START_SOUND pa_stream_write()_%d", (int) writeSize);
+                ICO_PRF("START_SOUND pa_stream_write()_%d", (int) writeSize);
             }
         }
 
@@ -334,7 +334,7 @@ int pulse_main(struct audio_config_t *audio_config, int filedes)
     ICO_DBG("STREAM is END.");
 
     pa_stream_disconnect(paStream);
-    ICO_DBG("STOP_SOUND pa_stream_disconnect()");
+    ICO_PRF("STOP_SOUND pa_stream_disconnect()");
 
     pa_stream_unref(paStream);
     ICO_DBG("pa_stream_unref()");
