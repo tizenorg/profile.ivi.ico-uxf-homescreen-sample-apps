@@ -63,6 +63,9 @@ Requires: edbus
 Requires: ico-uxf-utilities >= 0.9.04
 Requires: ico-vic-amb-plugin >= 0.9.4
 
+#ico-app-miscellaneous
+Requires: weekeyboard
+
 %description
 HomeScreen sample application 
 
@@ -79,6 +82,10 @@ make %{?_smp_mflags}
 rm -rf %{buildroot}
 %make_install
 
+# create tizen package metadata related directories
+mkdir -p %{buildroot}%{_datadir}/packages/
+mkdir -p %{buildroot}%{_datadir}/icons/default/small
+
 # configurations(ico-app-soundsample)
 %define sound_PREFIX /usr/apps/org.tizen.ico.app-soundsample
 
@@ -86,12 +93,11 @@ mkdir -p %{buildroot}%{sound_PREFIX}/bin/
 mkdir -p %{buildroot}%{sound_PREFIX}/sounds/
 mkdir -p %{buildroot}%{sound_PREFIX}/res/icons/default/small/
 mkdir -p %{buildroot}%{sound_PREFIX}/res/images/
-mkdir -p %{buildroot}/usr/share/packages/
 install -m 0644 ico-app-soundsample/soundsample_config.txt %{buildroot}%{sound_PREFIX}/res/
 install -m 0644 ico-app-soundsample/sound_bg.png %{buildroot}%{sound_PREFIX}/res/images/
 install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.png %{buildroot}%{sound_PREFIX}/res/icons/default/small/
 install -m 0644 ico-app-soundsample/musicbox.wav %{buildroot}%{sound_PREFIX}/sounds/
-install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.xml %{buildroot}/usr/share/packages/
+install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.xml %{buildroot}%{_datadir}/packages/
 
 # configurations(ico-app-vicsample)
 %define vic_PREFIX /usr/apps/org.tizen.ico.app-vicsample
@@ -99,11 +105,23 @@ install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.xml %{buildroo
 mkdir -p %{buildroot}%{vic_PREFIX}/bin/
 mkdir -p %{buildroot}%{vic_PREFIX}/res/icons/default/small/
 mkdir -p %{buildroot}%{vic_PREFIX}/res/images/
-mkdir -p %{buildroot}/usr/share/packages/
 install -m 0644 ico-app-vicsample/vicsample_config.txt %{buildroot}%{vic_PREFIX}/res/
 install -m 0644 ico-app-vicsample/vicinfo_bg.png %{buildroot}%{vic_PREFIX}/res/images/
 install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.png %{buildroot}%{vic_PREFIX}/res/icons/default/small/
-install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.xml %{buildroot}/usr/share/packages/
+install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.xml %{buildroot}%{_datadir}/packages/
+
+# configurations(ico-app-miscellaneous)
+# install tizen package metadata for weston-terminal
+install -m 0644 ico-app-miscellaneous/terminal.xml %{buildroot}%{_datadir}/packages/
+
+# install browser package metadata for MiniBrowser
+mkdir -p %{buildroot}%{_bindir}
+install -m 0644 ico-app-miscellaneous/browser.xml %{buildroot}%{_datadir}/packages/
+install -m 0644 ico-app-miscellaneous/browser.png %{buildroot}%{_datadir}/icons/default/small/
+install -m 0755 ico-app-miscellaneous/browser %{buildroot}%{_bindir}
+
+# install tizen package metadata for weekeyboard
+install -m 0644 ico-app-miscellaneous/weekeyboard.xml %{buildroot}%{_datadir}/packages/
 
 %files
 %manifest %{name}.manifest
@@ -114,7 +132,7 @@ install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.xml %{buildroot}/u
 %{sound_PREFIX}/res/images/sound_bg.png
 %{sound_PREFIX}/res/icons/default/small/org.tizen.ico.app-soundsample.png
 %{sound_PREFIX}/sounds/musicbox.wav
-/usr/share/packages/org.tizen.ico.app-soundsample.xml
+%{_datadir}/packages/org.tizen.ico.app-soundsample.xml
 
 # files(ico-app-vicsample)
 %{vic_PREFIX}/bin/ico-app-vicsample
@@ -123,8 +141,18 @@ install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.xml %{buildroot}/u
 %{vic_PREFIX}/res/icons/default/small/org.tizen.ico.app-vicsample.png
 /usr/share/packages/org.tizen.ico.app-vicsample.xml
 
+# files(ico-app-miscellaneous)
+%{_bindir}/browser
+%{_datadir}/packages/browser.xml
+%{_datadir}/packages/terminal.xml
+%{_datadir}/packages/weekeyboard.xml
+%{_datadir}/icons/default/small/browser.png
+
 %post
 /sbin/ldconfig
+# This icon exists in main weston package so we don't package it in.
+# Create a symbolic link to it instead.
+ln -s %{_datadir}/weston/terminal.png %{_datadir}/icons/default/small/
 # init db
 /usr/bin/pkg_initdb
 /usr/bin/ail_initdb
@@ -136,3 +164,4 @@ rm -f /usr/share/applications/org.tizen.ico.app-vicsample.desktop
 # init db
 /usr/bin/pkg_initdb
 /usr/bin/ail_initdb
+rm -f %{_datadir}/icons/default/small/terminal.png
