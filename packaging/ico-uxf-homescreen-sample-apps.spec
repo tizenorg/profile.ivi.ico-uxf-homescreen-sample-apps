@@ -1,7 +1,7 @@
 Name:       ico-uxf-homescreen-sample-apps
 Summary:    HomeScreen sample application 
 Version:    0.9.6
-Release:    2.1
+Release:    2.3
 Group:      System/GUI
 License:    Apache License, Version 2.0
 URL:        http://www.toyota.com
@@ -125,14 +125,25 @@ install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.xml %{buildroot}/u
 
 %post
 /sbin/ldconfig
-# init db
-/usr/bin/pkg_initdb
-/usr/bin/ail_initdb
+## init db
+#/usr/bin/pkg_initdb
+#/usr/bin/ail_initdb
+
+# Update the app database.
+%{_bindir}/pkginfo --imd /usr/share/packages/org.tizen.ico.app-soundsample.xml
+%{_bindir}/pkginfo --imd /usr/share/packages/org.tizen.ico.app-vicsample.xml
+
+%preun
+# Update the app database.
+%{_bindir}/pkginfo --rmd /usr/share/packages/org.tizen.ico.app-soundsample.xml
+%{_bindir}/pkginfo --rmd /usr/share/packages/org.tizen.ico.app-vicsample.xml
 
 %postun
 /sbin/ldconfig
 rm -f /usr/share/applications/org.tizen.ico.app-soundsample.desktop
 rm -f /usr/share/applications/org.tizen.ico.app-vicsample.desktop
-# init db
-/usr/bin/pkg_initdb
-/usr/bin/ail_initdb
+## init db
+#/usr/bin/pkg_initdb
+#/usr/bin/ail_initdb
+
+
