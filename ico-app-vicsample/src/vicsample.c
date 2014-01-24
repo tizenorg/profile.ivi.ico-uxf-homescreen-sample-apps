@@ -38,6 +38,8 @@
 #define CTG_BX_H            250
 #define VIC_LI_W            1060
 #define VIC_LI_H            1240
+#define VIC_DMY_LI_W        1060
+#define VIC_DMY_LI_H        100
 
 #define CTG_BX_X            10
 #define CTG_BX_Y            40
@@ -782,7 +784,7 @@ static void winCreate(void)
     /* Initial list display */
     Ad.vic_ini_li = elm_list_add(Ad.win);
     elm_list_select_mode_set(Ad.vic_ini_li, ELM_OBJECT_SELECT_MODE_NONE);
-    evas_object_resize(Ad.vic_ini_li, VIC_LI_W, VIC_LI_H);
+    evas_object_resize(Ad.vic_ini_li, VIC_DMY_LI_W, VIC_DMY_LI_H);
     evas_object_move(Ad.vic_ini_li, VIC_LI_X, VIC_LI_Y);
     elm_list_item_append(Ad.vic_ini_li, NULL, NULL, NULL, NULL, NULL);
     elm_list_go(Ad.vic_ini_li);
