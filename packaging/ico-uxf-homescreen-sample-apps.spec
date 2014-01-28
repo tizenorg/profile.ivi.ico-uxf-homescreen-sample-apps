@@ -1,7 +1,7 @@
 Name:       ico-uxf-homescreen-sample-apps
-Summary:    HomeScreen sample application 
+Summary:    HomeScreen sample application
 Version:    0.9.6
-Release:    2.1
+Release:    3.1
 Group:      System/GUI
 License:    Apache License, Version 2.0
 URL:        http://www.toyota.com
@@ -67,7 +67,7 @@ Requires: ico-vic-amb-plugin >= 0.9.4
 Requires: weekeyboard
 
 %description
-HomeScreen sample application 
+HomeScreen sample application
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -153,15 +153,23 @@ install -m 0644 ico-app-miscellaneous/weekeyboard.xml %{buildroot}%{_datadir}/pa
 # This icon exists in main weston package so we don't package it in.
 # Create a symbolic link to it instead.
 ln -s %{_datadir}/weston/terminal.png %{_datadir}/icons/default/small/
-# init db
-/usr/bin/pkg_initdb
-/usr/bin/ail_initdb
+# Update the app database.
+%{_bindir}/pkginfo --imd /usr/share/packages/org.tizen.ico.app-soundsample.xml
+%{_bindir}/pkginfo --imd /usr/share/packages/org.tizen.ico.app-vicsample.xml
+%{_bindir}/pkginfo --imd /usr/share/packages/browser.xml
+%{_bindir}/pkginfo --imd /usr/share/packages/terminal.xml
+
+%preun
+# Update the app database.
+%{_bindir}/pkginfo --rmd /usr/share/packages/org.tizen.ico.app-soundsample.xml
+%{_bindir}/pkginfo --rmd /usr/share/packages/org.tizen.ico.app-vicsample.xml
+%{_bindir}/pkginfo --rmd /usr/share/packages/browser.xml
+%{_bindir}/pkginfo --rmd /usr/share/packages/terminal.xml
 
 %postun
 /sbin/ldconfig
 rm -f /usr/share/applications/org.tizen.ico.app-soundsample.desktop
 rm -f /usr/share/applications/org.tizen.ico.app-vicsample.desktop
-# init db
-/usr/bin/pkg_initdb
-/usr/bin/ail_initdb
+rm -f /usr/share/applications/browser.desktop
+rm -f /usr/share/applications/terminal.desktop
 rm -f %{_datadir}/icons/default/small/terminal.png
