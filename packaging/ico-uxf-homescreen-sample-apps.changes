@@ -1,3 +1,9 @@
+* Tue Jan 28 2014 Shibata Makoto <shibata@mac.tec.toyota.co.jp> submit/ivi/20131226.090059@3aad9b1
+- 0.9.6 release
+-- bugfix: TIVI-2290 Reinstalling ico-uxf-homescreen causes black screen
+-- bugfix: screen is penetrated and displayed.
+-- revise: TIVI-2213 Moved IVI-specific app meta-data from weston package.
+
 * Thu Dec 26 2013 Shibata Makoto <shibata@mac.tec.toyota.co.jp> submit/tizen/20131219.041820@49b6060
 - 0.9.6 release
 -- revise: add manifest file for SMACK label setting
