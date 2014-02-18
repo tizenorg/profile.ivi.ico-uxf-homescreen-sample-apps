@@ -1,7 +1,7 @@
 Name:       ico-uxf-homescreen-sample-apps
 Summary:    HomeScreen sample application
 Version:    0.9.7
-Release:    1.1
+Release:    0
 Group:      System/GUI
 License:    Apache License, Version 2.0
 URL:        http://www.toyota.com
@@ -10,6 +10,7 @@ Source0:    %{name}-%{version}.tar.bz2
 #ico-app-soundsample
 BuildRequires: pkgconfig(wayland-client) >= 1.0
 BuildRequires: pkgconfig(glib-2.0)
+BuildRequires: pkgconfig(ecore)
 BuildRequires: pkgconfig(eina)
 BuildRequires: pkgconfig(evas)
 BuildRequires: pkgconfig(eina)
