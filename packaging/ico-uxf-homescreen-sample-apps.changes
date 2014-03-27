@@ -1,3 +1,7 @@
+* Thu Mar 27 2014 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/tizen/ivi/release/20140312.124726@b186d75
+- 0.9.7 release.
+-- The path of weston-terminal is changed into /usr/bin/ivi of GENIVI LayerManager from /usr/bin of standard Weston.
+
 * Tue Jan 28 2014 Shibata Makoto <shibata@mac.tec.toyota.co.jp> submit/ivi/20131226.090059@3aad9b1
 - 0.9.6 release
 -- bugfix: TIVI-2290 Reinstalling ico-uxf-homescreen causes black screen

@@ -1,7 +1,7 @@
 Name:       ico-uxf-homescreen-sample-apps
 Summary:    HomeScreen sample application
-Version:    0.9.6
-Release:    3.1
+Version:    0.9.7
+Release:    1.1
 Group:      System/GUI
 License:    Apache License, Version 2.0
 URL:        http://www.toyota.com
