@@ -1,3 +1,7 @@
+* Fri Mar 28 2014 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/tizen/ivi/20140327.205806@1b9652d
+- 0.9.8 release
+-- Add a required package(weston-ivi-shell-clients) to a spec file.
+
 * Thu Mar 27 2014 Shibata Makoto <shibata@mac.tec.toyota.co.jp> accepted/tizen/ivi/release/20140312.124726@b186d75
 - 0.9.7 release.
 -- The path of weston-terminal is changed into /usr/bin/ivi of GENIVI LayerManager from /usr/bin of standard Weston.

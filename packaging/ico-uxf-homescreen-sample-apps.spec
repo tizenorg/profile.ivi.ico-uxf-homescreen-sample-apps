@@ -1,6 +1,6 @@
 Name:       ico-uxf-homescreen-sample-apps
 Summary:    HomeScreen sample application
-Version:    0.9.7
+Version:    0.9.8
 Release:    1.1
 Group:      System/GUI
 License:    Apache License, Version 2.0
@@ -29,6 +29,7 @@ BuildRequires: pkgconfig(capi-appfw-application)
 Requires: weston >= 1.2
 Requires: ico-uxf-weston-plugin
 Requires: ico-uxf-homescreen >= 0.9.01
+Requires: weston-ivi-shell-clients
 Requires: ecore
 Requires: elementary
 Requires: evas
