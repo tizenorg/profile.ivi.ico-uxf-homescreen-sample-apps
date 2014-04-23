@@ -21,7 +21,6 @@ BuildRequires: pkgconfig(dbus-1)
 BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(aul)
 BuildRequires: pkgconfig(bundle)
-BuildRequires: pkgconfig(ail)
 BuildRequires: libpulse-devel
 BuildRequires: ico-uxf-weston-plugin-devel
 BuildRequires: ico-uxf-homescreen-system-controller-devel >= 0.9.01
@@ -42,8 +41,6 @@ Requires: ico-uxf-utilities
 #ico-app-vicsample
 BuildRequires: pkgconfig(evas)
 BuildRequires: pkgconfig(elementary)
-BuildRequires: pkgconfig(ecore-wayland)
-BuildRequires: pkgconfig(edbus)
 BuildRequires: pkgconfig(dbus-1)
 BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(aul)
