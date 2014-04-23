@@ -8,23 +8,16 @@ URL:        http://www.toyota.com
 Source0:    %{name}-%{version}.tar.bz2
 
 #ico-app-soundsample
-BuildRequires: pkgconfig(wayland-client) >= 1.0
 BuildRequires: pkgconfig(glib-2.0)
 BuildRequires: pkgconfig(ecore)
 BuildRequires: pkgconfig(eina)
 BuildRequires: pkgconfig(evas)
-BuildRequires: pkgconfig(eina)
 BuildRequires: pkgconfig(edje)
 BuildRequires: pkgconfig(elementary)
-BuildRequires: pkgconfig(ecore-wayland)
 BuildRequires: pkgconfig(dbus-1)
-BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(aul)
 BuildRequires: pkgconfig(bundle)
-BuildRequires: pkgconfig(ail)
 BuildRequires: libpulse-devel
-BuildRequires: ico-uxf-weston-plugin-devel
-BuildRequires: ico-uxf-homescreen-system-controller-devel >= 0.9.01
 BuildRequires: ico-uxf-utilities-devel
 BuildRequires: pkgconfig(capi-appfw-application)
 Requires: weston >= 1.2
@@ -42,13 +35,9 @@ Requires: ico-uxf-utilities
 #ico-app-vicsample
 BuildRequires: pkgconfig(evas)
 BuildRequires: pkgconfig(elementary)
-BuildRequires: pkgconfig(ecore-wayland)
 BuildRequires: pkgconfig(edbus)
 BuildRequires: pkgconfig(dbus-1)
-BuildRequires: pkgconfig(json-glib-1.0)
 BuildRequires: pkgconfig(aul)
-BuildRequires: ico-uxf-weston-plugin-devel
-BuildRequires: ico-uxf-homescreen-system-controller-devel >= 0.9.01
 BuildRequires: ico-uxf-utilities-devel >= 0.9.04
 BuildRequires: pkgconfig(capi-appfw-application)
 Requires: weston >= 1.2
