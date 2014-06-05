@@ -3,9 +3,9 @@ app_soundsample_bindir = /usr/apps/org.tizen.ico.app-soundsample/bin
 app_soundsample_bin_PROGRAMS = ico-app-soundsample
  
 ico_app_soundsample_SOURCES = soundsample.c soundsample.h soundsample_pulse_async_test.cpp soundsample_yswavfile.cpp soundsample_yswavfile.h
-ico_app_soundsample_LDADD = -L/usr/lib -lico-util -lcapi-appfw-application -lwebsockets -laul -lecore_evas -lecore -leina -levas -lrt -lelementary -lm -leet -lecore_file -ledje -lecore_imf -lecore_con -lpulse -lglib-2.0 -lbundle
-ico_app_soundsample_CFLAGS = -Wall -I. -I../../common/include -I/usr/include/aul -I/usr/include/appfw -I/usr/include/eina-1 -I/usr/include/eina-1/eina/ -I/usr/include/ecore-1 -I/usr/include/evas-1 -I/usr/include/elementary-1 -I/usr/include/ -D_REENTRANT -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/ico-util
-ico_app_soundsample_CPPFLAGS = -Wall -I. -I../../common/include -I/usr/include/aul -I/usr/include/appfw -I/usr/include/eina-1 -I/usr/include/eina-1/eina/ -I/usr/include/ecore-1 -I/usr/include/evas-1 -I/usr/include/elementary-1 -I/usr/include/eet-1 -I/usr/include/edje-1 -I/usr/include/e_dbus-1 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/efreet-1 -I/usr/include/ethumb-1 -I/usr/include/ -D_REENTRANT -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/ico-util
+ico_app_soundsample_LDADD = -L/usr/lib -lico-util -lcapi-appfw-application $(AUL_LIBS) $(BUNDLE_LIBS) $(EFL_LIBS) -lwebsockets -lrt -lm -lpulse -lglib-2.0
+ico_app_soundsample_CFLAGS = -Wall -I. -I../../common/include $(AUL_CFLAGS) $(BUNDLE_CFLAGS) $(EFL_CFLAGS) -I/usr/include/appfw -I/usr/include/ -D_REENTRANT -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/ico-util
+ico_app_soundsample_CPPFLAGS = -Wall -I. -I../../common/include $(AUL_CFLAGS) $(BUNDLE_CFLAGS) $(EFL_CFLAGS) -I/usr/include/appfw -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/ -D_REENTRANT -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/ico-util
 
 
 #ico_app_vicsample_LDADD = -L/usr/lib -lecore_x -lcapi-appfw-application -lico-util -lico-app-fw-efl -lico-app-fw -laul -lwebsockets -lecore_evas -lecore -leina -levas -leina -lrt -lelementary -lm -leet -levas -lrt -lecore -leina -lecore_evas -lecore_file -ledje -lethumb_client -lecore_imf -lecore_con -ldbus-1 -lpthread -lrt -lbundle
