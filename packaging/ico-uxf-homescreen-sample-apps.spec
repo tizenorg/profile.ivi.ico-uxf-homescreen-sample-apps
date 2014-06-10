@@ -7,6 +7,8 @@ License:    Apache License, Version 2.0
 URL:        http://www.toyota.com
 Source0:    %{name}-%{version}.tar.bz2
 
+ExclusiveArch:  %ix86 x86_64
+
 #ico-app-soundsample
 BuildRequires: pkgconfig(wayland-client) >= 1.0
 BuildRequires: pkgconfig(glib-2.0)
