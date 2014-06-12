@@ -1,0 +1,9 @@
+Code-Review+1: Mikko Ylinen <mikko.ylinen@intel.com>
+Code-Review+2: Eduard Bartosh <ed.bartosh@linux.intel.com>
+Verified+1: Eduard Bartosh <ed.bartosh@linux.intel.com>
+Code-Review+1: harumitsu inoue <harumitsu_inoue_zb@mail.toyota.co.jp>
+Submitted-by: Eduard Bartosh <ed.bartosh@linux.intel.com>
+Submitted-at: Thu, 12 Jun 2014 05:56:35 -0700
+Reviewed-on: https://review.tizen.org/gerrit/22549
+Project: profile/ivi/ico-uxf-homescreen-sample-apps
+Branch: refs/heads/tizen
