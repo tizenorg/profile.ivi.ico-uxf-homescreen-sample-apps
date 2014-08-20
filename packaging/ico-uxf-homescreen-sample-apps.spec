@@ -2,8 +2,8 @@ Name:       ico-uxf-homescreen-sample-apps
 Summary:    HomeScreen sample application
 Version:    0.9.8
 Release:    0
-Group:      System/GUI
-License:    Apache License, Version 2.0
+Group:      Automotive/ICO Homescreen
+License:    Apache-2.0
 URL:        http://www.toyota.com
 Source0:    %{name}-%{version}.tar.bz2
 
@@ -28,8 +28,6 @@ Requires: weston-ivi-shell-clients
 Requires: ecore
 Requires: elementary
 Requires: evas
-Requires: glib2
-Requires: libpulse
 Requires: capi-appfw-application
 Requires: ico-uxf-utilities
 
@@ -48,7 +46,6 @@ Requires: ecore
 Requires: elementary
 Requires: evas
 Requires: dbus
-Requires: dbus-glib
 Requires: automotive-message-broker >= 0.10.804
 Requires: capi-appfw-application
 Requires: edbus
@@ -65,10 +62,8 @@ HomeScreen sample application
 %setup -q -n %{name}-%{version}
 
 %build
-autoreconf --install
-
-%configure
-make %{?_smp_mflags}
+%reconfigure
+%__make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
@@ -144,7 +139,7 @@ install -m 0644 ico-app-miscellaneous/weekeyboard.xml %{buildroot}%{_datadir}/pa
 /sbin/ldconfig
 # This icon exists in main weston package so we don't package it in.
 # Create a symbolic link to it instead.
-ln -s %{_datadir}/weston/terminal.png %{_datadir}/icons/default/small/
+ln -sf %{_datadir}/weston/terminal.png %{_datadir}/icons/default/small/
 # Update the app database.
 %{_bindir}/pkginfo --imd /usr/share/packages/org.tizen.ico.app-soundsample.xml
 %{_bindir}/pkginfo --imd /usr/share/packages/org.tizen.ico.app-vicsample.xml
