@@ -83,7 +83,7 @@ mkdir -p %{buildroot}%{sound_PREFIX}/res/icons/default/small/
 mkdir -p %{buildroot}%{sound_PREFIX}/res/images/
 install -m 0644 ico-app-soundsample/soundsample_config.txt %{buildroot}%{sound_PREFIX}/res/
 install -m 0644 ico-app-soundsample/sound_bg.png %{buildroot}%{sound_PREFIX}/res/images/
-install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.png %{buildroot}%{sound_PREFIX}/res/icons/default/small/
+install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.png %{buildroot}%{_datadir}/icons/default/small/
 install -m 0644 ico-app-soundsample/musicbox.wav %{buildroot}%{sound_PREFIX}/sounds/
 install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.xml %{buildroot}%{_datadir}/packages/
 
@@ -95,7 +95,7 @@ mkdir -p %{buildroot}%{vic_PREFIX}/res/icons/default/small/
 mkdir -p %{buildroot}%{vic_PREFIX}/res/images/
 install -m 0644 ico-app-vicsample/vicsample_config.txt %{buildroot}%{vic_PREFIX}/res/
 install -m 0644 ico-app-vicsample/vicinfo_bg.png %{buildroot}%{vic_PREFIX}/res/images/
-install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.png %{buildroot}%{vic_PREFIX}/res/icons/default/small/
+install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.png %{buildroot}%{_datadir}/icons/default/small/
 install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.xml %{buildroot}%{_datadir}/packages/
 
 # configurations(ico-app-miscellaneous)
@@ -124,16 +124,16 @@ install -m 0644 ico-app-miscellaneous/navigator.png %{buildroot}%{_datadir}/icon
 %{sound_PREFIX}/bin/ico-app-soundsample
 %{sound_PREFIX}/res/soundsample_config.txt
 %{sound_PREFIX}/res/images/sound_bg.png
-%{sound_PREFIX}/res/icons/default/small/org.tizen.ico.app-soundsample.png
 %{sound_PREFIX}/sounds/musicbox.wav
+%{_datadir}/icons/default/small/org.tizen.ico.app-soundsample.png
 %{_datadir}/packages/org.tizen.ico.app-soundsample.xml
 
 # files(ico-app-vicsample)
 %{vic_PREFIX}/bin/ico-app-vicsample
 %{vic_PREFIX}/res/vicsample_config.txt
 %{vic_PREFIX}/res/images/vicinfo_bg.png
-%{vic_PREFIX}/res/icons/default/small/org.tizen.ico.app-vicsample.png
-/usr/share/packages/org.tizen.ico.app-vicsample.xml
+%{_datadir}/icons/default/small/org.tizen.ico.app-vicsample.png
+%{_datadir}/packages/org.tizen.ico.app-vicsample.xml
 
 # files(ico-app-miscellaneous)
 %{_bindir}/browser
