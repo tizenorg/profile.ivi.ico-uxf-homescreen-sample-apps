@@ -53,6 +53,7 @@ Requires: ico-uxf-utilities >= 0.9.04
 Requires: ico-vic-amb-plugin >= 0.9.4
 
 #ico-app-miscellaneous
+Requires: genivi-shell
 Requires: weekeyboard
 
 %description
@@ -110,6 +111,12 @@ install -m 0755 ico-app-miscellaneous/browser %{buildroot}%{_bindir}
 # install tizen package metadata for weekeyboard
 install -m 0644 ico-app-miscellaneous/weekeyboard.xml %{buildroot}%{_datadir}/packages/
 
+# install tizen package metadata for mock navigator
+install -m 0644 ico-app-miscellaneous/navigator.xml %{buildroot}%{_datadir}/packages/
+install -m 0644 ico-app-miscellaneous/navigator.png %{buildroot}%{_datadir}/icons/default/small/
+
+
+
 %files
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
@@ -132,12 +139,14 @@ install -m 0644 ico-app-miscellaneous/weekeyboard.xml %{buildroot}%{_datadir}/pa
 %{_bindir}/browser
 %{_datadir}/packages/browser.xml
 %{_datadir}/packages/terminal.xml
+%{_datadir}/packages/navigator.xml
 %{_datadir}/packages/weekeyboard.xml
 %{_datadir}/icons/default/small/browser.png
+%{_datadir}/icons/default/small/navigator.png
 
 %post
 /sbin/ldconfig
-# This icon exists in main weston package so we don't package it in.
+# This icons exists in main weston package so we don't package it in.
 # Create a symbolic link to it instead.
 ln -sf %{_datadir}/weston/terminal.png %{_datadir}/icons/default/small/
 # Update the app database.
@@ -145,6 +154,7 @@ ln -sf %{_datadir}/weston/terminal.png %{_datadir}/icons/default/small/
 %{_bindir}/pkginfo --imd /usr/share/packages/org.tizen.ico.app-vicsample.xml
 %{_bindir}/pkginfo --imd /usr/share/packages/browser.xml
 %{_bindir}/pkginfo --imd /usr/share/packages/terminal.xml
+%{_bindir}/pkginfo --imd /usr/share/packages/navigator.xml
 
 %preun
 # Update the app database.
@@ -152,6 +162,7 @@ ln -sf %{_datadir}/weston/terminal.png %{_datadir}/icons/default/small/
 %{_bindir}/pkginfo --rmd /usr/share/packages/org.tizen.ico.app-vicsample.xml
 %{_bindir}/pkginfo --rmd /usr/share/packages/browser.xml
 %{_bindir}/pkginfo --rmd /usr/share/packages/terminal.xml
+%{_bindir}/pkginfo --rmd /usr/share/packages/navigator.xml
 
 %postun
 /sbin/ldconfig
