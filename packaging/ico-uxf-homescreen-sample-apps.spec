@@ -150,24 +150,18 @@ install -m 0644 ico-app-miscellaneous/navigator.png %{buildroot}%{_datadir}/icon
 # Create a symbolic link to it instead.
 ln -sf %{_datadir}/weston/terminal.png %{_datadir}/icons/default/small/
 # Update the app database.
-%{_bindir}/pkginfo --imd /usr/share/packages/org.tizen.ico.app-soundsample.xml
-%{_bindir}/pkginfo --imd /usr/share/packages/org.tizen.ico.app-vicsample.xml
-%{_bindir}/pkginfo --imd /usr/share/packages/browser.xml
-%{_bindir}/pkginfo --imd /usr/share/packages/terminal.xml
-%{_bindir}/pkginfo --imd /usr/share/packages/navigator.xml
-
-%preun
-# Update the app database.
-%{_bindir}/pkginfo --rmd /usr/share/packages/org.tizen.ico.app-soundsample.xml
-%{_bindir}/pkginfo --rmd /usr/share/packages/org.tizen.ico.app-vicsample.xml
-%{_bindir}/pkginfo --rmd /usr/share/packages/browser.xml
-%{_bindir}/pkginfo --rmd /usr/share/packages/terminal.xml
-%{_bindir}/pkginfo --rmd /usr/share/packages/navigator.xml
+%{_bindir}/pkg_initdb
+%{_bindir}/ail_initdb
 
 %postun
+if [ "$1" = "0" ]; then
 /sbin/ldconfig
 rm -f /usr/share/applications/org.tizen.ico.app-soundsample.desktop
 rm -f /usr/share/applications/org.tizen.ico.app-vicsample.desktop
 rm -f /usr/share/applications/browser.desktop
 rm -f /usr/share/applications/terminal.desktop
 rm -f %{_datadir}/icons/default/small/terminal.png
+# Update the app database.
+%{_bindir}/pkg_initdb
+%{_bindir}/ail_initdb
+fi
