@@ -1,3 +1,9 @@
+# configurations(ico-app-soundsample)
+%define sound_PREFIX %TZ_SYS_RW_APP/org.tizen.ico.app-soundsample
+
+# configurations(ico-app-vicsample)
+%define vic_PREFIX %TZ_SYS_RW_APP/org.tizen.ico.app-vicsample
+
 Name:       ico-uxf-homescreen-sample-apps
 Summary:    HomeScreen sample application
 Version:    0.9.8
@@ -6,6 +12,8 @@ Group:      Automotive/ICO Homescreen
 License:    Apache-2.0
 URL:        http://www.toyota.com
 Source0:    %{name}-%{version}.tar.bz2
+
+BuildRequires:  pkgconfig(libtzplatform-config)
 
 #ico-app-soundsample
 BuildRequires: pkgconfig(glib-2.0)
@@ -57,7 +65,7 @@ Requires: genivi-shell
 Requires: weekeyboard
 
 %description
-HomeScreen sample application
+HomeScreen sample application files
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -74,12 +82,8 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_datadir}/packages/
 mkdir -p %{buildroot}%{_datadir}/icons/default/small
 
-# configurations(ico-app-soundsample)
-%define sound_PREFIX /usr/apps/org.tizen.ico.app-soundsample
-
 mkdir -p %{buildroot}%{sound_PREFIX}/bin/
 mkdir -p %{buildroot}%{sound_PREFIX}/sounds/
-mkdir -p %{buildroot}%{sound_PREFIX}/res/icons/default/small/
 mkdir -p %{buildroot}%{sound_PREFIX}/res/images/
 install -m 0644 ico-app-soundsample/soundsample_config.txt %{buildroot}%{sound_PREFIX}/res/
 install -m 0644 ico-app-soundsample/sound_bg.png %{buildroot}%{sound_PREFIX}/res/images/
@@ -87,11 +91,7 @@ install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.png %{buildroo
 install -m 0644 ico-app-soundsample/musicbox.wav %{buildroot}%{sound_PREFIX}/sounds/
 install -m 0644 ico-app-soundsample/org.tizen.ico.app-soundsample.xml %{buildroot}%{_datadir}/packages/
 
-# configurations(ico-app-vicsample)
-%define vic_PREFIX /usr/apps/org.tizen.ico.app-vicsample
-
 mkdir -p %{buildroot}%{vic_PREFIX}/bin/
-mkdir -p %{buildroot}%{vic_PREFIX}/res/icons/default/small/
 mkdir -p %{buildroot}%{vic_PREFIX}/res/images/
 install -m 0644 ico-app-vicsample/vicsample_config.txt %{buildroot}%{vic_PREFIX}/res/
 install -m 0644 ico-app-vicsample/vicinfo_bg.png %{buildroot}%{vic_PREFIX}/res/images/
@@ -109,7 +109,26 @@ install -m 0644 ico-app-miscellaneous/weekeyboard.xml %{buildroot}%{_datadir}/pa
 install -m 0644 ico-app-miscellaneous/navigator.xml %{buildroot}%{_datadir}/packages/
 install -m 0644 ico-app-miscellaneous/navigator.png %{buildroot}%{_datadir}/icons/default/small/
 
+%post
+/sbin/ldconfig
+# This icons exists in main weston package so we don't package it in.
+# Create a symbolic link to it instead.
+ln -sf %{_datadir}/weston/terminal.png %{_datadir}/icons/default/small/
+# Update the app database.
+pkg_initdb
+ail_initdb
 
+%postun
+if [ "$1" = "0" ]; then
+/sbin/ldconfig
+rm -f %{_datadir}/applications/org.tizen.ico.app-soundsample.desktop
+rm -f %{_datadir}/applications/org.tizen.ico.app-vicsample.desktop
+rm -f %{_datadir}/applications/terminal.desktop
+rm -f %{_datadir}/icons/default/small/terminal.png
+# Update the app database.
+pkg_initdb
+ail_initdb
+fi
 
 %files
 %manifest %{name}.manifest
@@ -134,24 +153,3 @@ install -m 0644 ico-app-miscellaneous/navigator.png %{buildroot}%{_datadir}/icon
 %{_datadir}/packages/navigator.xml
 %{_datadir}/packages/weekeyboard.xml
 %{_datadir}/icons/default/small/navigator.png
-
-%post
-/sbin/ldconfig
-# This icons exists in main weston package so we don't package it in.
-# Create a symbolic link to it instead.
-ln -sf %{_datadir}/weston/terminal.png %{_datadir}/icons/default/small/
-# Update the app database.
-%{_bindir}/pkg_initdb
-%{_bindir}/ail_initdb
-
-%postun
-if [ "$1" = "0" ]; then
-/sbin/ldconfig
-rm -f /usr/share/applications/org.tizen.ico.app-soundsample.desktop
-rm -f /usr/share/applications/org.tizen.ico.app-vicsample.desktop
-rm -f /usr/share/applications/terminal.desktop
-rm -f %{_datadir}/icons/default/small/terminal.png
-# Update the app database.
-%{_bindir}/pkg_initdb
-%{_bindir}/ail_initdb
-fi
