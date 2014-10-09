@@ -12,6 +12,7 @@ Group:      Automotive/ICO Homescreen
 License:    Apache-2.0
 URL:        http://www.toyota.com
 Source0:    %{name}-%{version}.tar.bz2
+Source1001: %{name}.manifest
 
 BuildRequires:  pkgconfig(libtzplatform-config)
 
@@ -69,6 +70,7 @@ HomeScreen sample application files
 
 %prep
 %setup -q -n %{name}-%{version}
+cp %{SOURCE1001} .
 
 %build
 %reconfigure
