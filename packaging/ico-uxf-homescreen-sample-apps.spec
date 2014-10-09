@@ -103,10 +103,10 @@ install -m 0644 ico-app-vicsample/org.tizen.ico.app-vicsample.xml %{buildroot}%{
 install -m 0644 ico-app-miscellaneous/terminal.xml %{buildroot}%{_datadir}/packages/
 
 # install browser package metadata for MiniBrowser
-mkdir -p %{buildroot}%{_bindir}
-install -m 0644 ico-app-miscellaneous/browser.xml %{buildroot}%{_datadir}/packages/
-install -m 0644 ico-app-miscellaneous/browser.png %{buildroot}%{_datadir}/icons/default/small/
-install -m 0755 ico-app-miscellaneous/browser %{buildroot}%{_bindir}
+# mkdir -p %{buildroot}%{_bindir}
+# install -m 0644 ico-app-miscellaneous/browser.xml %{buildroot}%{_datadir}/packages/
+# install -m 0644 ico-app-miscellaneous/browser.png %{buildroot}%{_datadir}/icons/default/small/
+# install -m 0755 ico-app-miscellaneous/browser %{buildroot}%{_bindir}
 
 # install tizen package metadata for weekeyboard
 install -m 0644 ico-app-miscellaneous/weekeyboard.xml %{buildroot}%{_datadir}/packages/
@@ -136,12 +136,12 @@ install -m 0644 ico-app-miscellaneous/navigator.png %{buildroot}%{_datadir}/icon
 %{_datadir}/packages/org.tizen.ico.app-vicsample.xml
 
 # files(ico-app-miscellaneous)
-%{_bindir}/browser
-%{_datadir}/packages/browser.xml
+# %{_bindir}/browser
+# %{_datadir}/packages/browser.xml
 %{_datadir}/packages/terminal.xml
 %{_datadir}/packages/navigator.xml
 %{_datadir}/packages/weekeyboard.xml
-%{_datadir}/icons/default/small/browser.png
+# %{_datadir}/icons/default/small/browser.png
 %{_datadir}/icons/default/small/navigator.png
 
 %post
@@ -158,7 +158,7 @@ if [ "$1" = "0" ]; then
 /sbin/ldconfig
 rm -f /usr/share/applications/org.tizen.ico.app-soundsample.desktop
 rm -f /usr/share/applications/org.tizen.ico.app-vicsample.desktop
-rm -f /usr/share/applications/browser.desktop
+# rm -f /usr/share/applications/browser.desktop
 rm -f /usr/share/applications/terminal.desktop
 rm -f %{_datadir}/icons/default/small/terminal.png
 # Update the app database.
