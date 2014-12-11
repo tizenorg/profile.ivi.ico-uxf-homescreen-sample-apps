@@ -107,9 +107,6 @@ install -m 0644 ico-app-miscellaneous/terminal.xml %{buildroot}%{_datadir}/packa
 # install tizen package metadata for weekeyboard
 install -m 0644 ico-app-miscellaneous/weekeyboard.xml %{buildroot}%{_datadir}/packages/
 
-# install tizen package metadata for mock navigator
-install -m 0644 ico-app-miscellaneous/navigator.xml %{buildroot}%{_datadir}/packages/
-install -m 0644 ico-app-miscellaneous/navigator.png %{buildroot}%{_datadir}/icons/default/small/
 
 %post
 /sbin/ldconfig
@@ -152,6 +149,4 @@ fi
 
 # files(ico-app-miscellaneous)
 %{_datadir}/packages/terminal.xml
-%{_datadir}/packages/navigator.xml
 %{_datadir}/packages/weekeyboard.xml
-%{_datadir}/icons/default/small/navigator.png
